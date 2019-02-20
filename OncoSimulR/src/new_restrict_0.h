@@ -58,8 +58,4 @@ std::vector<double> evalEpistasis(const std::vector<int>& mutatedModules,
 std::vector<double> evalOrderEffects(const std::vector<int>& mutatedM,
 				     const std::vector<epistasis>& OE);
 
-// double evalGenotypeFDFitnessEcuation(const Genotype& ge,
-// 	const fitnessEffectsAll& F,
-// 	const std::vector<Genotype>& Genotypes,
-// 				     const std::vector<spParamsP>& popParams);
 #endif

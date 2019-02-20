@@ -330,5 +330,10 @@ void addToPOM(POM& pom,
 	      const std::string string);
 
 
+double evalGenotypeFDFitnessEcuation(const Genotype& ge,
+ 	const fitnessEffectsAll& F,
+ 	const std::vector<Genotype>& Genotypes,
+ 				     const std::vector<spParamsP>& popParams);
+
 
 #endif
