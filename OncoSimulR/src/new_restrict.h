@@ -329,4 +329,6 @@ void addToPOM(POM& pom,
 void addToPOM(POM& pom,
 	      const std::string string);
 
+
+
 #endif
