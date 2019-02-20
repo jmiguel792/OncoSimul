@@ -29,7 +29,7 @@
 #include <random>
 
 std::string concatIntsString(const std::vector<int>& ints,
-			     const std::string sep);
+			     const std::string sep = ", ");
 
 void checkLegitGenotype(const Genotype& ge,
 			const fitnessEffectsAll& F);
