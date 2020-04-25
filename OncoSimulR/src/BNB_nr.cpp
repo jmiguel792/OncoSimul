@@ -2035,20 +2035,20 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 	if( (typeModel == TypeModel::mcfarlandlog) ) {
 	  
 	  updateRatesFDFMcFarlandLog(popParams, Genotypes, fitnessEffects,
-				     adjust_fitness_MF, K, totPopSize);
+				     adjust_fitness_MF, K, totPopSize, currentTime);
 	  
 	} else if( (typeModel == TypeModel::mcfarlandlog_d) ) {
 	  
 	  updateRatesFDFMcFarlandLog_D(popParams, Genotypes, fitnessEffects,
-				     adjust_fitness_MF, K, totPopSize);
+				     adjust_fitness_MF, K, totPopSize, currentTime);
 	  
 	} else if(typeModel == TypeModel::exp){
 	  
-	  updateRatesFDFExp(popParams, Genotypes, fitnessEffects);
+	  updateRatesFDFExp(popParams, Genotypes, fitnessEffects, currentTime);
 	  
 	}else if(typeModel == TypeModel::bozic1){
 	  
-	  updateRatesFDFBozic(popParams, Genotypes, fitnessEffects);
+	  updateRatesFDFBozic(popParams, Genotypes, fitnessEffects, currentTime);
 	  
 	} else {
 	  throw std::invalid_argument("this ain't a valid typeModel");
