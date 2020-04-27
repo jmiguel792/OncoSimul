@@ -1398,11 +1398,11 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   
   double T = currentTime;
   
-  //std::cout << "value of T: " << T << " ; ";
-  
+  /*
   if (T == std::numeric_limits<double>::infinity() 
         or T == -std::numeric_limits<double>::infinity()) {
     T = 0;}
+  */
   
   //std::cout << "value of T: " << T << " ; ";
   
