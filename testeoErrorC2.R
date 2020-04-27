@@ -1,4 +1,4 @@
-  library(OncoSimulR)
+library(OncoSimulR)
 
 ###########################################################
 r1fd <- data.frame(Genotype = c("WT", "A", "B", "A, B"), 
@@ -21,12 +21,14 @@ full2mutator_ <- OncoSimulR:::matchGeneIDs(mtfd, afe4)$Reduced
 
 ##ERROR## evalRGenotypeAndMut -> new_restrict.cpp
 #############################################################
+Rcpp::sourceCpp('OncoSimul-fdf-COPY/OncoSimulR/src/new_restrict.cpp')
 allf <- t(vapply(allg$genotNums,
                  function(x) evalRGenotypeAndMut(x,
                                                  rFE = afe4,
                                                  muEF= mtfd,
                                                  full2mutator_ = full2mutator_,
                                                  verbose = FALSE,
-                                                 prodNeg = FALSE),
+                                                 prodNeg = FALSE,
+                                                 currentTime = 0),
                  c(1.1, 2.2)))
 ##############################################################
