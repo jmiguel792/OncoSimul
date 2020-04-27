@@ -1713,7 +1713,7 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
 					Rcpp::IntegerVector full2mutator_,
 					bool verbose,
 					bool prodNeg,
-					double currentTime) {
+          double currentTime) {
   // Basically to test evalMutator. We repeat the conversion to genotype,
   // but that is unavoidable here.
 

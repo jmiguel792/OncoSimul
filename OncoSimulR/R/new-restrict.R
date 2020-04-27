@@ -1467,7 +1467,8 @@ evalGenotype <- function(genotype,
                        verbose = verbose,
                        echo = echo,
                        model  = model ,
-                       calledBy_= "evalGenotype"
+                       calledBy_= "evalGenotype",
+                       currentTime = 0
                        )
 }
 
@@ -1800,7 +1801,7 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                    addwt = FALSE,
                                    model = "",
                                    currentTime = 0){
-##                                   minimal = FALSE) {
+##                                 minimal = FALSE) {
     ## if(!minimal)
     allg <- generateAllGenotypes(fitnessEffects = fitnessEffects,
                                  order = order, max = max)
