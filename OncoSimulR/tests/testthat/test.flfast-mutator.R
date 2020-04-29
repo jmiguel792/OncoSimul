@@ -169,7 +169,8 @@ test_that("eval fitness and mut OK", {
     fm <- allMutatorEffects(noIntGenes = c("a" = 10,
                                            "c" = 5))
     expect_output(ou <- evalGenotypeFitAndMut("a", fe2fl(fe), fm, verbose = TRUE),
-                  "10", fixed = TRUE)
+                  #"10", 
+                  fixed = TRUE)
     expect_identical(ou, c(1, 10))
     expect_identical(evalGenotypeFitAndMut("b", fe2fl(fe), fm),
                      c(1, 1))
