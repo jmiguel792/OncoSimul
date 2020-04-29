@@ -33,11 +33,11 @@ evalAllGenotypesMut(mutatorEffects, max = 256, addwt = FALSE)
 
 evalGenotypeFitAndMut(genotype, fitnessEffects,
                       mutatorEffects, verbose = FALSE, echo = FALSE,
-                      model = "")
+                      model = "", currentTime = 0)
 
 evalAllGenotypesFitAndMut(fitnessEffects, mutatorEffects,
                           order = FALSE, max = 256, addwt = FALSE,
-                          model = "")
+                          model = "", currentTime = 0)
 
 
 }
@@ -95,6 +95,11 @@ evalAllGenotypesFitAndMut(fitnessEffects, mutatorEffects,
   some examples, as shown in the vignette.
 }
 
+\item{currentTime}{
+  Set to default 0 from R. It will be updated during simulation process, since
+  currentTime is initialized in BNB algorithm. It is useful to develop OncoSimul
+  interventions using the frequency-dependent-fitness functionality.
+}
 
 }
 \value{
