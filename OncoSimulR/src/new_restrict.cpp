@@ -1567,8 +1567,8 @@ double evalMutator(const Genotype& fullge,
 		  const fitnessEffectsAll& muEF,
 			const std::vector<Genotype>& Genotypes,
 			const std::vector<spParamsP>& popParams,
-		  bool verbose = false,
-		  double currentTime = 0) {
+			const double& currentTime,
+		  bool verbose = false) {
   // In contrast to nr_fitness, that sets birth and death, this simply
   // returns the multiplication factor for the mutation rate. This is used
   // by mutationFromParent and mutationFromScratch

@@ -21,7 +21,7 @@ full2mutator_ <- OncoSimulR:::matchGeneIDs(mtfd, afe4)$Reduced
 
 ##ERROR## evalRGenotypeAndMut -> new_restrict.cpp
 #############################################################
-Rcpp::sourceCpp('OncoSimul-fdf-COPY/OncoSimulR/src/new_restrict.cpp')
+Rcpp::sourceCpp('OncoSimul-time/OncoSimulR/src/new_restrict.cpp')
 allf <- t(vapply(allg$genotNums,
                  function(x) evalRGenotypeAndMut(x,
                                                  rFE = afe4,
