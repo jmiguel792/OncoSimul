@@ -1716,11 +1716,28 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
           double currentTime) {
   // Basically to test evalMutator. We repeat the conversion to genotype,
   // but that is unavoidable here.
-
+  
+  const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
+  
+  if(rG.size() == 0 && fdf == false) {
+    // Why don't we evaluate it?
+    Rcpp::warning("WARNING: you have evaluated fitness/mutator status of a genotype of length zero.");
+    return 1;
+  }
 
   NumericVector out(2);
-	const std::vector<Genotype> Genotypes(0);
-	const std::vector<spParamsP> popParams(0);
+	std::vector<Genotype> Genotypes;
+	std::vector<spParamsP> popParams;
+	
+	if(fdf){
+	  //std::vector<int> spPopSizes;
+	  //spPopSizes = as<std::vector<int> > (rFE["spPopSizes"]);
+	  std::vector<int> spPopSizes = as<std::vector<int> > (rFE["spPopSizes"]);
+	  Rcpp::List fl_df = rFE["fitnessLandscape_df"];
+	  std::vector<std::string> genotNames = Rcpp::as<std::vector<std::string> >(fl_df["Genotype"]);
+	  Genotypes = genotypesFromScratch(genotNames);
+	  popParams = popParamsFromScratch(spPopSizes);
+	}
 
   // For fitness. Except for "evalGenotypeFromR", all is done as in the
   // rest of the internal code for evaluating a genotype.
@@ -1728,6 +1745,7 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   fitnessEffectsAll muef = convertFitnessEffects(muEF);
   Genotype g = convertGenotypeFromR(rG, F);
   vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime);
+  
   if(!prodNeg)
     out[0] = prodFitness(s);
   else

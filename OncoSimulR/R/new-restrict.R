@@ -1801,20 +1801,13 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                    addwt = FALSE,
                                    model = "",
                                    currentTime = 0){
-##                                 minimal = FALSE) {
-    ## if(!minimal)
-    allg <- generateAllGenotypes(fitnessEffects = fitnessEffects,
-                                 order = order, max = max)
-    ## else
-        ## allg <- generateAllGenotypes_minimal(fitnessEffects = fitnessEffects,
-        ##                                      max = max)
+                                   ##minimal = FALSE) {
 
     if(model %in% c("Bozic", "bozic1", "bozic2") ) {
         prodNeg <- TRUE
     } else {
         prodNeg <- FALSE
     }
-
 
     ## Must deal with objects from previous, pre flfast, modifications
     if(!exists("fitnessLandscape_gene_id", where = fitnessEffects)) {
@@ -1826,13 +1819,27 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
         warning("Bozic model passing a fitness landscape will not work",
                     " for now.")
     }
+    
+    if (fitnessEffects$frequencyDependentFitness) {
+      if (is.null(fitnessEffects$spPopSizes))
+        stop("You have a NULL spPopSizes")
+      if (!(length(fitnessEffects$spPopSizes) == nrow(fitnessEffects$fitnessLandscape)))
+        stop("spPopSizes must be as long as number of genotypes")
+    }
+  
+    ## if(!minimal)
+    allg <- generateAllGenotypes(fitnessEffects = fitnessEffects,
+                                 order = order, max = max)
+    ## else
+    ## allg <- generateAllGenotypes_minimal(fitnessEffects = fitnessEffects,
+    ##                                      max = max)
 
     full2mutator_ <- matchGeneIDs(mutatorEffects,
                                   fitnessEffects)$Reduced
     allf <- t(vapply(allg$genotNums,
                    function(x) evalRGenotypeAndMut(x,
                                                    rFE = fitnessEffects,
-                                                   muEF= mutatorEffects,
+                                                   muEF = mutatorEffects,
                                                    full2mutator_ = full2mutator_,
                                                    verbose = FALSE,
                                                    prodNeg = prodNeg,
@@ -1851,11 +1858,6 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
     class(df) <- c("evalAllGenotypesFitAndMut", class(df))
     return(df)
 }
-
-
-
-
-
 
 ## evalAllGenotypes <- function(fitnessEffects, order = TRUE, max = 256,
 ##                              addwt = FALSE,
