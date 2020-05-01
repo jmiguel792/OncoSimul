@@ -1688,6 +1688,7 @@ evalAllGenotypesORMut <- function(fmEffects,
                               fmEffects, FALSE, prodNeg, calledBy_, currentTime)
       allf <- c(evalWT, allf)
       genotypes <- c("WT", allg$genotNames)
+      
     }else{
       genotypes <- allg$genotNames
     }
@@ -1845,8 +1846,11 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                                    prodNeg = prodNeg,
                                                    currentTime = currentTime),
                    c(1.1, 2.2)))
+    
+    #check this tomorrow -> mutator.test
 
-    df <- data.frame(Genotype = allg$genotNames, Fitness = allf[, 1],
+    df <- data.frame(Genotype = allg$genotNames, 
+                     Fitness = allf[, 1],
                      MutatorFactor = allf[, 2],
                      stringsAsFactors = FALSE)
     if(addwt)
