@@ -1846,8 +1846,6 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                                    prodNeg = prodNeg,
                                                    currentTime = currentTime),
                    c(1.1, 2.2)))
-    
-    #check this tomorrow -> mutator.test
 
     df <- data.frame(Genotype = allg$genotNames, 
                      Fitness = allf[, 1],
