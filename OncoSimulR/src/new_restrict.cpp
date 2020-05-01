@@ -1719,11 +1719,13 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   
   const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
   
+  /*
   if(rG.size() == 0 && fdf == false) {
     // Why don't we evaluate it?
     Rcpp::warning("WARNING: you have evaluated fitness/mutator status of a genotype of length zero.");
     return 1;
   }
+  */
 
   NumericVector out(2);
 	std::vector<Genotype> Genotypes;
