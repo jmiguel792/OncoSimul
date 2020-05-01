@@ -1821,7 +1821,8 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                     " for now.")
     }
     
-    if (fitnessEffects$frequencyDependentFitness) {
+    
+    if(fitnessEffects$frequencyDependentFitness) {
       if (is.null(fitnessEffects$spPopSizes))
         stop("You have a NULL spPopSizes")
       if (!(length(fitnessEffects$spPopSizes) == nrow(fitnessEffects$fitnessLandscape)))
