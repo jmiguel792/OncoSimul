@@ -11490,10 +11490,7 @@ plot(s_3_a, show = "genotypes", type = "line",
 ```
 
 
-\clearpage
-
-
-# Simulating therapeutic interventions {#timefdf}
+## Simulating therapeutic interventions {#timefdf}
 
 In this section we show some examples using the time dependent frecuency functionality by
 which fitness definition can be done with the T variable, which is actually the current time defined
@@ -11536,7 +11533,7 @@ plot(sim, show = "genotypes")
 ```
 
 
-## Adaptive control of competitive release and chemotherapeutic resistance {#adapChemo}
+### Adaptive control of competitive release and chemotherapeutic resistance {#adapChemo}
 
 The code structure of the previous example can be used, for instance, to simulate
 the effect of different chemotherapy treatment protocols.
