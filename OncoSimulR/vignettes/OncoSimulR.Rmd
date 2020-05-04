@@ -9105,8 +9105,7 @@ plotClonePhylog(s6, keepEvents = TRUE)
 
 ```
 
-Note, though, that **evalAllGenotypesFitAndMut** does not currently
-work with frequency-dependent fitnes:
+Note that **evalAllGenotypesFitAndMut** currently work with frequency-dependent fitness:
 
 ```{r noworkeval}
 
@@ -9115,7 +9114,7 @@ evalAllGenotypes(allFitnessEffects(genotFitness = r1fd,
                                    frequencyType = "rel",
                                    spPopSizes = c(10, 20, 30, 40)))
 
-## Fitness is wrong
+
 evalAllGenotypesFitAndMut(allFitnessEffects(genotFitness = r1fd, 
                                    frequencyDependentFitness = TRUE,
                                    frequencyType = "rel",
@@ -11493,6 +11492,73 @@ plot(s_3_a, show = "genotypes", type = "line",
 
 \clearpage
 
+
+# Simulating therapeutic interventions {#timefdf}
+
+In this section we show some examples using the time dependent frecuency functionality by
+which fitness definition can be done with the T variable, which is actually the current time defined
+in the simulation. This examples are based on the contribution made by the working group of
+the following people from the master's in Bioinformatics and Computational Biology (UAM): 
+Niklas Endres, Rafael Barrero Rodríguez, Rosalía Palomino Cabrera and Silvia Talavera Marcos.
+
+This first example is an artificial simulation, but it shows how the fitness of a genotype can
+suddenly increase at a certain given timepoint.
+
+
+```{r timefdf1}
+
+## Fitness definition
+fl <- data.frame(
+  Genotype = c("WT", "A", "B"),
+  Fitness = c("1", "if (T>50) 1.5; else 0;", "0*f_") ,
+  stringsAsFactors = FALSE
+)
+
+fe <- allFitnessEffects(genotFitness = fl, 
+                        frequencyDependentFitness = TRUE,
+                        frequencyType = "rel")
+
+## Simulation                        
+sim <- oncoSimulIndiv(fe,
+                      model = "McFL", 
+                      onlyCancer = FALSE, 
+                      finalTime = 100,
+                      mu = 0.01,
+                      initSize = 5000, 
+                      keepPhylog = FALSE,
+                      seed = NULL, 
+                      errorHitMaxTries = FALSE, 
+                      errorHitWallTime = FALSE)
+
+## Plot the results                      
+plot(sim, show = "genotypes")                        
+
+```
+
+
+## Adaptive control of competitive release and chemotherapeutic resistance {#adapChemo}
+
+The code structure of the previous example can be used, for instance, to simulate
+the effect of different chemotherapy treatment protocols.
+
+An example of using these game theory concepts is the adaptive theory. The primary
+goal is to maximize the time of tumor control by using the tumor cells that are
+sensitive to treatment as agents that can supress the proliferation of the resistant cells.
+Thus, a significant residual populations of tumor cells can be under control to inhibit the 
+growth of cells that otherwise cannot control: killed vs resistant.
+
+Newton and Ma @PhysRevE built simulations for a tumor consisting in two types of cells: 
+resistant to chemotherapy and sensitive to chemotherapy. The idea is to promote
+competition among tumor cells in order to prevent tumor growth.
+
+To do this, they developed a **three-component Prisoner's Dilemma scenario** including 
+healthy (**H**) cells as well as chemoresistant (**R**) and chemosensitive (**S**) cancer
+cells. Healthy cells are cooperators, while cancer cells are defectors.
+
+This is the system's payoff matrix:
+
+
+\clearpage
 
 
 # Measures of evolutionary predictability and genotype diversity {#evolpredszend}
