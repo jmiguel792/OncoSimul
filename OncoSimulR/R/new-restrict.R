@@ -495,8 +495,8 @@ allFitnessORMutatorEffects <- function(rT = NULL,
                                        ## refFE = NULL,
                                        calledBy = NULL,
                                        frequencyDependentFitness = FALSE,
-                                       frequencyType = "freq_dep_not_used",
-                                       spPopSizes = NULL) {
+                                       frequencyType = "freq_dep_not_used"){
+                                       #spPopSizes = NULL) {
   ## From allFitnessEffects. Generalized so we deal with Fitness
   ## and mutator.
 
@@ -541,8 +541,10 @@ allFitnessORMutatorEffects <- function(rT = NULL,
       rT$typeDep <- as.character(rT$typeDep)
       rtNames <- unique(c(rT$parent, rT$child))
     }
-    if(!is.null(spPopSizes))
-      warning("spPopSizes will be considered NULL if frequencyDependentFitness = FALSE")
+    
+    #if(!is.null(spPopSizes))
+      #warning("spPopSizes will be considered NULL if frequencyDependentFitness = FALSE")
+    
     if(!is.null(epistasis)) {
       long.epistasis <- to.long.epist.order(epistasis, ":")
       ## epiNames <- unique(unlist(lapply(long.epistasis, function(x) x$ids)))
@@ -555,12 +557,14 @@ allFitnessORMutatorEffects <- function(rT = NULL,
     } else {
       long.epistasis <- list()
     }
+    
     if(!is.null(orderEffects)) {
       long.orderEffects <- to.long.epist.order(orderEffects, ">")
       orNames <- unique(unlist(lapply(long.orderEffects, function(x) x$ids)))
     } else {
       long.orderEffects <- list()
     }
+    
     allModuleNames <- unique(c(rtNames, epiNames, orNames))
     if(is.null(geneToModule)) {
       gMOneToOne <- TRUE
@@ -574,6 +578,7 @@ allFitnessORMutatorEffects <- function(rT = NULL,
         stop(paste("Some values in rT, epistasis, ",
                    "or order effects not in geneToModule"))
     }
+    
     geneModule <- gm.to.geneModuleL(geneToModule, one.to.one = gMOneToOne)
 
     idm <- unique(geneModule$ModuleNumID)
@@ -677,6 +682,7 @@ allFitnessORMutatorEffects <- function(rT = NULL,
     } else {
       graphE <- NULL
     }
+    
     if(!is.null(drvNames)) {
       drv <- unique(getGeneIDNum(geneModule, geneNoInt, fitnessLandscape_gene_id,
                                  drvNames))
@@ -719,14 +725,15 @@ allFitnessORMutatorEffects <- function(rT = NULL,
                 fitnessLandscape_gene_id = fitnessLandscape_gene_id,
                 fitnessLandscapeVariables = vector(mode = "character", length = 0L),
                 frequencyDependentFitness = frequencyDependentFitness,
-                frequencyType = frequencyType,
-                spPopSizes = vector(mode = "integer", length = 0L)
-    )
+                frequencyType = frequencyType)
+                #spPopSizes = vector(mode = "integer", length = 0L)
+    
     if(calledBy == "allFitnessEffects") {
       class(out) <- c("fitnessEffects")
     } else if(calledBy == "allMutatorEffects") {
       class(out) <- c("mutatorEffects")
     }
+
   }else{
 
     if(is.null(genotFitness)) {
@@ -788,8 +795,8 @@ allFitnessORMutatorEffects <- function(rT = NULL,
                 fitnessLandscape_gene_id = fitnessLandscape_gene_id,
                 fitnessLandscapeVariables = fitnessLandscapeVariables,
                 frequencyDependentFitness = frequencyDependentFitness,
-                frequencyType = frequencyType,
-                spPopSizes = spPopSizes
+                frequencyType = frequencyType
+                #spPopSizes = spPopSizes
               )
 
     class(out) <- c("fitnessEffects")
@@ -1010,8 +1017,8 @@ allFitnessEffects <- function(rT = NULL,
                               genotFitness = NULL,
                               keepInput = TRUE,
                               frequencyDependentFitness = FALSE,
-                              frequencyType = NA,
-                              spPopSizes = NULL) {
+                              frequencyType = NA) {
+                              #spPopSizes = NULL) {
 
     if(!frequencyDependentFitness){
         
@@ -1051,8 +1058,8 @@ allFitnessEffects <- function(rT = NULL,
       genotFitness = genotFitness_std,
       calledBy = "allFitnessEffects",
       frequencyDependentFitness = FALSE,
-      frequencyType = frequencyType,
-      spPopSizes = spPopSizes)
+      frequencyType = frequencyType)
+      #spPopSizes = spPopSizes)
 
   }else{
 
@@ -1078,8 +1085,8 @@ allFitnessEffects <- function(rT = NULL,
         genotFitness = genotFitness_std,
         calledBy = "allFitnessEffects",
         frequencyDependentFitness = TRUE,
-        frequencyType = frequencyType,
-        spPopSizes = spPopSizes)
+        frequencyType = frequencyType)
+        #spPopSizes = spPopSizes)
     }
   }
 }
@@ -1331,6 +1338,7 @@ allFitnessEffects <- function(rT = NULL,
 
 evalGenotypeORMut <- function(genotype,
                               fmEffects,
+                              spPopSizes,
                               verbose = FALSE,
                               echo = FALSE,
                               model = "",
@@ -1425,6 +1433,7 @@ evalGenotypeORMut <- function(genotype,
 
   ff <- evalRGenotype(rG = genotype,
                       rFE = fmEffects,
+                      spPop = spPopSizes,
                       verbose = verbose,
                       prodNeg = prodNeg,
                       calledBy_ = calledBy_,
@@ -1447,35 +1456,39 @@ evalGenotypeORMut <- function(genotype,
 
 evalGenotype <- function(genotype,
                          fitnessEffects,
+                         spPopSizes,
                          verbose = FALSE,
                          echo = FALSE,
                          model = "") {
+  
     if(inherits(fitnessEffects, "mutatorEffects"))
          stop("You are trying to get the fitness of a mutator specification. ",
              "You did not pass an object of class fitnessEffects.")
 
    if (fitnessEffects$frequencyDependentFitness) {
-     if (is.null(fitnessEffects$spPopSizes))
+     if (is.null(spPopSizes))
       stop("You have a NULL spPopSizes")
-    if (!(length(fitnessEffects$spPopSizes) == nrow(fitnessEffects$fitnessLandscape)))
+    if (!(length(spPopSizes) == nrow(fitnessEffects$fitnessLandscape)))
       stop("spPopSizes must be as long as number of genotypes")
    }
 
 
     evalGenotypeORMut(genotype = genotype,
-                       fmEffects = fitnessEffects,
-                       verbose = verbose,
-                       echo = echo,
-                       model  = model ,
-                       calledBy_= "evalGenotype",
-                       currentTime = 0
-                       )
+                      fmEffects = fitnessEffects,
+                      spPopSizes = spPopSizes,
+                      verbose = verbose,
+                      echo = echo,
+                      model  = model ,
+                      calledBy_= "evalGenotype",
+                      currentTime = 0
+                      )
 }
 
 
 evalGenotypeFitAndMut <- function(genotype,
                                   fitnessEffects,
                                   mutatorEffects,
+                                  spPopSizes,
                                   verbose = FALSE,
                                   echo = FALSE,
                                   model = "",
@@ -1527,6 +1540,7 @@ evalGenotypeFitAndMut <- function(genotype,
     evalRGenotypeAndMut(genotype,
                         fitnessEffects,
                         mutatorEffects,
+                        spPopSizes,
                         full2mutator_,
                         verbose = verbose,
                         prodNeg = prodNeg,
@@ -1593,6 +1607,7 @@ evalAllGenotypesORMut <- function(fmEffects,
                                   order = FALSE, max = 256,
                                   addwt = FALSE,
                                   model = "",
+                                  spPopSizes = spPopSizes,
                                   calledBy_ = "",
                                   currentTime = 0) {
 ##                                minimal = FALSE) {
@@ -1609,9 +1624,9 @@ evalAllGenotypesORMut <- function(fmEffects,
              "You did not pass an object of class mutatorEffects.")
 
     if (fmEffects$frequencyDependentFitness) {
-        if (is.null(fmEffects$spPopSizes))
+        if (is.null(spPopSizes))
          stop("You have a NULL spPopSizes")
-        if (!(length(fmEffects$spPopSizes) == nrow(fmEffects$fitnessLandscape)))
+        if (!(length(spPopSizes) == nrow(fmEffects$fitnessLandscape)))
           stop("spPopSizes must be as long as number of genotypes")
     }
 
@@ -1676,6 +1691,7 @@ evalAllGenotypesORMut <- function(fmEffects,
     allf <- vapply(allg$genotNums,
                    function(x) evalRGenotype(x,
                                              fmEffects,
+                                             spPopSizes,
                                              FALSE,
                                              prodNeg,
                                              calledBy_,
@@ -1685,7 +1701,7 @@ evalAllGenotypesORMut <- function(fmEffects,
 
     if (fmEffects$frequencyDependentFitness){
       evalWT <- evalRGenotype(vector(mode = "integer", length = 0L),
-                              fmEffects, FALSE, prodNeg, calledBy_, currentTime)
+                              fmEffects, spPopSizes, FALSE, prodNeg, calledBy_, currentTime)
       allf <- c(evalWT, allf)
       genotypes <- c("WT", allg$genotNames)
       
@@ -1722,7 +1738,8 @@ evalAllGenotypes <- function(fitnessEffects,
                              order = FALSE,
                              max = 256,
                              addwt = FALSE,
-                             model = "") {
+                             model = "",
+                             spPopSizes = NULL) {
     ## Must deal with objects from previous, pre flfast, modifications
     if(!exists("fitnessLandscape_gene_id", where = fitnessEffects)) {
         fitnessEffects$fitnessLandscape_df <- data.frame()
@@ -1740,6 +1757,7 @@ evalAllGenotypes <- function(fitnessEffects,
         max = max,
         addwt = addwt,
         model = model,
+        spPopSizes = spPopSizes,
         calledBy_= "evalGenotype",
         currentTime = 0
     )
@@ -1801,6 +1819,7 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                    order = FALSE, max = 256,
                                    addwt = FALSE,
                                    model = "",
+                                   spPopSizes = NULL,
                                    currentTime = 0){
                                    ##minimal = FALSE) {
 
@@ -1823,9 +1842,9 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
     
     
     if(fitnessEffects$frequencyDependentFitness) {
-      if (is.null(fitnessEffects$spPopSizes))
+      if (is.null(spPopSizes))
         stop("You have a NULL spPopSizes")
-      if (!(length(fitnessEffects$spPopSizes) == nrow(fitnessEffects$fitnessLandscape)))
+      if (!(length(spPopSizes) == nrow(fitnessEffects$fitnessLandscape)))
         stop("spPopSizes must be as long as number of genotypes")
     }
   
@@ -1842,6 +1861,7 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                    function(x) evalRGenotypeAndMut(x,
                                                    rFE = fitnessEffects,
                                                    muEF = mutatorEffects,
+                                                   spPop = spPopSizes,
                                                    full2mutator_ = full2mutator_,
                                                    verbose = FALSE,
                                                    prodNeg = prodNeg,

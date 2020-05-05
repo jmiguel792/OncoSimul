@@ -1647,6 +1647,7 @@ std::vector<spParamsP> popParamsFromScratch(const std::vector<int>& spPopSizes){
 // [[Rcpp::export]]
 double evalRGenotype(Rcpp::IntegerVector rG,
 	Rcpp::List rFE,
+	Rcpp::IntegerVector spPop,
 	bool verbose,
 	bool prodNeg,
 	Rcpp::CharacterVector calledBy_,
@@ -1669,7 +1670,7 @@ double evalRGenotype(Rcpp::IntegerVector rG,
 	if(fdf){
 		//std::vector<int> spPopSizes;
 		//spPopSizes = as<std::vector<int> > (rFE["spPopSizes"]);
-		std::vector<int> spPopSizes = as<std::vector<int> > (rFE["spPopSizes"]);
+		std::vector<int> spPopSizes = as<std::vector<int> > (spPop);
 		Rcpp::List fl_df = rFE["fitnessLandscape_df"];
 		std::vector<std::string> genotNames = Rcpp::as<std::vector<std::string> >(fl_df["Genotype"]);
 		Genotypes = genotypesFromScratch(genotNames);
@@ -1710,6 +1711,7 @@ double evalRGenotype(Rcpp::IntegerVector rG,
 Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
 					Rcpp::List rFE,
 					Rcpp::List muEF,
+					Rcpp::IntegerVector spPop,
 					Rcpp::IntegerVector full2mutator_,
 					bool verbose,
 					bool prodNeg,
@@ -1734,7 +1736,7 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
 	if(fdf){
 	  //std::vector<int> spPopSizes;
 	  //spPopSizes = as<std::vector<int> > (rFE["spPopSizes"]);
-	  std::vector<int> spPopSizes = as<std::vector<int> > (rFE["spPopSizes"]);
+	  std::vector<int> spPopSizes = as<std::vector<int> > (spPop);
 	  Rcpp::List fl_df = rFE["fitnessLandscape_df"];
 	  std::vector<std::string> genotNames = Rcpp::as<std::vector<std::string> >(fl_df["Genotype"]);
 	  Genotypes = genotypesFromScratch(genotNames);
