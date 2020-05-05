@@ -1660,7 +1660,8 @@ double evalRGenotype(Rcpp::IntegerVector rG,
 
 	if(rG.size() == 0 && fdf == false) {
 		// Why don't we evaluate it?
-		Rcpp::warning("WARNING: you have evaluated fitness/mutator status of a genotype of length zero.");
+		Rcpp::warning(
+		  "WARNING: you have evaluated fitness/mutator status of a genotype of length zero.");
 		return 1;
 	}
 

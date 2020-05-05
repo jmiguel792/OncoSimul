@@ -1338,7 +1338,7 @@ allFitnessEffects <- function(rT = NULL,
 
 evalGenotypeORMut <- function(genotype,
                               fmEffects,
-                              spPopSizes,
+                              spPopSizes = NULL,
                               verbose = FALSE,
                               echo = FALSE,
                               model = "",
@@ -1361,6 +1361,11 @@ evalGenotypeORMut <- function(genotype,
       (nrow(fmEffects$fitnessLandscape_df) > 0)) {
     warning("Bozic model passing a fitness landscape will not work",
             " for now.")
+  }
+  
+  # This will avoid errors is evalRGenotype where spPopSizes = NULL  
+  if (!fmEffects$frequencyDependentFitness) {
+    spPopSizes = 0
   }
 
   if(echo)
@@ -1504,6 +1509,12 @@ evalGenotypeFitAndMut <- function(genotype,
         warning("Bozic model passing a fitness landscape will not work",
                     " for now.")
     }
+  
+    # This will avoid errors is evalRGenotype where spPopSizes = NULL  
+    if (!fitnessEffects$frequencyDependentFitness) {
+    spPopSizes = 0
+    }
+  
     prodNeg <- FALSE
     ## Next is from evalGenotypeAndMut
     if(echo)
@@ -1629,8 +1640,11 @@ evalAllGenotypesORMut <- function(fmEffects,
         if (!(length(spPopSizes) == nrow(fmEffects$fitnessLandscape)))
           stop("spPopSizes must be as long as number of genotypes")
     }
-
-
+    
+    # This will avoid errors is evalRGenotype where spPopSizes = NULL  
+    if (!fmEffects$frequencyDependentFitness) {
+      spPopSizes = 0
+    }
 
     ## if(!minimal)
 
@@ -1840,12 +1854,16 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                     " for now.")
     }
     
-    
     if(fitnessEffects$frequencyDependentFitness) {
       if (is.null(spPopSizes))
         stop("You have a NULL spPopSizes")
       if (!(length(spPopSizes) == nrow(fitnessEffects$fitnessLandscape)))
         stop("spPopSizes must be as long as number of genotypes")
+    }
+  
+    # This will avoid errors is evalRGenotype where spPopSizes = NULL  
+    if (!fitnessEffects$frequencyDependentFitness) {
+    spPopSizes = 0
     }
   
     ## if(!minimal)
