@@ -1494,7 +1494,7 @@ evalGenotype <- function(genotype,
 evalGenotypeFitAndMut <- function(genotype,
                                   fitnessEffects,
                                   mutatorEffects,
-                                  spPopSizes,
+                                  spPopSizes = NULL,
                                   verbose = FALSE,
                                   echo = FALSE,
                                   model = "",
@@ -1513,7 +1513,7 @@ evalGenotypeFitAndMut <- function(genotype,
   
     # This will avoid errors is evalRGenotype where spPopSizes = NULL  
     if (!fitnessEffects$frequencyDependentFitness) {
-    spPopSizes = 0
+      spPopSizes = 0
     }
   
     prodNeg <- FALSE

@@ -20,25 +20,27 @@ Evaluate fitness/mutator effects of one or all possible genotypes.
 
 \usage{
 
-evalGenotype(genotype, fitnessEffects, verbose = FALSE, echo = FALSE,
-model = "")
+evalGenotype(genotype, fitnessEffects, spPopSizes = NULL,
+             verbose = FALSE, echo = FALSE, model = "",
+             currentTime = 0)
 
-evalGenotypeMut(genotype, mutatorEffects, verbose = FALSE, echo = FALSE)
+evalGenotypeMut(genotype, mutatorEffects, spPopSizes = NULL,
+                verbose = FALSE, echo = FALSE, currentTime = 0)
 
 evalAllGenotypes(fitnessEffects, order = FALSE, max = 256, addwt = FALSE,
-model = "")
+                 model = "", spPopSizes = NULL, currentTime = 0)
 
-evalAllGenotypesMut(mutatorEffects, max = 256, addwt = FALSE)
-
+evalAllGenotypesMut(mutatorEffects, max = 256, addwt = FALSE,
+                    spPopSizes = NULL, currentTime = 0)
 
 evalGenotypeFitAndMut(genotype, fitnessEffects,
-                      mutatorEffects, verbose = FALSE, echo = FALSE,
+                      mutatorEffects, spPopSizes = NULL,
+                      verbose = FALSE, echo = FALSE,
                       model = "", currentTime = 0)
 
 evalAllGenotypesFitAndMut(fitnessEffects, mutatorEffects,
                           order = FALSE, max = 256, addwt = FALSE,
-                          model = "", currentTime = 0)
-
+                          model = "", spPopSizes = NULL, currentTime = 0)
 
 }
 \arguments{
