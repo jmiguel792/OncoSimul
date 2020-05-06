@@ -1366,6 +1366,7 @@ evalGenotypeORMut <- function(genotype,
   # This will avoid errors is evalRGenotype where spPopSizes = NULL  
   if (!fmEffects$frequencyDependentFitness) {
     spPopSizes = 0
+    message("spPopSizes is considered as 0")
   }
 
   if(echo)
@@ -1514,6 +1515,7 @@ evalGenotypeFitAndMut <- function(genotype,
     # This will avoid errors is evalRGenotype where spPopSizes = NULL  
     if (!fitnessEffects$frequencyDependentFitness) {
       spPopSizes = 0
+      message("spPopSizes is considered as 0")
     }
   
     prodNeg <- FALSE
@@ -1646,6 +1648,7 @@ evalAllGenotypesORMut <- function(fmEffects,
     # This will avoid errors is evalRGenotype where spPopSizes = NULL  
     if (!fmEffects$frequencyDependentFitness) {
       spPopSizes = 0
+      message("spPopSizes is considered as 0")
     }
 
     ## if(!minimal)
@@ -1867,6 +1870,7 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
     # This will avoid errors is evalRGenotype where spPopSizes = NULL  
     if (!fitnessEffects$frequencyDependentFitness) {
       spPopSizes = 0
+      message("spPopSizes is considered as 0")
     }
   
     ## if(!minimal)

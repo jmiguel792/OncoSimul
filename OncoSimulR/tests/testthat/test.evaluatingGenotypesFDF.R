@@ -18,8 +18,8 @@ test_that("testing single gene evaluation", {
                             #spPopSizes = c(5000, 2500, 2500, 7500))
   
   afe2 <- allFitnessEffects(genotFitness = r2, 
-                            frequencyDependentFitness = FALSE, 
-                            spPopSizes = c(5000, 2500, 2500, 7500))
+                            frequencyDependentFitness = FALSE)
+                            #spPopSizes = c(5000, 2500, 2500, 7500))
   
   afe3 <- allFitnessEffects(genotFitness = r1, 
                             frequencyDependentFitness = TRUE, 
@@ -68,7 +68,7 @@ test_that("testing single gene evaluation", {
                "You have a NULL spPopSizes")
   
   expect_error(evalGenotype(genotype = "1", fitnessEffects = afe1), 
-               "Genotype contains NA or a gene not in fitnessEffects/mutatorEffects")
+               "You have a NULL spPopSizes")
   
   expect_error(evalGenotype(genotype = "1", fitnessEffects = afe2), 
                "Genotype contains NAs or genes not in fitnessEffects/mutatorEffects")
