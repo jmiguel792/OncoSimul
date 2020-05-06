@@ -1343,7 +1343,7 @@ evalGenotypeORMut <- function(genotype,
                               echo = FALSE,
                               model = "",
                               calledBy_= NULL,
-                              currentTime = 0) {
+                              currentTime = currentTime) {
   ## genotype can be a vector of integers, that are the exact same in
   ## the table of fmEffects or a vector of strings, or a vector (a
   ## string) with genes separated by "," or ">"
@@ -1464,7 +1464,8 @@ evalGenotype <- function(genotype,
                          spPopSizes,
                          verbose = FALSE,
                          echo = FALSE,
-                         model = "") {
+                         model = "",
+                         currentTime = 0) {
   
     if(inherits(fitnessEffects, "mutatorEffects"))
          stop("You are trying to get the fitness of a mutator specification. ",
@@ -1485,7 +1486,7 @@ evalGenotype <- function(genotype,
                       echo = echo,
                       model  = model ,
                       calledBy_= "evalGenotype",
-                      currentTime = 0
+                      currentTime = currentTime
                       )
 }
 
@@ -1620,7 +1621,7 @@ evalAllGenotypesORMut <- function(fmEffects,
                                   model = "",
                                   spPopSizes = spPopSizes,
                                   calledBy_ = "",
-                                  currentTime = 0) {
+                                  currentTime = currentTime) {
 ##                                minimal = FALSE) {
     if( !(calledBy_ %in% c("evalGenotype", "evalGenotypeMut") ))
         stop("How did you call this function?. Bug.")
@@ -1753,7 +1754,8 @@ evalAllGenotypes <- function(fitnessEffects,
                              max = 256,
                              addwt = FALSE,
                              model = "",
-                             spPopSizes = NULL) {
+                             spPopSizes = NULL,
+                             currentTime = 0) {
     ## Must deal with objects from previous, pre flfast, modifications
     if(!exists("fitnessLandscape_gene_id", where = fitnessEffects)) {
         fitnessEffects$fitnessLandscape_df <- data.frame()
@@ -1773,7 +1775,7 @@ evalAllGenotypes <- function(fitnessEffects,
         model = model,
         spPopSizes = spPopSizes,
         calledBy_= "evalGenotype",
-        currentTime = 0
+        currentTime = currentTime
     )
 }
 
@@ -1863,7 +1865,7 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
   
     # This will avoid errors is evalRGenotype where spPopSizes = NULL  
     if (!fitnessEffects$frequencyDependentFitness) {
-    spPopSizes = 0
+      spPopSizes = 0
     }
   
     ## if(!minimal)
