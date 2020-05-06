@@ -177,14 +177,7 @@ test_that("testing output", {
   expect_warning(allFitnessEffects(genotFitness = r2, 
                                    frequencyDependentFitness = FALSE, 
                                    frequencyType = "rel",
-                                   spPopSizes = c(500, 
-                                                  250, 
-                                                  250, 
-                                                  250, 
-                                                  300,
-                                                  300,
-                                                  300,
-                                                  450)) , 
+                                   ) , 
                  "spPopSizes will be considered NULL if frequencyDependentFitness = FALSE")
   if(as.character(version$major) < 4) {
   expect_warning(allFitnessEffects(genotFitness = r3, 

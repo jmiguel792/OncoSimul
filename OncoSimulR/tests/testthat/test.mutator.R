@@ -280,8 +280,12 @@ test_that("we evaluate the WT", {
                             noIntGenes = c("e" = 0.1))
     expect_warning(ou <- OncoSimulR:::evalRGenotype(vector(mode = "integer",
                                                            length = 0),
-                                                    fe, TRUE, FALSE,
-                                                    "evalGenotype", 0),
+                                                    fe,
+                                                    0,
+                                                    TRUE, 
+                                                    FALSE,
+                                                    "evalGenotype", 
+                                                    0),
                    "WARNING: you have evaluated fitness/mutator status of a genotype of length zero",
                    fixed = TRUE)
     expect_identical(ou, 1)
@@ -298,6 +302,7 @@ test_that("we evaluate the WT, 2", {
                        vector(mode = "integer", length = 0),
                        fe,
                        fm,
+                       0,
                        OncoSimulR:::matchGeneIDs(fm, fe)$Reduced,
                        TRUE, FALSE, 0),
                    "WARNING: you have evaluated fitness of a genotype of length zero.",
