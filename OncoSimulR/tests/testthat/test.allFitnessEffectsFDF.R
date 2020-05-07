@@ -174,10 +174,10 @@ test_that("testing output", {
   
   expect_equal(class(afe2$drv), "integer")
   
-  #expect_warning(allFitnessEffects(genotFitness = r2, 
-  #                                 frequencyDependentFitness = FALSE, 
-  #                                 frequencyType = "rel"),
-  #               "spPopSizes will be considered NULL if frequencyDependentFitness = FALSE")
+  expect_warning(allFitnessEffects(genotFitness = r2, 
+                                   frequencyDependentFitness = FALSE, 
+                                   frequencyType = "rel"),
+                 "frequencyType set to NA")
   
   # Now spPopSizes is 0 when fdf == false to avoid errors in c++
   
