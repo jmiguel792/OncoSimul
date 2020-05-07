@@ -1471,12 +1471,12 @@ evalGenotype <- function(genotype,
          stop("You are trying to get the fitness of a mutator specification. ",
              "You did not pass an object of class fitnessEffects.")
 
-   if (fitnessEffects$frequencyDependentFitness) {
-     if (is.null(spPopSizes))
-      stop("You have a NULL spPopSizes")
+    if (fitnessEffects$frequencyDependentFitness) {
+      if (is.null(spPopSizes))
+        stop("You have a NULL spPopSizes")
     if (!(length(spPopSizes) == nrow(fitnessEffects$fitnessLandscape)))
       stop("spPopSizes must be as long as number of genotypes")
-   }
+    }
 
 
     evalGenotypeORMut(genotype = genotype,
@@ -1511,6 +1511,13 @@ evalGenotypeFitAndMut <- function(genotype,
                     " for now.")
     }
   
+    if(fitnessEffects$frequencyDependentFitness) {
+      if (is.null(spPopSizes))
+        stop("You have a NULL spPopSizes")
+      if (!(length(spPopSizes) == nrow(fitnessEffects$fitnessLandscape)))
+        stop("spPopSizes must be as long as number of genotypes")
+    }
+  
     # This will avoid errors is evalRGenotype where spPopSizes = NULL  
     if (!fitnessEffects$frequencyDependentFitness) {
       spPopSizes = 0
@@ -1520,7 +1527,8 @@ evalGenotypeFitAndMut <- function(genotype,
     ## Next is from evalGenotypeAndMut
     if(echo)
         cat(paste("Genotype: ", genotype))
-    if(!is.integer(genotype)) {
+    
+    if(is.character(genotype)) {
         if(length(grep(">", genotype))) {
             genotype <- nice.vector.eo(genotype, ">")
         } else if(length(grep(",", genotype))) {
@@ -1533,14 +1541,50 @@ evalGenotypeFitAndMut <- function(genotype,
                          fitnessEffects$long.geneNoInt$Gene,
                          fitnessEffects$fitnessLandscape_gene_id$Gene)
         genotype <- all.g.nums[match(genotype, all.g.names)]
+        
+    } else {
+      all.g.nums <- c(fitnessEffects$geneModule$GeneNumID,
+                      fitnessEffects$long.geneNoInt$GeneNumID,
+                      fitnessEffects$fitnessLandscape_gene_id$GeneNumID)
+      if(!all(sapply(genotype,  function(x)x %in% all.g.nums))){
+        stop("Genotype as vector of numbers contains genes not in fitnessEffects/mutatorEffects.")
+      }
     }
-    if(any(is.na(genotype)))
-        stop("genotype contains NAs or genes not in fitnessEffects")
-    if(!length(genotype))
-        stop("genotypes must have at least one mutated gene")
-    if(any(genotype < 0)) {
-        stop(paste("genotypes cannot contain negative values.",
+    
+    if(!fitnessEffects$frequencyDependentFitness){
+      
+      if( any(is.na(genotype)) ){
+        stop("Genotype contains NAs or genes not in fitnessEffects/mutatorEffects")
+      }
+      
+      if((!length(genotype))){
+        stop("Genotypes must have at least one mutated gene")
+      }
+      if(any(genotype < 0)) {
+        stop(paste("Genotypes cannot contain negative values.",
                    "If you see this message, you found a bug."))
+      }
+      if(length(genotype) == 1 && genotype == 0){
+        stop("Genotype cannot be 0.")
+      }
+      
+      if(any(genotype == 0)){
+        stop("Genotype cannot contain any 0.")
+      }
+      
+    }else{
+      if(length(genotype) == 1 && is.na(genotype)){
+        stop("Genotype contains NA or a gene not in fitnessEffects/mutatorEffects")
+      }else if(length(genotype) == 1 && genotype == 0){
+        genotype <- vector(mode = "integer", length = 0L)
+      }else if(length(genotype) > 1){
+        if( any(is.na(genotype)) ){
+          stop("Genotype contains NAs or genes not in fitnessEffects/mutatorEffects")
+        }
+        if(any(genotype == 0)){
+          stop("Genotype cannot contain any 0 if its length > 1")
+        }
+      }
     }
 
     full2mutator_ <- matchGeneIDs(mutatorEffects,
@@ -1549,6 +1593,7 @@ evalGenotypeFitAndMut <- function(genotype,
         prodNeg <- TRUE
     else
         prodNeg <- FALSE
+    
     evalRGenotypeAndMut(genotype,
                         fitnessEffects,
                         mutatorEffects,
@@ -1888,15 +1933,31 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                                    prodNeg = prodNeg,
                                                    currentTime = currentTime),
                    c(1.1, 2.2)))
-
-    df <- data.frame(Genotype = allg$genotNames, 
+    
+    if(fitnessEffects$frequencyDependentFitness && addwt){
+      evalWT <- evalRGenotypeAndMut(vector(mode = "integer", length = 0L),
+                                    rFE = fitnessEffects,
+                                    muEF = mutatorEffects,
+                                    spPop = spPopSizes,
+                                    full2mutator_ = full2mutator_,
+                                    verbose = FALSE, 
+                                    prodNeg = prodNeg, 
+                                    currentTime = currentTime)
+      allf <- rbind(evalWT, allf)
+      genotypes <- c("WT", allg$genotNames)
+      
+    }else{
+      genotypes <- allg$genotNames
+    }
+    
+    df <- data.frame(Genotype = genotypes, 
                      Fitness = allf[, 1],
                      MutatorFactor = allf[, 2],
                      stringsAsFactors = FALSE)
-    if(addwt)
-        df <- rbind(data.frame(Genotype = "WT", Fitness = 1,
-                               MutatorFactor = 1,
-                               stringsAsFactors = FALSE), df)
+    #if(addwt)
+      #  df <- rbind(data.frame(Genotype = "WT", Fitness = 1,
+       #                        MutatorFactor = 1,
+        #                       stringsAsFactors = FALSE), df)
     if(prodNeg)
         colnames(df)[match("Fitness", colnames(df))] <- "Death_rate"
     class(df) <- c("evalAllGenotypesFitAndMut", class(df))
