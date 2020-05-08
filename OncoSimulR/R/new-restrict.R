@@ -1934,7 +1934,7 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                                    currentTime = currentTime),
                    c(1.1, 2.2)))
     
-    if(fitnessEffects$frequencyDependentFitness && addwt){
+    if(fitnessEffects$frequencyDependentFitness){
       evalWT <- evalRGenotypeAndMut(vector(mode = "integer", length = 0L),
                                     rFE = fitnessEffects,
                                     muEF = mutatorEffects,
@@ -1954,13 +1954,15 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                      Fitness = allf[, 1],
                      MutatorFactor = allf[, 2],
                      stringsAsFactors = FALSE)
-    if(addwt)
+    
+    if(fitnessEffects$frequencyDependentFitness == FALSE && addwt)
       df <- rbind(data.frame(Genotype = "WT", Fitness = 1,
                              MutatorFactor = 1,
                              stringsAsFactors = FALSE), df)
     if(prodNeg)
         colnames(df)[match("Fitness", colnames(df))] <- "Death_rate"
     class(df) <- c("evalAllGenotypesFitAndMut", class(df))
+    
     return(df)
 }
 

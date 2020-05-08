@@ -261,7 +261,7 @@ test_that("testing all genes evaluation", {
   evalGs_all_together1 <- evalAllGenotypesFitAndMut(fitnessEffects = fe,
                                                     mutatorEffects = mt,
                                                     spPopSizes = c(5000, 2500, 2500, 7500),
-                                                    addwt = TRUE)$Fitness
+                                                    )$Fitness
   
   evalGs_one_by_one2 <- sapply(genotypes, function(x) evalGenotypeFitAndMut(x,
                                                                             fitnessEffects = fe,
@@ -270,7 +270,7 @@ test_that("testing all genes evaluation", {
   evalGs_all_together2 <- evalAllGenotypesFitAndMut(fitnessEffects = fe,
                                                     mutatorEffects = mt,
                                                     spPopSizes = c(5000, 2500, 2500, 7500),
-                                                    addwt = TRUE)$MutatorFactor
+                                                    )$MutatorFactor
   
   
   expect_identical(evalGs_one_by_one1, evalGs_all_together1)
