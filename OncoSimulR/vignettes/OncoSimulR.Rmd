@@ -3525,8 +3525,7 @@ r <- data.frame(Genotype = c("WT", "A", "B", "A, B"),
 
 afe <- allFitnessEffects(genotFitness = r, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "rel",
-                         )
+                         frequencyType = "rel")
 
 plotFitnessLandscape(evalAllGenotypes(afe, spPopSizes = c(2500, 2000, 5500, 700)))
 ```
@@ -8849,6 +8848,7 @@ fe_pred_prey2 <-
                            gt = c("WT","prey", "Predator")),
         frequencyDependentFitness = TRUE,
         frequencyType = "abs")
+
 pred_prey2 <- oncoSimulIndiv(fe_pred_prey2,
                             model = "Exp",
                             sampleEvery = 0.01,
@@ -8929,8 +8929,8 @@ rar2 <- data.frame(Genotype = c("WT", "A", "B", "C"),
                              "1.0 + .5 * ((n_1 + n_2)/N)"))
 afear2 <- allFitnessEffects(genotFitness = rar2, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "abs"
-                         )
+                         frequencyType = "abs")
+                         
 evalAllGenotypes(afear2, spPopSizes = c(100, 200, 300, 400))
 ```
 
@@ -9371,7 +9371,6 @@ c=1.
 afcrs2 <- allFitnessEffects(genotFitness = crs(10, 1, 1), 
                            frequencyDependentFitness = TRUE,
                            frequencyType = "rel")
-
 
 ```
 
