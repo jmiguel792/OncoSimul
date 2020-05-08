@@ -15,12 +15,12 @@ mtfd <- allMutatorEffects(epistasis = c("A" = 0.1,"B" = 10))
 
 evalAllGenotypes(allFitnessEffects(genotFitness = r1fd, 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(10, 20, 30, 40)))
+                                   frequencyType = "rel"),
+                 spPopSizes = c(10, 20, 30, 40))
 
 ## Fitness is wrong
 evalAllGenotypesFitAndMut(allFitnessEffects(genotFitness = r1fd, 
                                             frequencyDependentFitness = TRUE,
-                                            frequencyType = "rel",
-                                            spPopSizes = c(10, 20, 30, 40)),
+                                            frequencyType = "rel"),
+                          spPopSizes = c(10, 20, 30, 40),
                           mutatorEffects = mtfd)

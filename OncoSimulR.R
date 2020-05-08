@@ -1647,10 +1647,10 @@ r <- data.frame(Genotype = c("WT", "A", "B", "A, B"),
 
 afe <- allFitnessEffects(genotFitness = r, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "rel",
-                         spPopSizes = c(2500, 2000, 5500, 700))
+                         frequencyType = "rel")
+                         
 
-plotFitnessLandscape(evalAllGenotypes(afe))
+plotFitnessLandscape(evalAllGenotypes(afe, spPopSizes = c(2500, 2000, 5500, 700)))
 
 
 ## ----mcflparam-----------------------------------------------------------
@@ -3727,18 +3727,18 @@ gffd <- data.frame(
 ## ----fdf1b---------------------------------------------------------------
 evalAllGenotypes(allFitnessEffects(genotFitness = gffd, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "rel",
-                         spPopSizes = c(100, 20, 20, 30, 0)))
+                         frequencyType = "rel"
+                         ), spPopSizes = c(100, 20, 20, 30, 0))
 
 evalAllGenotypes(allFitnessEffects(genotFitness = gffd, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "rel",
-                         spPopSizes = c(100, 30, 40, 0, 10)))
+                         frequencyType = "rel"),
+                         spPopSizes = c(100, 30, 40, 0, 10))
 
 evalAllGenotypes(allFitnessEffects(genotFitness = gffd, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "rel",
-                         spPopSizes = c(100, 30, 40, 0, 100)))
+                         frequencyType = "rel"),
+                         spPopSizes = c(100, 30, 40, 0, 100))
 
 
 
@@ -3921,13 +3921,13 @@ afd3 <- allFitnessEffects(genotFitness = gffd3,
 ## ----fdf2b, message=FALSE------------------------------------------------
 evalAllGenotypes(allFitnessEffects(genotFitness = gffd3, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "abs",
-                         spPopSizes = c(100, 1, 11)))
+                         frequencyType = "abs"),
+                         spPopSizes = c(100, 1, 11))
 
 evalAllGenotypes(allFitnessEffects(genotFitness = gffd3, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "abs",
-                         spPopSizes = c(100, 11, 1)))
+                         frequencyType = "abs"),
+                         spPopSizes = c(100, 11, 1))
 
 
 ## ----fdf2c---------------------------------------------------------------
@@ -4145,8 +4145,8 @@ evalAllGenotypes(allFitnessEffects(
               0.6, -0.5, awt = 0.1,
               gt = c("WT","prey", "Predator")),
     frequencyDependentFitness = TRUE,
-    frequencyType = "abs",
-    spPopSizes = c(0, 0, 20)))
+    frequencyType = "abs"),
+    spPopSizes = c(0, 0, 20))
 
 
 evalAllGenotypes(allFitnessEffects(
@@ -4155,8 +4155,8 @@ evalAllGenotypes(allFitnessEffects(
               0.6, -0.5, awt = 0.1,
               gt = c("WT","prey", "Predator")),
     frequencyDependentFitness = TRUE,
-    frequencyType = "abs",
-    spPopSizes = c(0, 0, 40)))
+    frequencyType = "abs"),
+    spPopSizes = c(0, 0, 40))
 
 
 ## ----predprey2a----------------------------------------------------------
@@ -4241,9 +4241,9 @@ rar <- data.frame(Genotype = c("WT", "A", "B", "C"),
                              "1.0 + .5 * (f_1 + f_2)"))
 afear <- allFitnessEffects(genotFitness = rar, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "rel",
-                         spPopSizes = c(100, 200, 300, 400))
-evalAllGenotypes(afear)
+                         frequencyType = "rel")
+                         
+evalAllGenotypes(afear, spPopSizes = c(100, 200, 300, 400))
 
 
 rar2 <- data.frame(Genotype = c("WT", "A", "B", "C"), 
@@ -4253,9 +4253,9 @@ rar2 <- data.frame(Genotype = c("WT", "A", "B", "C"),
                              "1.0 + .5 * ((n_1 + n_2)/N)"))
 afear2 <- allFitnessEffects(genotFitness = rar2, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "abs",
-                         spPopSizes = c(100, 200, 300, 400))
-evalAllGenotypes(afear2)
+                         frequencyType = "abs")
+                         
+evalAllGenotypes(afear2, spPopSizes = c(100, 200, 300, 400))
 
 
 ## ----relarres, message=FALSE---------------------------------------------
@@ -4293,9 +4293,9 @@ rar3 <- data.frame(Genotype = c("WT", "A", "B", "C"),
                              "1.0 + .5 * ( n_1 > 20)"))
 afear3 <- allFitnessEffects(genotFitness = rar3, 
                          frequencyDependentFitness = TRUE,
-                         frequencyType = "abs",
-                         spPopSizes = c(100, 200, 300, 400))
-evalAllGenotypes(afear3)
+                         frequencyType = "abs"
+                         )
+evalAllGenotypes(afear3, spPopSizes = c(100, 200, 300, 400))
 
 
 set.seed(1)
@@ -4419,14 +4419,14 @@ par(op)
 
 evalAllGenotypes(allFitnessEffects(genotFitness = r1fd, 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(10, 20, 30, 40)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(10, 20, 30, 40))
 
 ## Fitness is wrong
 evalAllGenotypesFitAndMut(allFitnessEffects(genotFitness = r1fd, 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(10, 20, 30, 40)),
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(10, 20, 30, 40),
                     mtfd)
 
 
@@ -4559,14 +4559,17 @@ HD_competition <-allFitnessEffects(
   genotFitness = H_D_fitness(10, 2, 
                          gt = c("WT", "H", "D")),
   frequencyDependentFitness = TRUE,
-  frequencyType = "rel",
-  spPopSizes = c(5000, 5000, 5000))
+  frequencyType = "rel")
+  
 
 ## Plot fitness landscape of genotype "H, D" evaluation
 data.frame("Doves_fitness" = evalGenotype(genotype = "D",
-                                          fitnessEffects = HD_competition), 
+                                          fitnessEffects = HD_competition,
+                                          spPopSizes = c(5000, 5000, 5000)),
            "Hawks_fitness" = evalGenotype(genotype = "H", 
-                                          fitnessEffects = HD_competition)) 
+                                          fitnessEffects = HD_competition,
+                                          spPopSizes = c(5000, 5000, 5000))
+           )
 
 
 ## ---- message=F----------------------------------------------------------
@@ -5056,8 +5059,8 @@ create_fe("bG", "cG", "iPA", "cI", "cS", "bPA", "ab")
 evalAllGenotypes(allFitnessEffects(genotFitness =  
                                    create_fe(7, 1, 9, 0.5, 2, 5, 0), 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(1000, 1000, 1000)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(1000, 1000, 1000))
 
 
 
@@ -5065,8 +5068,8 @@ evalAllGenotypes(allFitnessEffects(genotFitness =
 evalAllGenotypes(allFitnessEffects(genotFitness =  
                                    create_fe(7, 1, 9, 0.5, 2, 5, 2), 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(1000, 1000, 1000)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(1000, 1000, 1000))
 
 
 
@@ -5074,8 +5077,8 @@ evalAllGenotypes(allFitnessEffects(genotFitness =
 evalAllGenotypes(allFitnessEffects(genotFitness =  
                                    create_fe(7, 1, 9, 0.5, 2, 5, 2), 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(0, 0, 1000)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(0, 0, 1000))
 
 
 
@@ -5083,8 +5086,8 @@ evalAllGenotypes(allFitnessEffects(genotFitness =
 evalAllGenotypes(allFitnessEffects(genotFitness =  
                                    create_fe(7, 1, 9, 0.5, 2, 5, 2), 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(100, 0, 1000)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(100, 0, 1000))
 
 
 
@@ -5092,8 +5095,8 @@ evalAllGenotypes(allFitnessEffects(genotFitness =
 evalAllGenotypes(allFitnessEffects(genotFitness =  
                                    create_fe(7, 1, 9, 0.5, 2, 5, 5), 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(1000, 0, 0)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(1000, 0, 0))
 
 
 
@@ -5101,8 +5104,8 @@ evalAllGenotypes(allFitnessEffects(genotFitness =
 evalAllGenotypes(allFitnessEffects(genotFitness =  
 				   create_fe(7, 1, 9, 0.5, 2, 5, 5), 
 				   frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(1000, 0, 1000)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(1000, 0, 1000))
 
 
 
@@ -5190,8 +5193,8 @@ create_fe("cG", "bG","cS", "cMMph", "cMMTC", "bR", "cD")
 evalAllGenotypes(allFitnessEffects(genotFitness =  
                                    create_fe(2, 5, 1, 0.8, 1, 1, 9), 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(1000, 0, 0, 0)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(1000, 0, 0, 0))
 
 
 
@@ -5199,8 +5202,8 @@ evalAllGenotypes(allFitnessEffects(genotFitness =
 evalAllGenotypes(allFitnessEffects(genotFitness =  
                                    create_fe(2, 5, 1, 0.8, 1, 1, 9), 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(1000, 1000, 0, 0)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(1000, 1000, 0, 0))
 
 
 
@@ -5208,8 +5211,8 @@ evalAllGenotypes(allFitnessEffects(genotFitness =
 evalAllGenotypes(allFitnessEffects(genotFitness =  
                                    create_fe(2, 5, 1, 0.8, 1, 1, 9), 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(1000, 1000, 100, 100)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(1000, 1000, 100, 100))
 
 
 
@@ -5324,8 +5327,8 @@ create_fe("cG", "bG","cS", "cMMph", "cMMTC", "bR", "cD", "Q")
 evalAllGenotypes(allFitnessEffects(genotFitness =  
                                    create_fe(2,5,1,0.8,1,1,9,5), 
                                    frequencyDependentFitness = TRUE,
-                                   frequencyType = "rel",
-                                   spPopSizes = c(1000, 100, 0, 100, 1000, 0, 0)))
+                                   frequencyType = "rel"),
+                                   spPopSizes = c(1000, 100, 0, 100, 1000, 0, 0))
 
 
 
