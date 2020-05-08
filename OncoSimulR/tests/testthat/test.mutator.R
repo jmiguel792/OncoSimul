@@ -252,7 +252,7 @@ test_that("mut and fitness both needed when needed", {
                  'argument "mutatorEffects" is missing',
                  fixed = TRUE)
     expect_error(evalGenotypeFitAndMut("a, b", fm),
-                 "genotype contains NAs or genes not in fitnessEffects",
+                 "Genotype contains NAs or genes not in fitnessEffects/mutatorEffects",
                  fixed = TRUE)
     expect_error(evalGenotypeFitAndMut("a, b", mutatorEffects = fm),
                  'argument "fitnessEffects" is missing',

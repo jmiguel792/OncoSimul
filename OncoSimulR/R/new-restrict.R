@@ -1954,10 +1954,10 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                      Fitness = allf[, 1],
                      MutatorFactor = allf[, 2],
                      stringsAsFactors = FALSE)
-    #if(addwt)
-      #  df <- rbind(data.frame(Genotype = "WT", Fitness = 1,
-       #                        MutatorFactor = 1,
-        #                       stringsAsFactors = FALSE), df)
+    if(addwt)
+      df <- rbind(data.frame(Genotype = "WT", Fitness = 1,
+                             MutatorFactor = 1,
+                             stringsAsFactors = FALSE), df)
     if(prodNeg)
         colnames(df)[match("Fitness", colnames(df))] <- "Death_rate"
     class(df) <- c("evalAllGenotypesFitAndMut", class(df))
