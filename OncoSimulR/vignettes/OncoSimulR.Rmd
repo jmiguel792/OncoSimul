@@ -9120,7 +9120,7 @@ evalAllGenotypesFitAndMut(allFitnessEffects(genotFitness = r1fd,
                                             frequencyType = "rel"),
                           mtfd,
                           spPopSizes = c(10, 20, 30, 40),
-                          addwt = TRUE)
+                          )
 ```
 
 ## Can we use the BNB algorithm to model frequency-dependent fitness? {#bnbfdf}
