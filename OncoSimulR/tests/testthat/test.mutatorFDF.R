@@ -191,3 +191,24 @@ test_that("testing all genes evaluation", {
   expect_identical(evalGs_one_by_one1, evalGs_all_together1)
   expect_identical(evalGs_one_by_one2, evalGs_all_together2)
 })
+
+test_that("expect output oncoSimulIndiv", {
+  
+  r1 <- data.frame(Genotype = c("WT", "A", "B", "A, B"),
+                   Fitness = c("max(3, 2*f_)",
+                               "max(1.5, 3*(f_ + f_1))",
+                               "max(1.5, 3*(f_ + f_2))",
+                               "max(2, 5*f_ - 0.5*( f_1 + f_2) + 15*f_1_2)"),
+                   stringsAsFactors = FALSE)
+  
+  fe <- allFitnessEffects(genotFitness = r1, 
+                          frequencyDependentFitness = TRUE, 
+                          frequencyType = "rel")
+  
+  mt <- allMutatorEffects(epistasis = c("A" = 1, "B" = 10))
+  
+  expect_output(print(oncoSimulIndiv(fe, muEF = mt, sampleEvery = 0.01,
+                                     keepEvery = 5)),
+                "Individual OncoSimul trajectory",
+                fixed = TRUE)
+})
