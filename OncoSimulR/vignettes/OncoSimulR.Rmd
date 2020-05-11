@@ -10355,10 +10355,10 @@ where $f_1$, $f_2$ and $f_3$ denote the frequency of the phenotype OC, OB and
 MM in the population. The multiplication factors for diffusible factors
 produced by the cells are shown in the following table (taken from @sartakhti2016):
 
-```{r smyeloma, eval=TRUE,echo=FALSE, fig.cap="Multiplication factorin myeloma interaction. Table 1 in Sartakhti et al., 2016, 'Evolutionary Dynamics of Tumor-Stroma
-Interactions in Multiple Myeloma' https://doi.org/10.1371/journal.pone.0168856 ."}
-knitr::include_graphics("Myeloma_interaction.png")
-```
+<!--```{r smyeloma, eval=TRUE,echo=FALSE, fig.cap="Multiplication factor in myeloma interaction. <!--Table 1 in Sartakhti et al., 2016, 'Evolutionary Dynamics of Tumor-Stroma
+<!--Interactions in Multiple Myeloma' https://doi.org/10.1371/journal.pone.0168856 ."
+<!--knitr::include_graphics("Myeloma_interaction.png")}
+<!--```--->
 
 Several scenarios varying the values of the parameters are shown in
 @sartakhti2016. Here we reproduce some of them.
@@ -11554,7 +11554,6 @@ healthy (**H**) cells as well as chemoresistant (**R**) and chemosensitive (**S*
 cells. Healthy cells are cooperators, while cancer cells are defectors.
 
 This is the system's payoff matrix:
-
 
 \clearpage
 
