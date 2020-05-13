@@ -11560,8 +11560,8 @@ cells. Healthy cells are cooperators, while cancer cells are defectors.
 This is the system's payoff matrix:
 
 ```{r adapChemo1}
-a <- 1; b <- 0.5; c <- 0.5         ## a b c
-d <- 1; e <- 1.25; f <- 0.7        ## d e f
+a <- 1;     b <- 0.5;  c <- 0.5    ## a b c
+d <- 1;     e <- 1.25; f <- 0.7    ## d e f
 g <- 0.975; h <- -0.5; i <- 0.75   ## g h i
 
 payoff_m <- matrix(c(a,b,c,d,e,f,g,h,i), ncol=3, byrow=TRUE)
@@ -11662,7 +11662,7 @@ plot(gamesimul, show = "genotypes")
 ```
 
 
-### Scenario with continuous chemotherapy (fixed dose) {#fixedChemo}
+### Scenario with continuous chemotherapy: fixed dose {#fixedChemo}
 
 For this simulation, we add the effect of chemotherapy as a fixed coefficient (**drug_eff**), representing a fixed dose. The dose is delivered only when a tumor has grown up, so we
 perform the drug effect after starting the simulation. For this, we apply the time
@@ -11717,6 +11717,7 @@ With this example, we can show how chemotherapy usage could be counterproductive
 situations, especially in those cases in which resistant tumor cells are more aggressive than
 sensitive cells.
 
+
 ### Scenario with switching doses of chemotherapy {#switchChemo}
 
 The original model by Newton and Ma @PhysRevE includes chemotherapeutic dosage as a time-dependent controller. The main idea is to increase or decrease the dose according to a periodic cancer growth
@@ -11736,10 +11737,10 @@ population at a minimum value and the R cells progress is prevented.
 set.seed(2)
 RNGkind("L'Ecuyer-CMRG")
 
-# Healthy  Sensitive   Resistant
-a <- 1;   b <- 0.5;   c <- 0.5       # Healthy
-d <- 1;   e <- 1.25;  f <- 0.7       # Sensitive
-g <- 0.975;   h <- -0.5;  i <- 0.75  # Resistant
+# Healthy     Sensitive   Resistant
+a <- 1;       b <- 0.5;   c <- 0.5    # Healthy
+d <- 1;       e <- 1.25;  f <- 0.7    # Sensitive
+g <- 0.975;   h <- -0.5;  i <- 0.75   # Resistant
 
 wt_fitness   <- paste0(a, "*f_+", b, "*f_1+", c, "*f_1_2")
 sens_fitness <- paste0(d, "*f_+", e, "*f_1+", f, "*f_1_2")
@@ -11772,6 +11773,211 @@ plot(switching_sim, show = "genotypes", type = "line",
 plot(switching_sim, show = "genotypes", ylim = c(20, 1000))
 
 ```
+
+
+## Growth factors as chemotherapy target {#gfChemo}
+
+It has been reported in the literature and verified in the above simulations,
+that resistance acquisition is almost unavoidable. A new approach to avoid
+this evolutionary adaptation, proposes to change the chemotherapy target, from
+the cell subclones to the growing factors (GF) they produce. These molecules, 
+which are  secreted to the medium by **cooperators**, help to grow their own 
+subclone types besides the GF **defectors**. Thus, the fitness of the whole 
+population  increases and the tumor grows.
+
+An attended side effect of this type of treatment is the emergence of cooperators
+that overproduce GF. This will increase their fitness and reduce the impact of GF 
+sequestering agents. However, it would also increase the cost of its production, 
+which will decrease this benefitial impact.
+
+@Archetti2013 develops a series of formulas to relate the impact of cooperation in
+tumor composition and fitness of subclones, which they divide as cooperators and 
+defectors. Although GFs are not always distributed homogeneously, we will assume 
+they do in the following simulations for the sake of simplicity.  
+
+Attending to the theoretical foundations mentioned, we will create a cooperation 
+scenario, including wild-type healthy cells (**WT**) and tumour cells, which are
+cooperators (**C**), defectors (**D**) and overproducers (**P**).
+
+The system payoff matrix is the following:
+
+```{r gfChemo1}
+# WT      Cooperators Defectors Overproducers  
+a <- 1;   b <- 0.5;   c <- 0.5; m <- 0.75      ## a b c m
+d <- 1;   e <- 1.25;  f <- 0.7; o <- 0.185     ## d e f o
+g <- 1;   h <- 1.5;   i <- 0.5; p <- 2.5       ## g h i p 
+j <- 0.8; k <- 1;     l <- 0.5; q <- 1.5       ## j k l q
+
+payoff_m <- matrix(c(a,b,c,m,d,e,f,o,g,h,i,p,j,k,l,q), ncol=4, byrow=TRUE)
+colnames(payoff_m) <- c("WT", "Cooperators", "Defectors", "Overproducers")
+rownames(payoff_m) <- c("WT", "Cooperators", "Defectors", "Overproducers")
+print(payoff_m <- as.table(payoff_m))
+
+```
+
+The fitness definitions for the four types of cells would be the following:
+
+```{r gfChemo2}
+print( df <- data.frame(
+  CellType = c("WT", "C", "D", "P"),
+  Fitness = c("F(WT) = ax(WT) + bx(C) + cx(D) + mx(P)",    
+              "F(C) = dx(WT) + ex(C) + fx(D) + ox(P)",    
+              "F(D) = gx(WT) + hx(C) + ix(D) + px(P)",
+              "F(P) = jx(WT) + kc(C) + lx(D) + qx(P)")), 
+  row.names = FALSE )
+```
+
+Ordered by decreasing fitness:
+  
+In summary:
+  
+* The fitness of WT cells is lower than the tumour cells.
+* Without any therapy, C cells fitness is higher than P cells, so the overproducers 
+will not overtake them.
+* D subclones benefit from the high concentration of cooperators (C or P).
+
+
+### Scenario without chemotherapy {#scenGF}
+
+First, we will study the fitness of the subclones types based on hypothetical
+frequencies. Then, we will simulate the growth of the tumor without any treatment.
+For this, we are considering that C cells are the original tumor cells and they can
+mutate and lose by deletion the GF gene (D cells grow) or duplicate it (P cells grow).
+
+```{r scenGF1}
+set.seed(2)
+RNGkind("L'Ecuyer-CMRG")
+
+## Coefficients
+## New coefficients for the interaction with overproducing sensitive:
+
+# WT      COOPERATOR  DEFECTOR    OVERPRODUCER
+a <- 1;   b <- 0.5;   c <- 0.5;   m <- 0.75   # WT
+wt_fitness <- paste0(a, "*f_+", b, "*f_1+", c, "*f_1_2+", m, "*f_1_3")
+
+d <- 1;   e <- 1.25;  f <- 0.7;   o <- 1.875  # Cooperator
+coop_fitness <- paste0(d, "*f_+", e, "*f_1+", f, "*f_1_2+", o, "*f_1_3")
+
+g <- 1;   h <- 1.5;   i <- 0.5;   p <- 2.5    # Defector
+def_fitness <- paste0(g, "*f_+", h, "*f_1+", i, "*f_1_2+", p, "*f_1_3")
+
+j <- 0.8; k <- 1;     l <- 0.5;   q <- 1.5    # Cooperator overproducing 
+over_fitness <- paste0(j, "*f_+", k, "*f_1+", l, "*f_1_2+", q, "*f_1_3")
+
+
+## No-chemotherapy
+## Fitness definition
+coop_no <- data.frame(Genotype = c("WT", "C", "D", "P", "C,D", "C,P", "D,P", "C,D,P"),
+                      Fitness = c(
+                        wt_fitness, #WT
+                        coop_fitness, #S
+                        "0", #D
+                        "0", #P
+                        def_fitness, #S,D
+                        over_fitness, #S,P
+                        "0", #D,P
+                        "0"  #C,D,P
+                        ), 
+                        stringsAsFactors = FALSE)
+
+game_no <- allFitnessEffects(genotFitness = coop_no,
+                          frequencyDependentFitness = TRUE,
+                          frequencyType = "rel")
+                          
+
+## First plot
+eag <- evalAllGenotypes(game_no, spPopSizes = c(10, 10, 0, 0, 10, 1, 0, 0))[c(1, 2, 5, 6),]
+plot(eag)
+
+## Simulation
+gamesimul_no <- oncoSimulIndiv(game_no,
+                            model = "McFL",
+                            onlyCancer = FALSE,
+                            finalTime = 300,
+                            mu = 0.01,
+                            initSize = 5000,
+                            keepPhylog = TRUE,
+                            seed = NULL)
+
+## Second plot  
+plot(gamesimul_no, show = "genotypes", type = "line",
+     col = c("blue", "red", "green", "purple"), ylim = c(20, 50000))
+
+# Third plot  
+plot(gamesimul_no, show = "genotypes")
+```
+
+The resulting plots show that D cells are highly benefited by the second most 
+common subclone activity (C cells), which is a cooperator. On the other hand, 
+subclone P has a lower fitness value because of the GF cost. However, as we can
+see in the first plot, a small number of clones remain and survive.
+
+
+### Scenario with GF as target for chemotherapy {#scenGFChemo}
+
+In this simulation, we will add the drug effect (at time 50) to the fitness
+of each subclone. We assume that this will cause a reduction of the fitness 
+by the level of GF dependency for each subclone. We now introduce some constants
+to make it more accurate. As cooperators will keep producing GF, they will be less
+affected by the sequestration of this molecule, so their coefficients will be greater
+than 1. In addition, P also will be less affected since its production of 
+GF is greater, so its coefficient will be greater than the C one (1.5 > 1.1). 
+On the other hand, as D is a defector, it will be more affected by the treatment, 
+so its coefficient will set to 0.9, smaller than 1.
+
+```{r scenGFChemo1}
+## Chemotherapy - GF Impairing
+
+# Effect of drug on GF availability
+# This term is multiplied by the fitness, and reduces the GF available
+drug_eff <- 0.25 
+
+coop_fix <- data.frame(Genotype = c("WT", "C", "D", "P", "C,D", "C,P", "D,P", "C,D,P"),
+                      Fitness = c(
+                        wt_fitness,                                                   #WT
+                        paste0("if (T>50) ", drug_eff, "* 1.2 *(", coop_fitness, ")", 
+                               "; else ", coop_fitness, ";"),                         #C
+                        "0",                                                          #D
+                        "0",                                                          #P
+                        paste0("if (T>50) ", drug_eff, "*(", def_fitness, ")", 
+                               "; else ", def_fitness, ";"),                          #C,D
+                        paste0("if (T>50) ", drug_eff, "* 1.5 * (", over_fitness, ")", 
+                               "; else ", over_fitness, ";"),                         #C,P **
+                        "0",                                                          #D,P
+                        "0"                                                           #C,D,P
+                      ), 
+                      stringsAsFactors = FALSE)
+
+## ** The drug effect is 1.5 times the original because of the overproduction of GF and the 
+##    full availability of this molecule inside the producing subclone.
+  
+period_fix <- allFitnessEffects(genotFitness = coop_fix,
+                              frequencyDependentFitness = TRUE,
+                              frequencyType = "rel")
+
+set.seed(2)
+final_time <- 300
+simul_period_fix <- oncoSimulIndiv(period_fix,
+                                 model = "McFL",
+                                 onlyCancer = FALSE,
+                                 finalTime = final_time,
+                                 mu = 0.01,
+                                 initSize = 5000,
+                                 keepPhylog = TRUE,
+                                 seed = NULL)
+
+# First plot
+plot(simul_period_fix, show = "genotypes", type = "line",
+     col = c("blue", "red", "green", "purple"), ylim = c(20, 50000))
+
+# Second plot
+plot(simul_period_fix, show = "genotypes", ylim = c(20, 8000))
+```
+
+As expected by Archetti and Pienta @archetti2019, the tumour will be biased 
+towards P mutant. Even if its fitness is lower than C because of its overproduction
+of GF, it will assure its survival and proliferation when chemotherapy is applied. 
+As a result of this, D does not completely disappear, but reduces dramatically its number.
 
 
 \clearpage
