@@ -11520,6 +11520,10 @@ fe <- allFitnessEffects(genotFitness = fl,
                         frequencyDependentFitness = TRUE,
                         frequencyType = "rel")
 
+## Evaluate the fitness before and after the specified currentTime
+evalAllGenotypes(fe, spPopSizes = c(100, 100, 100))
+evalAllGenotypes(fe, spPopSizes = c(100, 100, 100), currentTime = 80)
+
 ## Simulation                        
 sim <- oncoSimulIndiv(fe,
                       model = "McFL", 
@@ -11536,7 +11540,6 @@ sim <- oncoSimulIndiv(fe,
 plot(sim, show = "genotypes")                        
 
 ```
-
 
 ## Adaptive control of competitive release and chemotherapeutic resistance {#adapChemo}
 
