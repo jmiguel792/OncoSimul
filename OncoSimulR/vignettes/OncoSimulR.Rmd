@@ -11986,8 +11986,8 @@ As a result of this, D does not completely disappear, but reduces dramatically i
 ## Examples using time dependent frequency definition {#exTime}
 
 Here in this chapter we will comment some others approaches that can have this
-funcionality: increasing, decreasing (interventions) or slow down the collapse
-of a subpopulation of cells.
+funcionality: increasing or decreasing the fitness as therapeutic interventions,
+or slow down the collapse of a subpopulation of cells.
 
 
 ### Increasing fitness at a certain timepoint {#exTime1}
