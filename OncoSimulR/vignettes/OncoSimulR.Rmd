@@ -11983,6 +11983,136 @@ of GF, it will assure its survival and proliferation when chemotherapy is applie
 As a result of this, D does not completely disappear, but reduces dramatically its number.
 
 
+## Examples using time dependent frequency definition {#exTime}
+
+Here in this chapter we will comment some others approaches that can have this
+funcionality: increasing, decreasing (interventions) or slow down the collapse
+of a subpopulation of cells.
+
+
+### Increasing fitness at a certain timepoint {#exTime1}
+
+It is possible to increase the fitness value by using T functionality. In the following
+example we can see how fitness value in genotypes A and B increases when the simulation
+time reaches a specific value. Since we have used the exponential model, that's the 
+reason why we observe some delay between the specified time and when A or B 
+populations start to grow.
+
+```{r exTimeInc}
+dfT1 <- data.frame(Genotype = c("WT", "A", "B"),
+                 Fitness = c("1",
+                             "if (T>50) 1 + 2.35*f_; else 0.50;",
+                             "if (T>200) 1 + 0.45*(f_ + f_1); else 0.50;"),
+                 stringsAsFactors = FALSE)
+
+afeT1 <- allFitnessEffects(genotFitness = dfT1,
+                         frequencyDependentFitness = TRUE,
+                         frequencyType = "rel")
+
+set.seed(1)
+simT1 <- oncoSimulIndiv(afeT1,
+                      model = "Exp",
+                      mu = 1e-5,
+                      initSize = 1000,
+                      finalTime = 500,
+                      onlyCancer = FALSE,
+                      seed = NULL)
+
+plot(simT1, show = "genotypes", type = "line")
+```
+
+We can check if the fitness values have increased by evaluating the genotypes
+in the simulation time intervals.
+
+```{r exTimeInc1}
+evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 49)
+evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 51)
+evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 101)
+```
+
+
+### Intervention at a certain point to stop subpopulation growth {#exTime2}
+
+On the other hand, besides using T functionality to create time intervals, we can also use it
+as an intervention. In the following example we have used the functionality to increase the 
+fitness value of genotype A, and suddenly decreases it as an intervention, where B population
+takes advantage to grow, since its fitness increases at that time interval. When the intervention
+window finishes, we can see how A population starts to grow again and outcompetes with wild-type
+population whose fitness does not change during the simulation.
+
+
+```{r exTimeDec}
+dfT2 <- data.frame(Genotype = c("WT", "A", "B"),
+                   Fitness = c(
+                     "1",
+                     "if (T>0 and T<50) 0; else if (T>200 and T<300) 0.05; else 1 + 0.30*f_;",
+                     "if (T>200 and T<300) 1 + 0.5*(f_ + f_1); else 0.5*(f_ + f_1);"
+                     ),
+                   stringsAsFactors = FALSE)
+
+afeT2 <- allFitnessEffects(genotFitness = dfT2,
+                           frequencyDependentFitness = TRUE,
+                           frequencyType = "rel")
+
+set.seed(2)
+simT2 <- oncoSimulIndiv(afeT2,
+                        model = "McFL",
+                        mu = 1e-5,
+                        initSize = 5000,
+                        finalTime = 500,
+                        onlyCancer = FALSE,
+                        seed = NULL)
+
+plot(simT2, show = "genotypes")
+
+plot(simT2, show = "genotypes", type = "line")
+```
+
+In this case, just like above, we can evaluate the fitness in each time interval and observe
+how fitness is differente in each one of them.
+
+```{r examplesTDec1}
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 49)
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 201)
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 301)
+```
+
+
+### Intervention to slow down collapsing populations {#exTime3}
+
+We can use time dependent frequency functionality to slow down a collapsing
+population by doing an intervention at a certain time interval. In this case,
+we observe that B population fitness decreases and A population grows and
+overtakes B, but only at that time interval because afterwards, A starts to
+decrease again and B eventually collapse due to there are no more A's around.
+
+```{r examplesTCol}
+dfT3 <- data.frame(Genotype = c("WT", "A", "B"),
+                 Fitness = c(
+                   "1",
+                   "1 + 0.2 * (n_2 > 10)",
+                   "if (T>65 and T<85) 0.8 * (n_1 > 10); else .9 + 0.4 * (n_1 > 10)"),
+                 stringsAsFactors = FALSE)
+
+afeT3 <- allFitnessEffects(genotFitness = dfT3,
+                           frequencyDependentFitness = TRUE,
+                           frequencyType = "abs")
+
+set.seed(2)
+simT3 <- oncoSimulIndiv(afeT3,
+                        model = "McFLD",
+                        mu = 1e-4,
+                        initSize = 5000,
+                        finalTime = 500,
+                        onlyCancer = FALSE,
+                        seed = NULL,
+                        errorHitWallTime = FALSE,
+                        errorHitMaxTries = FALSE)
+
+plot(simT3, show = "genotypes", type = "line")
+```
+
+
 \clearpage
 
 
