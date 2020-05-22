@@ -12036,24 +12036,24 @@ evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 201)
 On the other hand, besides using T functionality to create time intervals, we can also use it
 as an intervention. In the following example we have used the functionality to increase the 
 fitness value of genotype A, and suddenly decreases it as an intervention, where B population
-takes advantage to grow, since its fitness increases at that time interval. When the intervention
-window finishes, we can see how A population starts to grow again and outcompetes with wild-type
-population whose fitness does not change during the simulation.
+takes advantage to grow, since its fitness is greater now. When the intervention elapses, 
+we can see how A population starts to grow again and outcompetes with wild-type population 
+whose fitness does not change during the simulation.
 
 
 ```{r exTimeDec}
 dfT2 <- data.frame(Genotype = c("WT", "A", "B"),
-                   Fitness = c(
-                     "1",
-                     "if (T>0 and T<50) 0; else if (T>200 and T<300) 0.05; else 1 + 0.30*f_;",
-                     "if (T>200 and T<300) 1 + 0.5*(f_ + f_1); else 0.5*(f_ + f_1);"
+                     Fitness = c(
+                       "1",
+                       "if (T>0 and T<50) 0; else if (T>200 and T<300) 0.05; else 1 + 0.35*f_;",
+                       "0.8 + 0.45*(f_)"
                      ),
-                   stringsAsFactors = FALSE)
-
+                     stringsAsFactors = FALSE)
+  
 afeT2 <- allFitnessEffects(genotFitness = dfT2,
-                           frequencyDependentFitness = TRUE,
-                           frequencyType = "rel")
-
+                             frequencyDependentFitness = TRUE,
+                             frequencyType = "rel")
+  
 set.seed(2)
 simT2 <- oncoSimulIndiv(afeT2,
                         model = "McFL",
@@ -12062,7 +12062,7 @@ simT2 <- oncoSimulIndiv(afeT2,
                         finalTime = 500,
                         onlyCancer = FALSE,
                         seed = NULL)
-
+  
 plot(simT2, show = "genotypes")
 
 plot(simT2, show = "genotypes", type = "line")
