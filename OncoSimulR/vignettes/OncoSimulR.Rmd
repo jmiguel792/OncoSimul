@@ -9026,7 +9026,7 @@ plot(s1fd, show = "genotypes")
 
 
 mtfd <- allMutatorEffects(epistasis = c("A" = 0.1,
-                                      "B" = 10))
+                                        "B" = 10))
 set.seed(1)
 s2fd <- oncoSimulIndiv(afe4,
                      muEF = mtfd,
@@ -9044,6 +9044,7 @@ plot(s2fd, show = "genotypes")
 
 ```{r echo=FALSE}
 op <- par(mfrow = c(1, 2))
+```
 
 ```{r figmutfdf}
 plotClonePhylog(s1fd, keepEvents = TRUE)
@@ -9054,18 +9055,18 @@ plotClonePhylog(s2fd, keepEvents = TRUE)
 par(op)
 ```
 
-Of course, it also works with absolute frequencies (code not
-executed for the sake of speed):
+Of course, it also works with absolute frequencies:
 
-
-```{r exmutfdf2, eval=FALSE}
+```{r exmutfdf2}
 
 ## Absolute
 r5 <- data.frame(Genotype = c("WT", "A", "B", "A, B"), 
                  Fitness = c("1",
                              "1.25 - .0025*(n_2)",
                              "1.25 - .0025*(n_1)",
-                             "1.4"))
+                             "1.4"),
+                 stringsAsFactors = FALSE)
+
 afe5 <- allFitnessEffects(genotFitness = r5, 
                          frequencyDependentFitness = TRUE,
                          frequencyType = "abs")
@@ -9080,6 +9081,7 @@ s5 <- oncoSimulIndiv(afe5,
                      seed = NULL, 
                      errorHitMaxTries = FALSE, 
                      errorHitWallTime = FALSE)
+
 plot(s5, show = "genotypes")
 plot(s5, show = "genotypes", log = "y", type = "line")
 
