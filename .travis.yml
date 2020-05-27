@@ -40,7 +40,7 @@ r_github_packages:
 
 #######  x22
 install:
-- Rscript -e 'install.packages("BiocManager"); BiocManager::install(version="devel"); install.packages(c("devtools","testthat","roxygen2","Oncotree","rmarkdown","bookdown", "withr", "covr", "ggplot2", "ggrepel", "pander", "knitr")); BiocManager::install("BiocStyle"); devtools::install_deps("OncoSimulR"); devtools::install_github("r-lib/covr")'
+- Rscript -e 'install.packages("BiocManager"); BiocManager::install(version="devel"); install.packages(c("devtools","testthat","roxygen2","Oncotree","rmarkdown","bookdown", "withr", "covr", "ggplot2", "ggrepel", "pander", "knitr")); BiocManager::install("BiocStyle"); devtools::install_deps("OncoSimulR")'
 
 # withr failing because of a broken dependency on "later". FIXME: return to using github' jimhester for withr and covr later.
 # install:
@@ -87,3 +87,14 @@ notifications:
 # this was causing hunspell installation to fail
 ## before_install:
 ##   - if [[ "$TRAVIS_R_VERSION_STRING" = 'bioc-devel' ]]; then mkdir ~/.R && echo 'CXX1X=g++ -std=c++0x -g -O2 -fPIC' > ~/.R/Makevars; fi
+
+
+## If we get
+
+## Error in get0(oNam, envir = ns) : 
+
+##   lazy-load database '/home/travis/R/Library/pkgbuild/R/pkgbuild.rdb' is corrupt
+
+## try deleting the cache in travis:
+## settings -> cache -> delete
+## https://github.com/marinebon/p2p/issues/5#issuecomment-447877732
