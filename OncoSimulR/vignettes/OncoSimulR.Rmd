@@ -2,7 +2,7 @@
 title: "OncoSimulR: forward genetic simulation in asexual populations with arbitrary epistatic interactions and a focus on modeling tumor progression."
 author: "
 
-         Ramon Diaz-Uriarte, Sergio Sanchez-Carrillo\\
+         Ramon Diaz-Uriarte, Sergio Sanchez-Carrillo, Juan Antonio Miguel-González\\
 
          Dept. Biochemistry, Universidad Autónoma de Madrid, Instituto de
          Investigaciones Biomédicas 'Alberto Sols' (UAM-CSIC), Madrid,
