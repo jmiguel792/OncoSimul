@@ -66,6 +66,16 @@ rm ./OncoSimulR/vignettes/*.log
 rm ./OncoSimulR/vignettes/*.out
 rm ./OncoSimulR/vignettes/*.blg
 rm ./OncoSimulR/vignettes/*.synctex.*
+rm ./OncoSimulR/src/liblandscape.a
+rm ./OncoSimulR/src/fl_statistics 
+rm ./OncoSimulR/src/fl_generate
+rm ./OncoSimulR/src/fl_genchains
+rm ./OncoSimulR/src/FitnessLandscape/*.o
+rm ./OncoSimulR/src/FitnessLandscape/*~
+make -C ./OncoSimulR/src/FitnessLandscape clean
+
+## We always do this, though it should not be necessary
+sed -i 's/^};$/}/' ./OncoSimulR/src/FitnessLandscape/generalized_chain.c
 
 rm ./OncoSimulR/src/liblandscape.a
 rm ./OncoSimulR/src/fl_statistics 

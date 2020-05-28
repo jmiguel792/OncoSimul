@@ -25,6 +25,7 @@
 #include <random>
 #include <string>
 #include <sstream>
+#include <limits>
 
 
 using namespace Rcpp;
@@ -1378,29 +1379,45 @@ double totalPop(const std::vector<spParamsP>& popParams){
 }
 
 double evalGenotypeFDFitnessEcuation(const Genotype& ge,
-	const fitnessEffectsAll& F,
-	const std::vector<Genotype>& Genotypes,
-	const std::vector<spParamsP>& popParams){
-
+                                     const fitnessEffectsAll& F,
+                                     const std::vector<Genotype>& Genotypes,
+                                     const std::vector<spParamsP>& popParams,
+                                     const double& currentTime){
+  
   double f;
+  
   evalFVars_struct symbol_table_struct = evalFVars(F, Genotypes, popParams);
+  
   std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
+  
   std::string gs = concatIntsString(ge.flGenes);
+  
   std::string expr_string = F.fitnessLandscape.flFDFmap.at(gs);
-
+  
   double N = totalPop(popParams);
-
+  
+  double T = currentTime;
+  
+  /*
+  if (T == std::numeric_limits<double>::infinity() 
+        or T == -std::numeric_limits<double>::infinity()) {
+    T = 0;}
+  */
+  
+  //std::cout << "value of T: " << T << " ; ";
+  
   typedef exprtk::symbol_table<double> symbol_table_t;
   typedef exprtk::expression<double> expression_t;
   typedef exprtk::parser<double> parser_t;
-
+  
   symbol_table_t symbol_table;
   for(auto& iterator : EFVMap){
-		symbol_table.add_variable(iterator.first, iterator.second);
+    symbol_table.add_variable(iterator.first, iterator.second);
   }
   symbol_table.add_constant("N", N);//We reserve N to total population size
+  symbol_table.add_constant("T", T); //Pass current time to exprtk
   symbol_table.add_constants();
-
+  
   expression_t expression;
   expression.register_symbol_table(symbol_table);
   
@@ -1414,11 +1431,11 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
       // RDU: FIXME?
       // Rcpp::Rcout <<
       REprintf("Error[%02zu] Position: %02zu Type: [%14s] Msg: %s Expression: %s\n",
-	       i,
-	       error.token.position,
-	       exprtk::parser_error::to_str(error.mode).c_str(),
-	       error.diagnostic.c_str(),
-	       expr_string.c_str());
+               i,
+               error.token.position,
+               exprtk::parser_error::to_str(error.mode).c_str(),
+               error.diagnostic.c_str(),
+               expr_string.c_str());
       // << std::endl;
     }
     std::string errorMessage1 = "Wrong evalGenotypeFDFitnessEcuation evaluation, ";
@@ -1426,14 +1443,17 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
     std::string errorMessage = errorMessage1 + errorMessage2;
     throw std::invalid_argument(errorMessage);
   }
+  
   f = expression.value();
+  
   return f;
 }
 
 std::vector<double> evalGenotypeFitness(const Genotype& ge,
 	const fitnessEffectsAll& F,
 	const std::vector<Genotype>& Genotypes,
-	const std::vector<spParamsP>& popParams){
+	const std::vector<spParamsP>& popParams,
+	const double& currentTime){
 
   // check_disable_later
   checkLegitGenotype(ge, F);
@@ -1458,21 +1478,21 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
   // i.e., s = birth rate - 1;
 
   if(F.fitnessLandscape.NumID.size()) {
-    std::string gs = concatIntsString(ge.flGenes);
-    if(F.frequencyDependentFitness){ //possible also with Genotype.size()==0 and popParams.size==0 ?
-      if(F.fitnessLandscape.flFDFmap.find(gs) == F.fitnessLandscape.flFDFmap.end()) {
-	s.push_back(-1.0);
-      } else {
-	s.push_back(evalGenotypeFDFitnessEcuation(ge, F, Genotypes, popParams) - 1);
-      }
-    } else {
-      if(F.fitnessLandscape.flmap.find(gs) == F.fitnessLandscape.flmap.end()) {
-	s.push_back(-1.0);
-      } else {
-	s.push_back(F.fitnessLandscape.flmap.at(gs) - 1);
-      }
-    }
-  }
+		std::string gs = concatIntsString(ge.flGenes);
+		if(F.frequencyDependentFitness){//possible also with Genotype.size()==0 and popParams.size==0 ?
+			if(F.fitnessLandscape.flFDFmap.find(gs) == F.fitnessLandscape.flFDFmap.end()) {
+	    	s.push_back(-1.0);
+			} else {
+	      s.push_back(evalGenotypeFDFitnessEcuation(ge, F, Genotypes, popParams, currentTime) - 1);
+	    	}
+		}else{
+			if(F.fitnessLandscape.flmap.find(gs) == F.fitnessLandscape.flmap.end()) {
+	   		s.push_back(-1.0);
+	    } else {
+	      s.push_back(F.fitnessLandscape.flmap.at(gs) - 1);
+	    }
+		}
+	}
 
   // Genes without any restriction or epistasis are just genes. No modules.
   // So simple we do it here.
@@ -1547,6 +1567,7 @@ double evalMutator(const Genotype& fullge,
 		  const fitnessEffectsAll& muEF,
 			const std::vector<Genotype>& Genotypes,
 			const std::vector<spParamsP>& popParams,
+			const double& currentTime,
 		  bool verbose = false) {
   // In contrast to nr_fitness, that sets birth and death, this simply
   // returns the multiplication factor for the mutation rate. This is used
@@ -1583,7 +1604,7 @@ double evalMutator(const Genotype& fullge,
     return 1.0;
   } else {
     Genotype newg = convertGenotypeFromInts(g2, muEF);
-    vector<double> s = evalGenotypeFitness(newg, muEF, Genotypes, popParams);
+    vector<double> s = evalGenotypeFitness(newg, muEF, Genotypes, popParams, currentTime);
 
     // just for checking
     if(verbose) {
@@ -1626,9 +1647,11 @@ std::vector<spParamsP> popParamsFromScratch(const std::vector<int>& spPopSizes){
 // [[Rcpp::export]]
 double evalRGenotype(Rcpp::IntegerVector rG,
 	Rcpp::List rFE,
+	Rcpp::IntegerVector spPop,
 	bool verbose,
 	bool prodNeg,
-	Rcpp::CharacterVector calledBy_) {
+	Rcpp::CharacterVector calledBy_,
+	double currentTime) {
   // Can evaluate both ONLY fitness or ONLY mutator. Not both at the same
   // time. Use evalRGenotypeAndMut for that.
 
@@ -1637,19 +1660,20 @@ double evalRGenotype(Rcpp::IntegerVector rG,
 
 	if(rG.size() == 0 && fdf == false) {
 		// Why don't we evaluate it?
-		Rcpp::warning("WARNING: you have evaluated fitness/mutator status of a genotype of length zero.");
+		Rcpp::warning(
+		  "WARNING: you have evaluated fitness/mutator status of a genotype of length zero.");
 		return 1;
 	}
 
 	std::vector<Genotype> Genotypes;
   std::vector<spParamsP> popParams;
+  
 	if(fdf){
 		//std::vector<int> spPopSizes;
 		//spPopSizes = as<std::vector<int> > (rFE["spPopSizes"]);
-		std::vector<int> spPopSizes = as<std::vector<int> > (rFE["spPopSizes"]);
+		std::vector<int> spPopSizes = as<std::vector<int> > (spPop);
 		Rcpp::List fl_df = rFE["fitnessLandscape_df"];
-		std::vector<std::string> genotNames =
-	    Rcpp::as<std::vector<std::string> >(fl_df["Genotype"]);
+		std::vector<std::string> genotNames = Rcpp::as<std::vector<std::string> >(fl_df["Genotype"]);
 		Genotypes = genotypesFromScratch(genotNames);
 		popParams = popParamsFromScratch(spPopSizes);
 	}//else{
@@ -1660,7 +1684,7 @@ double evalRGenotype(Rcpp::IntegerVector rG,
   //const Rcpp::List rF(rFE);
   fitnessEffectsAll F = convertFitnessEffects(rFE);
   Genotype g = convertGenotypeFromR(rG, F);
-  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams);
+  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime);
 
   if(verbose) {
     std::string sprod;
@@ -1688,23 +1712,45 @@ double evalRGenotype(Rcpp::IntegerVector rG,
 Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
 					Rcpp::List rFE,
 					Rcpp::List muEF,
+					Rcpp::IntegerVector spPop,
 					Rcpp::IntegerVector full2mutator_,
 					bool verbose,
-					bool prodNeg) {
+					bool prodNeg,
+          double currentTime) {
   // Basically to test evalMutator. We repeat the conversion to genotype,
   // but that is unavoidable here.
-
+  
+  const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
+  
+  /*
+  if(rG.size() == 0 && fdf == false) {
+    // Why don't we evaluate it?
+    Rcpp::warning("WARNING: you have evaluated fitness/mutator status of a genotype of length zero.");
+    return 1;
+  }
+  */
 
   NumericVector out(2);
-	const std::vector<Genotype> Genotypes(0);
-	const std::vector<spParamsP> popParams(0);
+	std::vector<Genotype> Genotypes;
+	std::vector<spParamsP> popParams;
+	
+	if(fdf){
+	  //std::vector<int> spPopSizes;
+	  //spPopSizes = as<std::vector<int> > (rFE["spPopSizes"]);
+	  std::vector<int> spPopSizes = as<std::vector<int> > (spPop);
+	  Rcpp::List fl_df = rFE["fitnessLandscape_df"];
+	  std::vector<std::string> genotNames = Rcpp::as<std::vector<std::string> >(fl_df["Genotype"]);
+	  Genotypes = genotypesFromScratch(genotNames);
+	  popParams = popParamsFromScratch(spPopSizes);
+	}
 
   // For fitness. Except for "evalGenotypeFromR", all is done as in the
   // rest of the internal code for evaluating a genotype.
   fitnessEffectsAll F = convertFitnessEffects(rFE);
   fitnessEffectsAll muef = convertFitnessEffects(muEF);
   Genotype g = convertGenotypeFromR(rG, F);
-  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams);
+  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime);
+  
   if(!prodNeg)
     out[0] = prodFitness(s);
   else
@@ -1719,7 +1765,7 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   // Genotype fullge = convertGenotypeFromR(rG, F);
 
   const std::vector<int> full2mutator = Rcpp::as<std::vector<int> >(full2mutator_);
-  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, verbose);
+  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, verbose, currentTime);
 
   return out;
 }
@@ -1732,11 +1778,12 @@ double mutationFromScratch(const std::vector<double>& mu,
 			   const std::vector<int> full2mutator,
 			   const fitnessEffectsAll& muEF,
 				 const std::vector<Genotype>& Genotypes,
-	 			 const std::vector<spParamsP>& popParams) {
+	 			 const std::vector<spParamsP>& popParams,
+	 			 const double& currentTime) {
 
   double mumult;
   if(full2mutator.size() > 0) { // so there are mutator effects
-    mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams);
+    mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime);
   } else mumult = 1.0;
   //FIXME: here the code for altering mutation rate
   // with a procedure like ExprTk for fitness??
