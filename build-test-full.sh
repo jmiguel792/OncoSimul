@@ -77,6 +77,19 @@ make -C ./OncoSimulR/src/FitnessLandscape clean
 ## We always do this, though it should not be necessary
 sed -i 's/^};$/}/' ./OncoSimulR/src/FitnessLandscape/generalized_chain.c
 
+rm ./OncoSimulR/src/liblandscape.a
+rm ./OncoSimulR/src/fl_statistics 
+rm ./OncoSimulR/src/fl_generate
+rm ./OncoSimulR/src/fl_genchains
+rm ./OncoSimulR/src/FitnessLandscape/*.o
+rm ./OncoSimulR/src/FitnessLandscape/*~
+make -C ./OncoSimulR/src/FitnessLandscape clean
+
+
+## We always do this, though it should not be necessary
+sed -i 's/^};$/}/' ./OncoSimulR/src/FitnessLandscape/generalized_chain.c 
+
+
 # echo " ************************************** "
 # echo " **********   R CMD build   *********** "
 # echo ""
@@ -101,6 +114,7 @@ sed -i 's/^};$/}/' ./OncoSimulR/src/FitnessLandscape/generalized_chain.c
 # echo " =======     done long manual tests   =======     "
 # echo " "
 
+## Remember we can also import Renviron in .Rprofile
 export R_CHECK_ENVIRON="~/.R/check.Renviron"
 echo " ************************************** "
 echo " **********   R CMD build --vanilla  *********** "
