@@ -1382,7 +1382,8 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
                                      const fitnessEffectsAll& F,
                                      const std::vector<Genotype>& Genotypes,
                                      const std::vector<spParamsP>& popParams,
-                                     const double& currentTime){
+                                     const double& currentTime,
+                                     const std::vector& mu){
   
   double f;
   
@@ -1397,6 +1398,8 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   double N = totalPop(popParams);
   
   double T = currentTime;
+  
+  double M = mu;
   
   /*
   if (T == std::numeric_limits<double>::infinity() 
@@ -1415,7 +1418,8 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
     symbol_table.add_variable(iterator.first, iterator.second);
   }
   symbol_table.add_constant("N", N);//We reserve N to total population size
-  symbol_table.add_constant("T", T); //Pass current time to exprtk
+  symbol_table.add_constant("T", T);//Pass current time to exprtk
+  symbol_table.add_constant("M", M);//Pass a new mutationRate value at a certain timepoint
   symbol_table.add_constants();
   
   expression_t expression;
