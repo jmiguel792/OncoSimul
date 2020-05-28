@@ -664,3 +664,4 @@ test_that("Same output from magellan as before changing their C code", {
 
 set.seed(NULL)
 cat(paste("\n Ended test.Z-magellan at", date(), "\n"))
+rm(inittime)
