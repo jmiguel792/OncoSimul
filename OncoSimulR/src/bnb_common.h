@@ -172,7 +172,8 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
   double& adjust_fitness_MF,
   const double& K,
   const double& totPopSize,
-  const double& currentTime);
+  const double& currentTime,
+  const std::vector<double>& mu);
 
 void updateRatesMcFarlandLog_D(std::vector<spParamsP>& popParams,
 				    double& adjust_fitness_MF,
@@ -185,25 +186,28 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
   double& adjust_fitness_MF,
   const double& K,
   const double& totPopSize,
-  const double& currentTime);
+  const double& currentTime,
+  const std::vector<double>& mu);
 
 
 void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
   const fitnessEffectsAll& fitnessEffects,
-  const double& currentTime);
+  const double& currentTime,
+  const std::vector<double>& mu);
 
 void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
   const fitnessEffectsAll& fitnessEffects,
-  const double& currentTime);
+  const double& currentTime,
+  const std::vector<double>& mu);
 
 void updateRatesMcFarland0(std::vector<spParamsP>& popParams,
 				  double& adjust_fitness_MF,
 				  const double& K,
 				  const double& totPopSize,
 				  const int& mutationPropGrowth,
-			   const double& mu);
+			    const double& mu);
 
 void updateRatesBeeren(std::vector<spParamsP>& popParams,
 			      double& adjust_fitness_B,
@@ -212,7 +216,7 @@ void updateRatesBeeren(std::vector<spParamsP>& popParams,
 			      const double& alpha,
 			      const double& totPopSize,
 			      const int& mutationPropGrowth,
-		       const double& mu);
+		        const double& mu);
 
 void detect_ti_duplicates(const std::multimap<double, int>& m,
 			  const double ti,

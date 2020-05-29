@@ -1107,7 +1107,8 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
   double& adjust_fitness_MF,
 	const double& K,
 	const double& totPopSize,
-	const double& currentTime) {
+	const double& currentTime,
+	const std::vector<double>& mu) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1116,7 +1117,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
   for(size_t i = 0; i < popParams.size(); ++i) {
     popParams[i].death = adjust_fitness_MF;
     popParams[i].birth = prodFitness(evalGenotypeFitness(Genotypes[i],
-              fitnessEffects, Genotypes, lastPopParams, currentTime));
+              fitnessEffects, Genotypes, lastPopParams, currentTime, mu));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
   }
@@ -1130,7 +1131,8 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
   double& adjust_fitness_MF,
 	const double& K,
 	const double& totPopSize,
-	const double& currentTime) {
+	const double& currentTime,
+	const std::vector<double>& mu) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1141,7 +1143,7 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
   for(size_t i = 0; i < popParams.size(); ++i) {
     popParams[i].death = adjust_fitness_MF;
     popParams[i].birth = prodFitness(evalGenotypeFitness(Genotypes[i],
-              fitnessEffects, Genotypes, lastPopParams, currentTime));
+              fitnessEffects, Genotypes, lastPopParams, currentTime, mu));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
   }
@@ -1152,7 +1154,8 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
 void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
   const fitnessEffectsAll& fitnessEffects,
-  const double& currentTime) {
+  const double& currentTime,
+  const std::vector<double>& mu) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1160,7 +1163,7 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   for(size_t i = 0; i < popParams.size(); ++i) {
 
     popParams[i].birth = prodFitness(evalGenotypeFitness(Genotypes[i],
-                fitnessEffects, Genotypes, lastPopParams, currentTime));
+                fitnessEffects, Genotypes, lastPopParams, currentTime, mu));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
   }
@@ -1169,14 +1172,15 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
 void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
   const fitnessEffectsAll& fitnessEffects,
-  const double& currentTime) {
+  const double& currentTime,
+  const std::vector<double>& mu) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
 
   for(size_t i = 0; i < popParams.size(); ++i) {
     popParams[i].death =  prodDeathFitness(evalGenotypeFitness(Genotypes[i],
-      fitnessEffects, Genotypes, lastPopParams, currentTime));
+      fitnessEffects, Genotypes, lastPopParams, currentTime, mu));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
   }

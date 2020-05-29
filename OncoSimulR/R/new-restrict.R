@@ -1343,7 +1343,8 @@ evalGenotypeORMut <- function(genotype,
                               echo = FALSE,
                               model = "",
                               calledBy_= NULL,
-                              currentTime = currentTime) {
+                              currentTime = currentTime,
+                              mu_ = mu_) {
   ## genotype can be a vector of integers, that are the exact same in
   ## the table of fmEffects or a vector of strings, or a vector (a
   ## string) with genes separated by "," or ">"
@@ -1442,7 +1443,8 @@ evalGenotypeORMut <- function(genotype,
                       verbose = verbose,
                       prodNeg = prodNeg,
                       calledBy_ = calledBy_,
-                      currentTime = currentTime)
+                      currentTime = currentTime,
+                      mu_ = mu_)
 
   if(echo) {
     if(calledBy_ == "evalGenotype") {
@@ -1465,7 +1467,8 @@ evalGenotype <- function(genotype,
                          verbose = FALSE,
                          echo = FALSE,
                          model = "",
-                         currentTime = 0) {
+                         currentTime = 0,
+                         mu_ = 1e-5) {
   
     if(inherits(fitnessEffects, "mutatorEffects"))
          stop("You are trying to get the fitness of a mutator specification. ",
@@ -1486,7 +1489,8 @@ evalGenotype <- function(genotype,
                       echo = echo,
                       model  = model ,
                       calledBy_= "evalGenotype",
-                      currentTime = currentTime
+                      currentTime = currentTime,
+                      mu_ = mu_
                       )
 }
 
@@ -1498,7 +1502,8 @@ evalGenotypeFitAndMut <- function(genotype,
                                   verbose = FALSE,
                                   echo = FALSE,
                                   model = "",
-                                  currentTime = 0) {
+                                  currentTime = 0,
+                                  mu_ = 1e-5) {
     
     ## Must deal with objects from previous, pre flfast, modifications
     if(!exists("fitnessLandscape_gene_id", where = fitnessEffects)) {
@@ -1601,7 +1606,8 @@ evalGenotypeFitAndMut <- function(genotype,
                         full2mutator_,
                         verbose = verbose,
                         prodNeg = prodNeg,
-                        currentTime = currentTime)
+                        currentTime = currentTime,
+                        mu_ = mu_)
 }
 
 ## evalGenotype <- function(genotype, fitnessEffects,
@@ -1667,7 +1673,8 @@ evalAllGenotypesORMut <- function(fmEffects,
                                   model = "",
                                   spPopSizes = spPopSizes,
                                   calledBy_ = "",
-                                  currentTime = currentTime) {
+                                  currentTime = currentTime,
+                                  mu_ = mu_) {
 ##                                minimal = FALSE) {
     if( !(calledBy_ %in% c("evalGenotype", "evalGenotypeMut") ))
         stop("How did you call this function?. Bug.")
@@ -1756,13 +1763,14 @@ evalAllGenotypesORMut <- function(fmEffects,
                                              FALSE,
                                              prodNeg,
                                              calledBy_,
-                                             currentTime),
+                                             currentTime,
+                                             mu_),
                    1.1)
 
 
     if (fmEffects$frequencyDependentFitness){
       evalWT <- evalRGenotype(vector(mode = "integer", length = 0L),
-                              fmEffects, spPopSizes, FALSE, prodNeg, calledBy_, currentTime)
+                              fmEffects, spPopSizes, FALSE, prodNeg, calledBy_, currentTime, mu_)
       allf <- c(evalWT, allf)
       genotypes <- c("WT", allg$genotNames)
       
@@ -1801,7 +1809,8 @@ evalAllGenotypes <- function(fitnessEffects,
                              addwt = FALSE,
                              model = "",
                              spPopSizes = NULL,
-                             currentTime = 0) {
+                             currentTime = 0,
+                             mu_ = 1e-5) {
     ## Must deal with objects from previous, pre flfast, modifications
     if(!exists("fitnessLandscape_gene_id", where = fitnessEffects)) {
         fitnessEffects$fitnessLandscape_df <- data.frame()
@@ -1821,7 +1830,8 @@ evalAllGenotypes <- function(fitnessEffects,
         model = model,
         spPopSizes = spPopSizes,
         calledBy_= "evalGenotype",
-        currentTime = currentTime
+        currentTime = currentTime,
+        mu_ = mu_
     )
 }
 
@@ -1882,7 +1892,8 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                    addwt = FALSE,
                                    model = "",
                                    spPopSizes = NULL,
-                                   currentTime = 0){
+                                   currentTime = 0,
+                                   mu_ = 1e-5){
                                    ##minimal = FALSE) {
 
     if(model %in% c("Bozic", "bozic1", "bozic2") ) {
@@ -1931,7 +1942,8 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                                    full2mutator_ = full2mutator_,
                                                    verbose = FALSE,
                                                    prodNeg = prodNeg,
-                                                   currentTime = currentTime),
+                                                   currentTime = currentTime,
+                                                   mu_ = mu_),
                    c(1.1, 2.2)))
     
     if(fitnessEffects$frequencyDependentFitness){
@@ -1942,7 +1954,8 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                     full2mutator_ = full2mutator_,
                                     verbose = FALSE, 
                                     prodNeg = prodNeg, 
-                                    currentTime = currentTime)
+                                    currentTime = currentTime,
+                                    mu_ = mu_)
       allf <- rbind(evalWT, allf)
       genotypes <- c("WT", allg$genotNames)
       

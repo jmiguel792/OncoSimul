@@ -275,7 +275,8 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
   const fitnessEffectsAll& F,
   const std::vector<Genotype>& Genotypes,
   const std::vector<spParamsP>& popParams,
-  const double& currentTime);
+  const double& currentTime,
+  const std::vector<double>& mu);
 
 
 fitnessEffectsAll convertFitnessEffects(Rcpp::List rFE);

@@ -12027,9 +12027,9 @@ We can check if the fitness values have increased by evaluating the genotypes
 in the simulation time intervals.
 
 ```{r exTimeInc1}
-evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 49)
-evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 51)
-evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 201)
+evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 49)[c(2,3), ]
+evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 51)[c(2,3), ]
+evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 201)[c(2,3), ]
 ```
 
 
@@ -12074,10 +12074,10 @@ In this case, just like above, we can evaluate the fitness in each time interval
 how fitness is differente in each one of them.
 
 ```{r examplesTDec1}
-evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 49)
-evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 51)
-evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 201)
-evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 301)
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 49)[c(2,3), ]
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 51)[c(2,3), ]
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 201)[c(2,3), ]
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 301)[c(2,3), ]
 ```
 
 
