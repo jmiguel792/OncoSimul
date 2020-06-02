@@ -285,7 +285,8 @@ test_that("we evaluate the WT", {
                                                     TRUE, 
                                                     FALSE,
                                                     "evalGenotype", 
-                                                    0),
+                                                    0,
+                                                    1e-5),
                    "WARNING: you have evaluated fitness/mutator status of a genotype of length zero",
                    fixed = TRUE)
     expect_identical(ou, 1)
@@ -304,7 +305,10 @@ test_that("we evaluate the WT, 2", {
                        fm,
                        0,
                        OncoSimulR:::matchGeneIDs(fm, fe)$Reduced,
-                       TRUE, FALSE, 0),
+                       TRUE, 
+                       FALSE, 
+                       0,
+                       1e-5),
                    "WARNING: you have evaluated fitness of a genotype of length zero.",
                    fixed = TRUE)
     expect_identical(ou2, c(1, 1))
