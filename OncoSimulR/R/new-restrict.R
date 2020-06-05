@@ -761,7 +761,7 @@ allFitnessORMutatorEffects <- function(rT = NULL,
         stringsAsFactors = FALSE)
       
       if(frequencyType == "auto"){
-        ch <- paste(as.character(fitnessLandscape_df[,2]), collapse = "")
+        ch <- paste(as.character(fitnessLandscape_df[, ncol(fitnessLandscape_df)]), collapse = "")
         #print(ch)
         if( grepl("f_", ch, fixed = TRUE) ){
           frequencyType = "rel"

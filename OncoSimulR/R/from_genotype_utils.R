@@ -152,7 +152,7 @@ to_genotFitness_std <- function(x,
   ##                 " of a single gene. For this degenerate cases use",
   ##                 " a data frame specification."))
   
-  
+  print(x)
   
   if(! (inherits(x, "matrix") || inherits(x, "data.frame")) )
     stop("Input must inherit from matrix or data.frame.")
@@ -315,7 +315,7 @@ to_genotFitness_std <- function(x,
                            function(x){findAndReplace(x, conversionTable)})
     
     if(frequencyType == "auto"){
-      ch <- paste(as.character(x[,3]), collapse = "")
+      ch <- paste(as.character(x[, ncol(x)]), collapse = "")
       if( grepl("f_", ch, fixed = TRUE) ){
         frequencyType = "rel"
         pattern <- stringr::regex("f_(\\d*_*)*")
