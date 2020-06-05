@@ -26,6 +26,7 @@
 #include <string>
 #include <sstream>
 #include <limits>
+#include <regex>
 
 
 using namespace Rcpp;
@@ -1350,23 +1351,34 @@ evalFVars_struct evalFVars(const fitnessEffectsAll& F,
   std::string freqType = F.frequencyType;
   
   for(const auto& iterator : fvarsmap) {
+    
     std::vector<int> genotype = stringVectorToIntVector(iterator.first);//genotype (as int vector)
     std::string var = iterator.second;//variable associated to genotype
     int position = findPositionInGenotypes(Genotypes, genotype);
+    
+    //std::cout << "first iterator: " << iterator.first << std::endl;
+    //std::cout << "second iterator: " << iterator.second << std::endl;
+    
     if(position != 0){
       int realPos = position - 1;
+      
       if(freqType == "abs"){
-	double freqAbs = popParams[realPos].popSize;
-	efvs.evalFVarsmap.insert({var, freqAbs});
+        double freqAbs = popParams[realPos].popSize;
+        efvs.evalFVarsmap.insert({var, freqAbs});
+        //std::cout << "abs" << std::endl;
+        
       } else {
-	double freqRel = frequency(realPos, popParams);
-	efvs.evalFVarsmap.insert({var, freqRel});
+        double freqRel = frequency(realPos, popParams);
+        efvs.evalFVarsmap.insert({var, freqRel});
+        //std::cout << "rel" << std::endl;
       }
+      
     } else {
       double freq = 0.0;
       efvs.evalFVarsmap.insert({var, freq});
     }
   }
+  
   return efvs;
 }
 

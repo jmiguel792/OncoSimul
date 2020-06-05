@@ -314,10 +314,29 @@ to_genotFitness_std <- function(x,
         x[, ncol(x)] <- sapply(x[, ncol(x)],
                                function(x){findAndReplace(x, conversionTable)})
         
-        if(frequencyType == "abs"){
-            pattern <- stringr::regex("n_(\\d*_*)*")
+        if(frequencyType == "auto"){
+          
+          for(i in 1:nrow(x)){
+            if( grepl("f_", x[i,3], fixed = TRUE) ){
+              frequencyType = "rel"
+              pattern <- stringr::regex("f_(\\d*_*)*")
+              #cat("pattern for auto-rel path")
+              
+            } else if( grepl("n_", x[i,3], fixed = TRUE) ){
+              frequencyType = "abs"
+              pattern <- stringr::regex("n_(\\d*_*)*")
+              #cat("pattern for auto-abs path")
+              
+            } else {stop("No pattern found when frequencyType set to 'auto'")}
+          }
+          
+        } else if(frequencyType == "abs"){
+          pattern <- stringr::regex("n_(\\d*_*)*")
+          #cat("pattern for abs path")
+          
         } else {
-            pattern <- stringr::regex("f_(\\d*_*)*")
+          pattern <- stringr::regex("f_(\\d*_*)*")
+          #cat("pattern for rel path")
         }
 
         regularExpressionVector <-
@@ -330,8 +349,8 @@ to_genotFitness_std <- function(x,
                               fVariablesN(ncol(x) - 1, frequencyType)) >= 1) )){
             stop("There are some errors in fitness column")
         }
-
     }
+  
   return(x)
 }
 

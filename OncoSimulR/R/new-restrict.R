@@ -425,12 +425,12 @@ fVariablesN <- function (g, frequencyType) {
     combinationsList <- append(combinationsList,
                                  combn(1:g, i, list, simplify = TRUE))
   }
-
+    
   if (frequencyType == "abs"){
     fsVector <-sapply(sapply(combinationsList,
                              function(x) paste0(x, collapse = "_")),
                       function(x) paste0("n_", x))
-  }else{
+  } else {
     fsVector <-sapply(sapply(combinationsList,
                              function(x) paste0(x, collapse = "_")),
                       function(x) paste0("f_", x))
@@ -759,10 +759,21 @@ allFitnessORMutatorEffects <- function(rT = NULL,
         Gene = colnames(genotFitness)[-ncol(genotFitness)],
         GeneNumID = cnn,
         stringsAsFactors = FALSE)
+      
+      if(frequencyType == "auto"){
+        
+        for(i in 1:nrow(fitnessLandscape_df)){
+          
+          if(grepl("f", fitnessLandscape_df[i,ncol(fitnessLandscape_df)], fixed = TRUE)){
+            frequencyType = "rel"
+          } else {
+            frequencyType = "abs"
+          }
+        }
+        
+      } else {frequencyType = frequencyType}
 
-      fitnessLandscapeVariables = fVariablesN(ncol(genotFitness) - 1,
-                                              frequencyType)
-
+      fitnessLandscapeVariables = fVariablesN(ncol(genotFitness) - 1, frequencyType)
     }
 
     if(!is.null(drvNames)) {
@@ -1063,8 +1074,15 @@ allFitnessEffects <- function(rT = NULL,
 
   }else{
 
-    if(!(frequencyType %in% c('abs', 'rel'))){
-      stop("frequencyType must be 'abs' (absolute) or 'rel' (relative).")
+    #frequencyType="auto"?          
+    #if(!(frequencyType %in% c('abs', 'rel', 'auto'))){
+    #  stop("frequencyType must be 'abs' (absolute), 'rel' (relative), auto (automatic).")
+    #}
+    
+    if(!(frequencyType %in% c('abs', 'rel', 'auto'))){
+      #set frequencyType = "auto" in case you did not specify 'rel' or 'abs'
+      frequencyType = "auto"
+      message("frequencyType set to 'auto'")
     }
 
     if(is.null(genotFitness)) {
