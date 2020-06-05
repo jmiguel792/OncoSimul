@@ -761,17 +761,14 @@ allFitnessORMutatorEffects <- function(rT = NULL,
         stringsAsFactors = FALSE)
       
       if(frequencyType == "auto"){
-        
-        for(i in 1:nrow(fitnessLandscape_df)){
-          
-          if(grepl("f", fitnessLandscape_df[i,ncol(fitnessLandscape_df)], fixed = TRUE)){
-            frequencyType = "rel"
-          } else {
-            frequencyType = "abs"
-          }
+        ch <- paste(as.character(fitnessLandscape_df[,2]), collapse = "")
+        #print(ch)
+        if( grepl("f_", ch, fixed = TRUE) ){
+          frequencyType = "rel"
+        } else{
+          frequencyType = "abs"
         }
-        
-      } else {frequencyType = frequencyType}
+      } else{ frequencyType = frequencyType }
 
       fitnessLandscapeVariables = fVariablesN(ncol(genotFitness) - 1, frequencyType)
     }
