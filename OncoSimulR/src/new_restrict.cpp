@@ -1395,7 +1395,7 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
                                      const std::vector<Genotype>& Genotypes,
                                      const std::vector<spParamsP>& popParams,
                                      const double& currentTime,
-                                     const std::vector<double>& mu){
+                                     std::vector<double>& multfact){
   
   double f;
   
@@ -1410,9 +1410,10 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   double N = totalPop(popParams);
   
   double T = currentTime;
+  //std::cout << "currentTime: " << currentTime;
   
-  std::vector<double> newMutationRate = mu;
-  double M = newMutationRate[0];
+  double M = multfact[0];
+  //std::cout << "M-multfact: " << multfact[0];
   
   /*
   if (T == std::numeric_limits<double>::infinity() 
@@ -1432,7 +1433,7 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   }
   symbol_table.add_constant("N", N); //We reserve N to total population size
   symbol_table.add_constant("T", T); //Pass current time to exprtk
-  symbol_table.add_constant("M", M); //Pass a new mutationRate value at a certain timepoint
+  symbol_table.add_constant("M", M); //Multiplicator factor that affects to global mu
   symbol_table.add_constants();
   
   expression_t expression;
@@ -1471,7 +1472,7 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
 	const std::vector<Genotype>& Genotypes,
 	const std::vector<spParamsP>& popParams,
 	const double& currentTime,
-	const std::vector<double>& mu){
+	std::vector<double>& multfact){
 
   // check_disable_later
   checkLegitGenotype(ge, F);
@@ -1501,7 +1502,7 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
 			if(F.fitnessLandscape.flFDFmap.find(gs) == F.fitnessLandscape.flFDFmap.end()) {
 	    	s.push_back(-1.0);
 			} else {
-	      s.push_back(evalGenotypeFDFitnessEcuation(ge, F, Genotypes, popParams, currentTime, mu) - 1);
+	      s.push_back(evalGenotypeFDFitnessEcuation(ge, F, Genotypes, popParams, currentTime, multfact) - 1);
 	    	}
 		}else{
 			if(F.fitnessLandscape.flmap.find(gs) == F.fitnessLandscape.flmap.end()) {
@@ -1586,7 +1587,7 @@ double evalMutator(const Genotype& fullge,
 			const std::vector<Genotype>& Genotypes,
 			const std::vector<spParamsP>& popParams,
 			const double& currentTime,
-			const std::vector<double>& mu,
+			std::vector<double>& multfact,
 		  bool verbose = false) {
   // In contrast to nr_fitness, that sets birth and death, this simply
   // returns the multiplication factor for the mutation rate. This is used
@@ -1623,7 +1624,7 @@ double evalMutator(const Genotype& fullge,
     return 1.0;
   } else {
     Genotype newg = convertGenotypeFromInts(g2, muEF);
-    vector<double> s = evalGenotypeFitness(newg, muEF, Genotypes, popParams, currentTime, mu);
+    vector<double> s = evalGenotypeFitness(newg, muEF, Genotypes, popParams, currentTime, multfact);
 
     // just for checking
     if(verbose) {
@@ -1671,13 +1672,13 @@ double evalRGenotype(Rcpp::IntegerVector rG,
 	bool prodNeg,
 	Rcpp::CharacterVector calledBy_,
 	double currentTime,
-	Rcpp::NumericVector mu_) {
+	Rcpp::NumericVector multfact_) {
   // Can evaluate both ONLY fitness or ONLY mutator. Not both at the same
   // time. Use evalRGenotypeAndMut for that.
 
   const std::string calledBy = Rcpp::as<std::string>(calledBy_);
 	const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
-	const std::vector<double> mu = Rcpp::as<std::vector<double> >(mu_);
+	std::vector<double> multfact = Rcpp::as<std::vector<double>>(multfact_);
 
 	if(rG.size() == 0 && fdf == false) {
 		// Why don't we evaluate it?
@@ -1705,7 +1706,7 @@ double evalRGenotype(Rcpp::IntegerVector rG,
   //const Rcpp::List rF(rFE);
   fitnessEffectsAll F = convertFitnessEffects(rFE);
   Genotype g = convertGenotypeFromR(rG, F);
-  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime, mu);
+  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime, multfact);
 
   if(verbose) {
     std::string sprod;
@@ -1738,12 +1739,12 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
 					bool verbose,
 					bool prodNeg,
           double currentTime,
-          Rcpp::NumericVector mu_) {
+          Rcpp::NumericVector multfact_) {
   // Basically to test evalMutator. We repeat the conversion to genotype,
   // but that is unavoidable here.
   
   const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
-  const std::vector<double> mu = Rcpp::as<std::vector<double> >(mu_);
+  std::vector<double> multfact = Rcpp::as<std::vector<double>>(multfact_);
   
   /*
   if(rG.size() == 0 && fdf == false) {
@@ -1772,7 +1773,7 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   fitnessEffectsAll F = convertFitnessEffects(rFE);
   fitnessEffectsAll muef = convertFitnessEffects(muEF);
   Genotype g = convertGenotypeFromR(rG, F);
-  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime, mu);
+  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime, multfact);
   
   if(!prodNeg)
     out[0] = prodFitness(s);
@@ -1788,10 +1789,32 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   // Genotype fullge = convertGenotypeFromR(rG, F);
 
   const std::vector<int> full2mutator = Rcpp::as<std::vector<int> >(full2mutator_);
-  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, currentTime, mu, verbose);
+  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, currentTime, multfact, verbose);
 
   return out;
 }
+
+double muProd(const fitnessEffectsAll& fe, 
+              std::vector<double>& multfact){
+  
+  double mult;
+  
+  if(fe.frequencyDependentFitness){
+    if(multfact[0] == 1.0){
+      mult = 1.0;
+    } else {
+      mult = multfact[0];
+      std::cout << "multfact changed? " << mult << std::endl;
+    }
+    
+  } else {
+    mult = 1.0;
+  }
+  
+  //std::cout << "mult in muProd: " << mult << std::endl; 
+  return mult;
+}
+
 
 double mutationFromScratch(const std::vector<double>& mu,
 			   const spParamsP& spP,
@@ -1802,11 +1825,12 @@ double mutationFromScratch(const std::vector<double>& mu,
 			   const fitnessEffectsAll& muEF,
 				 const std::vector<Genotype>& Genotypes,
 	 			 const std::vector<spParamsP>& popParams,
-	 			 const double& currentTime) {
+	 			 const double& currentTime,
+	 			 std::vector<double>& multfact) {
 
   double mumult;
   if(full2mutator.size() > 0) { // so there are mutator effects
-    mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime, mu);
+    mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime, multfact);
   } else mumult = 1.0;
   //FIXME: here the code for altering mutation rate
   // with a procedure like ExprTk for fitness??
@@ -1814,6 +1838,10 @@ double mutationFromScratch(const std::vector<double>& mu,
   // where the updateRatesFDF... are called.
   // In BNB_nr.cpp, in nr_innerBNB function
   // when we are sampling.
+  
+  mumult *= muProd(fe, multfact);
+  std::cout << "multiplication factor: " << mumult << std::endl;
+  
   if(mu.size() == 1) {
     if(mutationPropGrowth)
       return(mumult * mu[0] * spP.numMutablePos * spP.birth);

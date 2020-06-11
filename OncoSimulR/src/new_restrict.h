@@ -276,7 +276,7 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
   const std::vector<Genotype>& Genotypes,
   const std::vector<spParamsP>& popParams,
   const double& currentTime,
-  const std::vector<double>& mu);
+  std::vector<double>& multfact);
 
 
 fitnessEffectsAll convertFitnessEffects(Rcpp::List rFE);
@@ -303,7 +303,8 @@ double mutationFromScratch(const std::vector<double>& mu,
 			   const fitnessEffectsAll& muEF,
          const std::vector<Genotype>& Genotypes,
 	 			 const std::vector<spParamsP>& popParams,
-	 			 const double& currentTime);
+	 			 const double& currentTime,
+	 			 std::vector<double>& multfact);
 
 // double mutationFromParent(const std::vector<double>& mu,
 // 			  const spParamsP& newP,

@@ -95,8 +95,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // evalRGenotype
-double evalRGenotype(Rcpp::IntegerVector rG, Rcpp::List rFE, Rcpp::IntegerVector spPop, bool verbose, bool prodNeg, Rcpp::CharacterVector calledBy_, double currentTime, Rcpp::NumericVector mu_);
-RcppExport SEXP OncoSimulR_evalRGenotype(SEXP rGSEXP, SEXP rFESEXP, SEXP spPopSEXP, SEXP verboseSEXP, SEXP prodNegSEXP, SEXP calledBy_SEXP, SEXP currentTimeSEXP, SEXP mu_SEXP) {
+double evalRGenotype(Rcpp::IntegerVector rG, Rcpp::List rFE, Rcpp::IntegerVector spPop, bool verbose, bool prodNeg, Rcpp::CharacterVector calledBy_, double currentTime, Rcpp::NumericVector multfact_);
+RcppExport SEXP OncoSimulR_evalRGenotype(SEXP rGSEXP, SEXP rFESEXP, SEXP spPopSEXP, SEXP verboseSEXP, SEXP prodNegSEXP, SEXP calledBy_SEXP, SEXP currentTimeSEXP, SEXP multfact_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -107,14 +107,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type prodNeg(prodNegSEXP);
     Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type calledBy_(calledBy_SEXP);
     Rcpp::traits::input_parameter< double >::type currentTime(currentTimeSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mu_(mu_SEXP);
-    __result = Rcpp::wrap(evalRGenotype(rG, rFE, spPop, verbose, prodNeg, calledBy_, currentTime, mu_));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type multfact_(multfact_SEXP);
+    __result = Rcpp::wrap(evalRGenotype(rG, rFE, spPop, verbose, prodNeg, calledBy_, currentTime, multfact_));
     return __result;
 END_RCPP
 }
 // evalRGenotypeAndMut
-Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG, Rcpp::List rFE, Rcpp::List muEF, Rcpp::IntegerVector spPop, Rcpp::IntegerVector full2mutator_, bool verbose, bool prodNeg, double currentTime, Rcpp::NumericVector mu_);
-RcppExport SEXP OncoSimulR_evalRGenotypeAndMut(SEXP rGSEXP, SEXP rFESEXP, SEXP muEFSEXP, SEXP spPopSEXP, SEXP full2mutator_SEXP, SEXP verboseSEXP, SEXP prodNegSEXP, SEXP currentTimeSEXP, SEXP mu_SEXP) {
+Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG, Rcpp::List rFE, Rcpp::List muEF, Rcpp::IntegerVector spPop, Rcpp::IntegerVector full2mutator_, bool verbose, bool prodNeg, double currentTime, Rcpp::NumericVector multfact_);
+RcppExport SEXP OncoSimulR_evalRGenotypeAndMut(SEXP rGSEXP, SEXP rFESEXP, SEXP muEFSEXP, SEXP spPopSEXP, SEXP full2mutator_SEXP, SEXP verboseSEXP, SEXP prodNegSEXP, SEXP currentTimeSEXP, SEXP multfact_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -126,13 +126,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< bool >::type prodNeg(prodNegSEXP);
     Rcpp::traits::input_parameter< double >::type currentTime(currentTimeSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mu_(mu_SEXP);
-    __result = Rcpp::wrap(evalRGenotypeAndMut(rG, rFE, muEF, spPop, full2mutator_, verbose, prodNeg, currentTime, mu_));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type multfact_(multfact_SEXP);
+    __result = Rcpp::wrap(evalRGenotypeAndMut(rG, rFE, muEF, spPop, full2mutator_, verbose, prodNeg, currentTime, multfact_));
     return __result;
 END_RCPP
 }
 
-// evalRGenotypeAndMut
+// evalRGenotypeAndMut - accessibleGenotypes
 Rcpp::IntegerVector accessibleGenotypes(Rcpp::IntegerMatrix y, Rcpp::NumericVector f, Rcpp::IntegerVector numMut, double th);
 RcppExport SEXP OncoSimulR_accessibleGenotypes(SEXP ySEXP, SEXP fSEXP, SEXP numMutSEXP, SEXP thSEXP) {
 BEGIN_RCPP

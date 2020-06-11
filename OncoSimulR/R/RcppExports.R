@@ -9,12 +9,12 @@ BNB_Algo5 <- function(restrictTable, numDrivers, numGenes, typeCBN_, s, death, m
     .Call('OncoSimulR_BNB_Algo5', PACKAGE = 'OncoSimulR', restrictTable, numDrivers, numGenes, typeCBN_, s, death, mu, initSize, sampleEvery, detectionSize, finalTime, initSp, initIt, seed, verbosity, speciesFS, ratioForce, typeFitness_, maxram, mutationPropGrowth, initMutant, maxWallTime, keepEvery, sh, K, detectionDrivers, onlyCancer, errorHitWallTime, maxNumTries, errorHitMaxTries, minDetectDrvCloneSz, extraTime)
 }
 
-evalRGenotype <- function(rG, rFE, spPop, verbose, prodNeg, calledBy_, currentTime, mu_) {
-    .Call('OncoSimulR_evalRGenotype', PACKAGE = 'OncoSimulR', rG, rFE, spPop, verbose, prodNeg, calledBy_, currentTime, mu_)
+evalRGenotype <- function(rG, rFE, spPop, verbose, prodNeg, calledBy_, currentTime, multfact_) {
+    .Call('OncoSimulR_evalRGenotype', PACKAGE = 'OncoSimulR', rG, rFE, spPop, verbose, prodNeg, calledBy_, currentTime, multfact_)
 }
 
-evalRGenotypeAndMut <- function(rG, rFE, muEF, spPop, full2mutator_, verbose, prodNeg, currentTime, mu_) {
-    .Call('OncoSimulR_evalRGenotypeAndMut', PACKAGE = 'OncoSimulR', rG, rFE, muEF, spPop, full2mutator_, verbose, prodNeg, currentTime, mu_)
+evalRGenotypeAndMut <- function(rG, rFE, muEF, spPop, full2mutator_, verbose, prodNeg, currentTime, multfact_) {
+    .Call('OncoSimulR_evalRGenotypeAndMut', PACKAGE = 'OncoSimulR', rG, rFE, muEF, spPop, full2mutator_, verbose, prodNeg, currentTime, multfact_)
 }
 
 accessibleGenotypes <- function(y, f, numMut, th) {
