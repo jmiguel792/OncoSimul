@@ -1459,7 +1459,7 @@ evalGenotypeORMut <- function(genotype,
                       prodNeg = prodNeg,
                       calledBy_ = calledBy_,
                       currentTime = currentTime,
-                      multfact_ = 1.0
+                      multfact_ = NULL
                       )
 
   if(echo) {
@@ -1622,7 +1622,7 @@ evalGenotypeFitAndMut <- function(genotype,
                         verbose = verbose,
                         prodNeg = prodNeg,
                         currentTime = currentTime,
-                        multfact_ = 1.0
+                        multfact_ = NULL
                         )
 }
 
@@ -1780,14 +1780,14 @@ evalAllGenotypesORMut <- function(fmEffects,
                                              prodNeg,
                                              calledBy_,
                                              currentTime,
-                                             multfact_ = 1.0
+                                             multfact_ = NULL
                                              ),
                    1.1)
 
 
     if (fmEffects$frequencyDependentFitness){
       evalWT <- evalRGenotype(vector(mode = "integer", length = 0L),
-                              fmEffects, spPopSizes, FALSE, prodNeg, calledBy_, currentTime, multfact_ = 1.0)
+                              fmEffects, spPopSizes, FALSE, prodNeg, calledBy_, currentTime, multfact_ = NULL)
       allf <- c(evalWT, allf)
       genotypes <- c("WT", allg$genotNames)
       
@@ -1957,7 +1957,7 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                                    verbose = FALSE,
                                                    prodNeg = prodNeg,
                                                    currentTime = currentTime,
-                                                   multfact_ = 1.0
+                                                   multfact_ = NULL
                                                    ),
                    c(1.1, 2.2)))
     
@@ -1970,7 +1970,7 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                     verbose = FALSE, 
                                     prodNeg = prodNeg, 
                                     currentTime = currentTime,
-                                    multfact_ = 1.0
+                                    multfact_ = NULL
                                     )
       allf <- rbind(evalWT, allf)
       genotypes <- c("WT", allg$genotNames)
@@ -2172,6 +2172,8 @@ nr_oncoSimul.internal <- function(rFE,
                                   birth,
                                   death,
                                   mu,
+                                  muFactor,
+                                  timeFactor,
                                   initSize,
                                   sampleEvery,
                                   detectionSize,
@@ -2456,6 +2458,8 @@ nr_oncoSimul.internal <- function(rFE,
     return(c(
         nr_BNB_Algo5(rFE = rFE,
                      mu_ = mu,
+                     muFactor = muFactor,
+                     timeFactor = timeFactor,
                      death = death,
                      initSize = initSize,
                      sampleEvery = sampleEvery,

@@ -1394,8 +1394,7 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
                                      const fitnessEffectsAll& F,
                                      const std::vector<Genotype>& Genotypes,
                                      const std::vector<spParamsP>& popParams,
-                                     const double& currentTime,
-                                     std::vector<double>& multfact){
+                                     const double& currentTime){
   
   double f;
   
@@ -1411,9 +1410,6 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   
   double T = currentTime;
   //std::cout << "currentTime: " << currentTime;
-  
-  double M = multfact[0];
-  //std::cout << "M-multfact: " << multfact[0];
   
   /*
   if (T == std::numeric_limits<double>::infinity() 
@@ -1433,7 +1429,6 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   }
   symbol_table.add_constant("N", N); //We reserve N to total population size
   symbol_table.add_constant("T", T); //Pass current time to exprtk
-  symbol_table.add_constant("M", M); //Multiplicator factor that affects to global mu
   symbol_table.add_constants();
   
   expression_t expression;
@@ -1471,8 +1466,7 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
 	const fitnessEffectsAll& F,
 	const std::vector<Genotype>& Genotypes,
 	const std::vector<spParamsP>& popParams,
-	const double& currentTime,
-	std::vector<double>& multfact){
+	const double& currentTime){
 
   // check_disable_later
   checkLegitGenotype(ge, F);
@@ -1502,7 +1496,7 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
 			if(F.fitnessLandscape.flFDFmap.find(gs) == F.fitnessLandscape.flFDFmap.end()) {
 	    	s.push_back(-1.0);
 			} else {
-	      s.push_back(evalGenotypeFDFitnessEcuation(ge, F, Genotypes, popParams, currentTime, multfact) - 1);
+	      s.push_back(evalGenotypeFDFitnessEcuation(ge, F, Genotypes, popParams, currentTime) - 1);
 	    	}
 		}else{
 			if(F.fitnessLandscape.flmap.find(gs) == F.fitnessLandscape.flmap.end()) {
@@ -1624,7 +1618,7 @@ double evalMutator(const Genotype& fullge,
     return 1.0;
   } else {
     Genotype newg = convertGenotypeFromInts(g2, muEF);
-    vector<double> s = evalGenotypeFitness(newg, muEF, Genotypes, popParams, currentTime, multfact);
+    vector<double> s = evalGenotypeFitness(newg, muEF, Genotypes, popParams, currentTime);
 
     // just for checking
     if(verbose) {
@@ -1706,7 +1700,7 @@ double evalRGenotype(Rcpp::IntegerVector rG,
   //const Rcpp::List rF(rFE);
   fitnessEffectsAll F = convertFitnessEffects(rFE);
   Genotype g = convertGenotypeFromR(rG, F);
-  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime, multfact);
+  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime);
 
   if(verbose) {
     std::string sprod;
@@ -1773,7 +1767,7 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   fitnessEffectsAll F = convertFitnessEffects(rFE);
   fitnessEffectsAll muef = convertFitnessEffects(muEF);
   Genotype g = convertGenotypeFromR(rG, F);
-  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime, multfact);
+  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime);
   
   if(!prodNeg)
     out[0] = prodFitness(s);
@@ -1789,29 +1783,41 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   // Genotype fullge = convertGenotypeFromR(rG, F);
 
   const std::vector<int> full2mutator = Rcpp::as<std::vector<int> >(full2mutator_);
-  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, currentTime, multfact, verbose);
+  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, currentTime, multfact);
 
   return out;
 }
 
-double muProd(const fitnessEffectsAll& fe, 
+double muProd(const fitnessEffectsAll& fe,
+              const double& currentTime,
               std::vector<double>& multfact){
   
   double mult;
   
+  std::cout << "muFactor: " << multfact[0] << std::endl;
+  std::cout << "timeFactor: " << multfact[1] << std::endl;
+  
   if(fe.frequencyDependentFitness){
-    if(multfact[0] == 1.0){
-      mult = 1.0;
-    } else {
+    if(multfact[0] != 1.0 && multfact[1] > 0){
+      if(currentTime > multfact[1]){
+        mult = multfact[0];
+        std::cout << "change mutation rate at a certain timepoint" << std::endl;
+      } else { mult = 1.0; }
+      
+    } else if (multfact[0] != 1.0 && multfact[1] == 0){
       mult = multfact[0];
-      std::cout << "multfact changed? " << mult << std::endl;
+      std::cout << "mult mutRate by a number before starting the sim" << std::endl;
+      
+    } else {
+      mult = 1.0;
+      std::cout << "run simulation without any modification in the mutRate" << std::endl;
     }
     
   } else {
     mult = 1.0;
   }
   
-  //std::cout << "mult in muProd: " << mult << std::endl; 
+  std::cout << "##########################################################" << std::endl;
   return mult;
 }
 
@@ -1839,8 +1845,9 @@ double mutationFromScratch(const std::vector<double>& mu,
   // In BNB_nr.cpp, in nr_innerBNB function
   // when we are sampling.
   
-  mumult *= muProd(fe, multfact);
+  mumult *= muProd(fe, currentTime, multfact);
   std::cout << "multiplication factor: " << mumult << std::endl;
+  std::cout << "currentTime: " << currentTime << std::endl;
   
   if(mu.size() == 1) {
     if(mutationPropGrowth)
