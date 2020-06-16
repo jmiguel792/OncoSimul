@@ -2042,22 +2042,26 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 	if( (typeModel == TypeModel::mcfarlandlog) ) {
 	  
 	  updateRatesFDFMcFarlandLog(popParams, Genotypes, fitnessEffects,
-				     adjust_fitness_MF, K, totPopSize, currentTime);
+				     adjust_fitness_MF, K, totPopSize, currentTime,
+				     mu, mutationPropGrowth, full2mutator, muEF, multfact);
 	  
 	} else if( (typeModel == TypeModel::mcfarlandlog_d) ) {
 	  
 	  updateRatesFDFMcFarlandLog_D(popParams, Genotypes, fitnessEffects,
-				     adjust_fitness_MF, K, totPopSize, currentTime);
+				     adjust_fitness_MF, K, totPopSize, currentTime,
+				     mu, mutationPropGrowth, full2mutator, muEF, multfact);
 	  
 	} else if(typeModel == TypeModel::exp){
 	  
 	  updateRatesFDFExp(popParams, Genotypes, fitnessEffects, 
-                     currentTime);
+                     currentTime, mu, mutationPropGrowth, full2mutator, muEF, 
+                     multfact);
 	  
 	}else if(typeModel == TypeModel::bozic1){
 	  
 	  updateRatesFDFBozic(popParams, Genotypes, fitnessEffects,
-                       currentTime);
+                       currentTime, mu, mutationPropGrowth, full2mutator, muEF, 
+                       multfact);
 	  
 	} else {
 	  throw std::invalid_argument("this ain't a valid typeModel");
@@ -2086,8 +2090,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 // [[Rcpp::export]]
 Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 			Rcpp::NumericVector mu_,
-			double muFactor,
-			double timeFactor,
+			Rcpp::NumericVector muFactor_,
 			double death,
 			double initSize,
 			double sampleEvery,
@@ -2131,6 +2134,7 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 
   precissionLoss();
   const std::vector<double> mu = Rcpp::as<std::vector<double> >(mu_);
+  const std::vector<double> muFactor = Rcpp::as<std::vector<double>> (muFactor_);
   const std::vector<int> initMutant = Rcpp::as<std::vector<int> >(initMutant_);
   const TypeModel typeModel = stringToModel(Rcpp::as<std::string>(typeFitness_));
 
@@ -2300,9 +2304,10 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
   bool forceRerun = false;
 
   double currentTime = 0;
+  
   std::vector<double> multfact;
-  multfact.push_back(muFactor);
-  multfact.push_back(timeFactor);
+  multfact.push_back(muFactor[0]); //mult for mutation rate
+  multfact.push_back(muFactor[1]); //timepoint to apply mult
   
   int iter = 0;
 

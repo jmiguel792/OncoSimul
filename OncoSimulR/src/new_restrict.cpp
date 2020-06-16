@@ -1798,15 +1798,15 @@ double muProd(const fitnessEffectsAll& fe,
   std::cout << "timeFactor: " << multfact[1] << std::endl;
   
   if(fe.frequencyDependentFitness){
-    if(multfact[0] != 1.0 && multfact[1] > 0){
+    if(multfact[0] != 0 && multfact[1] > 0){
       if(currentTime > multfact[1]){
         mult = multfact[0];
         std::cout << "change mutation rate at a certain timepoint" << std::endl;
       } else { mult = 1.0; }
       
-    } else if (multfact[0] != 1.0 && multfact[1] == 0){
+    } else if (multfact[0] != 0 && multfact[1] == 0){
       mult = multfact[0];
-      std::cout << "mult mutRate by a number before starting the sim" << std::endl;
+      std::cout << "mult mutRate by a number before starting the simulation" << std::endl;
       
     } else {
       mult = 1.0;
@@ -1815,6 +1815,7 @@ double muProd(const fitnessEffectsAll& fe,
     
   } else {
     mult = 1.0;
+    std::cout << "we are not in FDF environment" << std::endl;
   }
   
   std::cout << "##########################################################" << std::endl;
@@ -1835,6 +1836,7 @@ double mutationFromScratch(const std::vector<double>& mu,
 	 			 std::vector<double>& multfact) {
 
   double mumult;
+  
   if(full2mutator.size() > 0) { // so there are mutator effects
     mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime, multfact);
   } else mumult = 1.0;
@@ -1846,6 +1848,7 @@ double mutationFromScratch(const std::vector<double>& mu,
   // when we are sampling.
   
   mumult *= muProd(fe, currentTime, multfact);
+  std::cout << "running mutationFromScratch" << std::endl;
   std::cout << "multiplication factor: " << mumult << std::endl;
   std::cout << "currentTime: " << currentTime << std::endl;
   
