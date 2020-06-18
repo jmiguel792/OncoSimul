@@ -1,6 +1,6 @@
 library(OncoSimulR)
-# lower to higher mutationRate
 
+# lower to higher mutationRate
 ##############################################################
 fl <- data.frame(
   Genotype = c("WT", "A", "B"),
@@ -29,7 +29,6 @@ sim1 <- oncoSimulIndiv(fe,
 plot(sim1, show = "genotypes", col = c("green", "red", "yellow"))
 ##############################################################
 
-# higher to lower mutationRate
 set.seed(2)
 sim2 <- oncoSimulIndiv(fe,
                       model = "McFL", 
@@ -62,7 +61,7 @@ sim3 <- oncoSimulIndiv(fe,
 plot(sim3, show = "genotypes", col = c("purple", "red", "yellow"))
 #######################################################################
 
-#high to low mutation rate
+# higher to lower mutationRate
 set.seed(2)
 sim4 <- oncoSimulIndiv(fe,
                        model = "McFL", 
