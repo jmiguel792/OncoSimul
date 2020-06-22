@@ -959,7 +959,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 			// double& en1,
 			double& ratioForce,
 			double& currentTime,
-			std::vector<double>& multfact,
+			std::vector<std::string>& multfact,
 			int& speciesFS,
 			int& outNS_i,
 			int& iter,
@@ -2090,7 +2090,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 // [[Rcpp::export]]
 Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 			Rcpp::NumericVector mu_,
-			Rcpp::NumericVector muFactor_,
+			Rcpp::CharacterVector muFactor_,
 			double death,
 			double initSize,
 			double sampleEvery,
@@ -2134,7 +2134,7 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 
   precissionLoss();
   const std::vector<double> mu = Rcpp::as<std::vector<double> >(mu_);
-  const std::vector<double> muFactor = Rcpp::as<std::vector<double>> (muFactor_);
+  const std::vector<std::string> muFactor = Rcpp::as<std::vector<std::string>> (muFactor_);
   const std::vector<int> initMutant = Rcpp::as<std::vector<int> >(initMutant_);
   const TypeModel typeModel = stringToModel(Rcpp::as<std::string>(typeFitness_));
 
@@ -2305,9 +2305,8 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 
   double currentTime = 0;
   
-  std::vector<double> multfact;
-  multfact.push_back(muFactor[0]); //mult for mutation rate
-  multfact.push_back(muFactor[1]); //timepoint to apply mult
+  std::vector<std::string> multfact;
+  multfact.push_back(muFactor[0]); //exprtk for mumult
   
   int iter = 0;
 

@@ -1348,29 +1348,48 @@ evalFVars_struct evalFVars(const fitnessEffectsAll& F,
   
   evalFVars_struct efvs;
   std::map<std::string, std::string> fvarsmap = F.fitnessLandscape.flfVarsmap;
+  /*
+  for(auto const& x : fvarsmap){
+    std::cout << x.first << ":" << x.second << std::endl;
+  }*/
   std::string freqType = F.frequencyType;
   
   for(const auto& iterator : fvarsmap) {
     
     std::vector<int> genotype = stringVectorToIntVector(iterator.first);//genotype (as int vector)
+    /*
+    for(int x : genotype){
+      std::cout << "genotype: " << x << std::endl;
+    }*/
     std::string var = iterator.second;//variable associated to genotype
+    //std::cout << "fvars-var: " << var << std::endl;
     int position = findPositionInGenotypes(Genotypes, genotype);
     
-    //std::cout << "first iterator: " << iterator.first << std::endl;
-    //std::cout << "second iterator: " << iterator.second << std::endl;
+    /*
+    std::cout << "fvarsmap" << std::endl;
+    std::cout << "first iterator: " << iterator.first << std::endl;
+    std::cout << "second iterator: " << iterator.second << std::endl;
+     */
     
     if(position != 0){
       int realPos = position - 1;
       
       if(freqType == "abs"){
         double freqAbs = popParams[realPos].popSize;
+        //std::cout << "freqAbs-popSize: " << freqAbs << std::endl;
         efvs.evalFVarsmap.insert({var, freqAbs});
-        //std::cout << "abs" << std::endl;
-        
+        /*
+        for(auto const& x : efvs.evalFVarsmap){
+          std::cout << x.first << ":" << x.second << std::endl;
+        }*/
       } else {
         double freqRel = frequency(realPos, popParams);
+        //std::cout << "freqRel-popSize: " << freqRel << std::endl;
         efvs.evalFVarsmap.insert({var, freqRel});
-        //std::cout << "rel" << std::endl;
+        /*
+        for(auto const& x : efvs.evalFVarsmap){
+          std::cout << x.first << ":" << x.second << std::endl;
+        }*/
       }
       
     } else {
@@ -1387,6 +1406,7 @@ double totalPop(const std::vector<spParamsP>& popParams){
 	for(size_t i = 0; i < popParams.size(); i++){
       sum += popParams[i].popSize;
   }
+	
 	return sum;
 }
 
@@ -1402,9 +1422,18 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   
   std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
   
+  /*
+  for(const auto& iterator : EFVMap){
+    std::cout << "EFVMap" << std::endl;
+    std::cout << "first iterator: " << iterator.first << std::endl;
+    std::cout << "second iterator: " << iterator.second << std::endl;
+  }*/
+  
   std::string gs = concatIntsString(ge.flGenes);
+  //std::cout << "string gs: " << gs << std::endl;
   
   std::string expr_string = F.fitnessLandscape.flFDFmap.at(gs);
+  //std::cout << "expr string: " << expr_string << std::endl;
   
   double N = totalPop(popParams);
   
@@ -1581,7 +1610,7 @@ double evalMutator(const Genotype& fullge,
 			const std::vector<Genotype>& Genotypes,
 			const std::vector<spParamsP>& popParams,
 			const double& currentTime,
-			std::vector<double>& multfact,
+			std::vector<std::string>& multfact,
 		  bool verbose = false) {
   // In contrast to nr_fitness, that sets birth and death, this simply
   // returns the multiplication factor for the mutation rate. This is used
@@ -1666,13 +1695,13 @@ double evalRGenotype(Rcpp::IntegerVector rG,
 	bool prodNeg,
 	Rcpp::CharacterVector calledBy_,
 	double currentTime,
-	Rcpp::NumericVector multfact_) {
+	Rcpp::CharacterVector multfact_) {
   // Can evaluate both ONLY fitness or ONLY mutator. Not both at the same
   // time. Use evalRGenotypeAndMut for that.
 
   const std::string calledBy = Rcpp::as<std::string>(calledBy_);
 	const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
-	std::vector<double> multfact = Rcpp::as<std::vector<double>>(multfact_);
+	std::vector<std::string> multfact = Rcpp::as<std::vector<std::string>>(multfact_);
 
 	if(rG.size() == 0 && fdf == false) {
 		// Why don't we evaluate it?
@@ -1733,12 +1762,12 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
 					bool verbose,
 					bool prodNeg,
           double currentTime,
-          Rcpp::NumericVector multfact_) {
+          Rcpp::CharacterVector multfact_) {
   // Basically to test evalMutator. We repeat the conversion to genotype,
   // but that is unavoidable here.
   
   const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
-  std::vector<double> multfact = Rcpp::as<std::vector<double>>(multfact_);
+  std::vector<std::string> multfact = Rcpp::as<std::vector<std::string>>(multfact_);
   
   /*
   if(rG.size() == 0 && fdf == false) {
@@ -1788,37 +1817,75 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   return out;
 }
 
+double evalMutationRateEcuation(const double& currentTime,
+                                std::vector<std::string>& multfact){
+  
+  double m;
+  
+  std::string expr_string = multfact[0]; //exprt expression
+  
+  double T = currentTime; //to have access to currentTime
+  
+  typedef exprtk::symbol_table<double> symbol_table_t;
+  typedef exprtk::expression<double> expression_t;
+  typedef exprtk::parser<double> parser_t;
+  
+  symbol_table_t symbol_table;
+  symbol_table.add_constant("T", T); //Pass current time to exprtk
+  symbol_table.add_constants();
+  
+  expression_t expression;
+  expression.register_symbol_table(symbol_table);
+  
+  parser_t parser;
+  
+  if (!parser.compile(expr_string, expression)){
+    
+    Rcpp::Rcout << "\nexprtk parser error: \n" << std::endl;
+    for (std::size_t i = 0; i < parser.error_count(); ++i){
+      typedef exprtk::parser_error::type error_t;
+      error_t error = parser.get_error(i);
+      REprintf("Error[%02zu] Position: %02zu Type: [%14s] Msg: %s Expression: %s\n",
+               i,
+               error.token.position,
+               exprtk::parser_error::to_str(error.mode).c_str(),
+               error.diagnostic.c_str(),
+               expr_string.c_str());
+    }
+    
+    std::string errorMessage1 = "Wrong evalMutationRateEcuation evaluation, ";
+    std::string errorMessage2 = "probably bad mutationRate especification.";
+    std::string errorMessage = errorMessage1 + errorMessage2;
+    throw std::invalid_argument(errorMessage);
+  }
+  
+  m = expression.value();
+  std::cout << "expression value: " << m << std::endl;
+  
+  return m;
+  
+}
+
 double muProd(const fitnessEffectsAll& fe,
               const double& currentTime,
-              std::vector<double>& multfact){
+              std::vector<std::string>& multfact){
   
   double mult;
   
-  std::cout << "muFactor: " << multfact[0] << std::endl;
-  std::cout << "timeFactor: " << multfact[1] << std::endl;
+  //std::cout << "muFactor: " << multfact[0] << std::endl;
+  //std::cout << "timeFactor: " << multfact[1] << std::endl;
   
   if(fe.frequencyDependentFitness){
-    if(multfact[0] != 0 && multfact[1] > 0){
-      if(currentTime > multfact[1]){
-        mult = multfact[0];
-        std::cout << "change mutation rate at a certain timepoint" << std::endl;
-      } else { mult = 1.0; }
-      
-    } else if (multfact[0] != 0 && multfact[1] == 0){
-      mult = multfact[0];
-      std::cout << "mult mutRate by a number before starting the simulation" << std::endl;
+    if(multfact[0] == "None"){
+      mult = 1.0;
+      std::cout << "mult-fdf-None: " << mult << std::endl;
       
     } else {
-      mult = 1.0;
-      std::cout << "run simulation without any modification in the mutRate" << std::endl;
+      mult = evalMutationRateEcuation(currentTime, multfact);
+      std::cout << "mult-fdf: " << mult << std::endl;
     }
     
-  } else {
-    mult = 1.0;
-    std::cout << "we are not in FDF environment" << std::endl;
-  }
-  
-  std::cout << "##########################################################" << std::endl;
+  } else { mult = 1.0; }
   return mult;
 }
 
@@ -1833,7 +1900,7 @@ double mutationFromScratch(const std::vector<double>& mu,
 				 const std::vector<Genotype>& Genotypes,
 	 			 const std::vector<spParamsP>& popParams,
 	 			 const double& currentTime,
-	 			 std::vector<double>& multfact) {
+	 			 std::vector<std::string>& multfact) {
 
   double mumult;
   

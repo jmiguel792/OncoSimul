@@ -4,9 +4,9 @@ library(OncoSimulR)
 ##############################################################
 fl <- data.frame(
   Genotype = c("WT", "A", "B"),
-  Fitness = c("1 + f_1*f_2", #WT 1 + f_1*f_2  
-              "1 + 1.5*f_*f_2", #A 1 + 1.5*f_*f_2
-              "1 + 1.5*f_*f_1"), #B 1 + 1.5*f_*f_1
+  Fitness = c("1 + f_1*f_2",
+              "1 + 1.5*f_*f_2",
+              "1 + 1.5*f_*f_1"),
   stringsAsFactors = FALSE
 )
 
@@ -19,7 +19,7 @@ sim1 <- oncoSimulIndiv(fe,
                       model = "McFL", 
                       onlyCancer = FALSE, 
                       finalTime = 1000,
-                      mu = 1e-6,
+                      mu = 1e-4,
                       initSize = 5000, 
                       keepPhylog = FALSE,
                       seed = NULL, 
@@ -35,23 +35,24 @@ sim2 <- oncoSimulIndiv(fe,
                       onlyCancer = FALSE, 
                       finalTime = 1000,
                       mu = 1e-6,
-                      muFactor = c(100,0),
+                      muFactor = "100",
                       initSize = 5000, 
                       keepPhylog = FALSE,
                       seed = NULL, 
                       errorHitMaxTries = FALSE, 
                       errorHitWallTime = FALSE)
 
-plot(sim2, show = "genotypes", col = c("green", "red", "yellow"))
+plot(sim2, show = "genotypes", col = c("black", "red", "yellow"))
 ###################################################################
 
+muexpression = "if(T>400) 10000; else 1;"
 set.seed(2)
 sim3 <- oncoSimulIndiv(fe,
                       model = "McFL", 
                       onlyCancer = FALSE, 
                       finalTime = 1000,
                       mu = 1e-6,
-                      muFactor = c(10000,200),
+                      muFactor = muexpression,
                       initSize = 5000, 
                       keepPhylog = FALSE,
                       seed = NULL, 
@@ -114,3 +115,29 @@ sim3$pops.by.time[nrow(sim3$pops.by.time), ]
 sim4$pops.by.time[nrow(sim4$pops.by.time), ]
 sim5$pops.by.time[nrow(sim5$pops.by.time), ]
 sim6$pops.by.time[nrow(sim6$pops.by.time), ]
+####################################################################
+library(OncoSimulR)
+rar3 <- data.frame(Genotype = c("WT", "A", "B", "C"), 
+                   Fitness = c("1",
+                               "1.1 + .3*(n_2/N)",
+                               "1.2 + .4*(n_1/N)",
+                               "1.0 + .5 * ( n_1 > 20)"),
+                   stringsAsFactors = FALSE)
+
+afear3 <- allFitnessEffects(genotFitness = rar3, 
+                            frequencyDependentFitness = TRUE,
+                            frequencyType = "abs")
+
+set.seed(1)
+tmp3 <- oncoSimulIndiv(afear3, 
+                       model = "McFL", 
+                       onlyCancer = FALSE, 
+                       finalTime = 100,
+                       mu = 1e-4,
+                       initSize = 5000, 
+                       keepPhylog = FALSE,
+                       seed = NULL, 
+                       errorHitMaxTries = FALSE, 
+                       errorHitWallTime = FALSE)
+
+plot(tmp3, show = "genotypes")

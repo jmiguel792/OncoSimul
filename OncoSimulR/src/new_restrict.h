@@ -303,7 +303,7 @@ double mutationFromScratch(const std::vector<double>& mu,
          const std::vector<Genotype>& Genotypes,
 	 			 const std::vector<spParamsP>& popParams,
 	 			 const double& currentTime,
-	 			 std::vector<double>& multfact);
+	 			 std::vector<std::string>& multfact);
 
 // double mutationFromParent(const std::vector<double>& mu,
 // 			  const spParamsP& newP,

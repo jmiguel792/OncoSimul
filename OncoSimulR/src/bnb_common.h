@@ -177,7 +177,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
   const int& mutationPropGrowth,
   const std::vector<int>& full2mutator,
   const fitnessEffectsAll& muEF,
-  std::vector<double>& multfact);
+  std::vector<std::string>& multfact);
 
 void updateRatesMcFarlandLog_D(std::vector<spParamsP>& popParams,
 				    double& adjust_fitness_MF,
@@ -195,7 +195,7 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
   const int& mutationPropGrowth,
   const std::vector<int>& full2mutator,
   const fitnessEffectsAll& muEF,
-  std::vector<double>& multfact);
+  std::vector<std::string>& multfact);
 
 
 void updateRatesFDFExp(std::vector<spParamsP>& popParams,
@@ -206,7 +206,7 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   const int& mutationPropGrowth,
   const std::vector<int>& full2mutator,
   const fitnessEffectsAll& muEF,
-  std::vector<double>& multfact);
+  std::vector<std::string>& multfact);
 
 void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
@@ -216,7 +216,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const int& mutationPropGrowth,
   const std::vector<int>& full2mutator,
   const fitnessEffectsAll& muEF,
-  std::vector<double>& multfact);
+  std::vector<std::string>& multfact);
 
 void updateRatesMcFarland0(std::vector<spParamsP>& popParams,
 				  double& adjust_fitness_MF,

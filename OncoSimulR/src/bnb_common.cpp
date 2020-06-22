@@ -1112,7 +1112,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
 	const int& mutationPropGrowth,
 	const std::vector<int>& full2mutator,
 	const fitnessEffectsAll& muEF,
-	std::vector<double>& multfact) {
+	std::vector<std::string>& multfact) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1124,10 +1124,25 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
               fitnessEffects, Genotypes, lastPopParams, currentTime));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
-    popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                fitnessEffects, mutationPropGrowth,
-                                                full2mutator, muEF, Genotypes,
-                                                popParams, currentTime, multfact);
+    
+    if(multfact[0].find_first_of("if(") != std::string::npos){
+      std::string s = ">";
+      unsigned first = multfact[0].find_first_of(s);
+      unsigned end_pos = first + s.length();
+      unsigned last = multfact[0].find_first_of(")");
+      double time = std::stod( multfact[0].substr(end_pos, last-end_pos) ); //string to double
+      std::cout << "string to double: " << time << std::endl;
+      
+      if(currentTime > time){
+        popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
+                                                    fitnessEffects, mutationPropGrowth,
+                                                    full2mutator, muEF, Genotypes,
+                                                    popParams, currentTime, multfact);
+        
+      } else { std::cout << "waiting for time specification" << std::endl; }
+      
+    } else { continue; }
+    
   }
 
 }
@@ -1144,7 +1159,7 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
 	const int& mutationPropGrowth,
 	const std::vector<int>& full2mutator,
 	const fitnessEffectsAll& muEF,
-	std::vector<double>& multfact) {
+	std::vector<std::string>& multfact) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1158,10 +1173,25 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
               fitnessEffects, Genotypes, lastPopParams, currentTime));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
-    popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                fitnessEffects, mutationPropGrowth,
-                                                full2mutator, muEF, Genotypes,
-                                                popParams, currentTime, multfact);
+    
+    if(multfact[0].find_first_of("if(") != std::string::npos){
+      std::string s = ">";
+      unsigned first = multfact[0].find_first_of(s);
+      unsigned end_pos = first + s.length();
+      unsigned last = multfact[0].find_first_of(")");
+      double time = std::stod( multfact[0].substr(end_pos, last-end_pos) ); //string to double
+      std::cout << "string to double: " << time << std::endl;
+      
+      if(currentTime > time){
+        popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
+                                                    fitnessEffects, mutationPropGrowth,
+                                                    full2mutator, muEF, Genotypes,
+                                                    popParams, currentTime, multfact);
+        
+      } else { std::cout << "waiting for time specification" << std::endl; }
+      
+    } else { continue; }
+    
   }
 
 }
@@ -1175,7 +1205,7 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   const int& mutationPropGrowth,
   const std::vector<int>& full2mutator,
   const fitnessEffectsAll& muEF,
-  std::vector<double>& multfact) {
+  std::vector<std::string>& multfact) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1186,10 +1216,24 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
                 fitnessEffects, Genotypes, lastPopParams, currentTime));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
-    popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                fitnessEffects, mutationPropGrowth,
-                                                full2mutator, muEF, Genotypes,
-                                                popParams, currentTime, multfact);
+    
+    if(multfact[0].find_first_of("if(") != std::string::npos){
+      std::string s = ">";
+      unsigned first = multfact[0].find_first_of(s);
+      unsigned end_pos = first + s.length();
+      unsigned last = multfact[0].find_first_of(")");
+      double time = std::stod( multfact[0].substr(end_pos, last-end_pos) ); //string to double
+      std::cout << "string to double: " << time << std::endl;
+      
+      if(currentTime > time){
+        popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
+                                                    fitnessEffects, mutationPropGrowth,
+                                                    full2mutator, muEF, Genotypes,
+                                                    popParams, currentTime, multfact);
+        
+      } else { continue; }
+      
+    } else { continue; }
   }
 }
 
@@ -1201,7 +1245,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const int& mutationPropGrowth,
   const std::vector<int>& full2mutator,
   const fitnessEffectsAll& muEF,
-  std::vector<double>& multfact) {
+  std::vector<std::string>& multfact) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1211,10 +1255,24 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
       fitnessEffects, Genotypes, lastPopParams, currentTime));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
-    popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                fitnessEffects, mutationPropGrowth,
-                                                full2mutator, muEF, Genotypes,
-                                                popParams, currentTime, multfact);
+    
+    if(multfact[0].find_first_of("if(") != std::string::npos){
+      std::string s = ">";
+      unsigned first = multfact[0].find_first_of(s);
+      unsigned end_pos = first + s.length();
+      unsigned last = multfact[0].find_first_of(")");
+      double time = std::stod( multfact[0].substr(end_pos, last-end_pos) ); //string to double
+      std::cout << "string to double: " << time << std::endl;
+      
+      if(currentTime > time){
+        popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
+                                                    fitnessEffects, mutationPropGrowth,
+                                                    full2mutator, muEF, Genotypes,
+                                                    popParams, currentTime, multfact);
+        
+      } else { continue; }
+      
+    } else { continue; }
   }
 
 }
