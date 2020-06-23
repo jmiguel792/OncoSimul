@@ -277,7 +277,6 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
   const std::vector<spParamsP>& popParams,
   const double& currentTime);
 
-
 fitnessEffectsAll convertFitnessEffects(Rcpp::List rFE);
 std::vector<int> getGenotypeDrivers(const Genotype& ge, const std::vector<int>& drv);
 std::vector<int> allGenesinGenotype(const Genotype& ge);

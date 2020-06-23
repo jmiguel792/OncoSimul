@@ -59,7 +59,7 @@ sim3 <- oncoSimulIndiv(fe,
                       errorHitMaxTries = FALSE, 
                       errorHitWallTime = FALSE)
 
-plot(sim3, show = "genotypes", col = c("purple", "red", "yellow"))
+plot(sim3, show = "genotypes", col = c("green", "red", "yellow"))
 #######################################################################
 
 # higher to lower mutationRate
