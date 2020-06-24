@@ -1125,7 +1125,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
-    if(multfact[0].find_first_of("T") != std::string::npos){ //find currentTime in str expression
+    if(multfact[0].find("T") != std::string::npos){ //find currentTime in str expression
       std::string s = ">";
       
       if(multfact[0].find_first_of("and") != std::string::npos){
@@ -1154,6 +1154,49 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
                                                       popParams, currentTime, multfact);
         } else { continue; }
       }
+      
+    } else if(multfact[0].find("f_") != std::string::npos) { //find fRelvariables
+      
+      std::string s = ">";
+      unsigned first = multfact[0].find_first_of(s);
+      unsigned end_pos = first + s.length();
+      unsigned last = multfact[0].find_first_of(")");
+      double fValue = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double -> reference to update
+      std::cout << "string-double-fRelVars: " << fValue << std::endl;
+    
+      std::map<std::string, double> EFVMap = getEFVMap(fitnessEffects, Genotypes, popParams);
+      
+      for(auto& it : EFVMap){
+        if(it.second > fValue){
+          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
+                                                      fitnessEffects, mutationPropGrowth,
+                                                      full2mutator, muEF, Genotypes,
+                                                      popParams, currentTime, multfact);
+        } else {continue;}
+        
+      }
+      
+    } else if(multfact[0].find("n_") != std::string::npos){ //find fAbsVariables
+      
+      std::string s = ">";
+      unsigned first = multfact[0].find_first_of(s);
+      unsigned end_pos = first + s.length();
+      unsigned last = multfact[0].find_first_of(")");
+      double fValue = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double -> reference to update
+      std::cout << "string-double-fAbsVars: " << fValue << std::endl;
+      
+      std::map<std::string, double> EFVMap = getEFVMap(fitnessEffects, Genotypes, popParams);
+      
+      for(auto& it : EFVMap){
+        if(it.second > fValue){
+          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
+                                                      fitnessEffects, mutationPropGrowth,
+                                                      full2mutator, muEF, Genotypes,
+                                                      popParams, currentTime, multfact);
+        } else {continue;}
+        
+      }
+      
       
     } else {continue;}
     

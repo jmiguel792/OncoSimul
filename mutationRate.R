@@ -1,7 +1,7 @@
 library(OncoSimulR)
 
-# lower to higher mutationRate
 ##############################################################
+## FIRST EXAMPLE ## -> I expect everything's normal
 fl <- data.frame(
   Genotype = c("WT", "A", "B"),
   Fitness = c("1 + f_1*f_2",
@@ -18,7 +18,7 @@ set.seed(2)
 sim1 <- oncoSimulIndiv(fe,
                       model = "McFL", 
                       onlyCancer = FALSE, 
-                      finalTime = 1000,
+                      finalTime = 500,
                       mu = 1e-4,
                       initSize = 5000, 
                       keepPhylog = FALSE,
@@ -28,12 +28,13 @@ sim1 <- oncoSimulIndiv(fe,
 
 plot(sim1, show = "genotypes", col = c("green", "red", "yellow"))
 ##############################################################
-
+## SECOND EXAMPLE ## -> just to see that exprtk get the value from muFactor expression. 
+##                      I expect same as in the first example.
 set.seed(2)
 sim2 <- oncoSimulIndiv(fe,
                       model = "McFL", 
                       onlyCancer = FALSE, 
-                      finalTime = 1000,
+                      finalTime = 500,
                       mu = 1e-6,
                       muFactor = "100",
                       initSize = 5000, 
@@ -44,14 +45,13 @@ sim2 <- oncoSimulIndiv(fe,
 
 plot(sim2, show = "genotypes", col = c("black", "red", "yellow"))
 ###################################################################
-
-muexpression = "if( f_1 > 0.3 ) 10000; else 1;"
-#muexpression = "if(T>400 and T<600) 10000; else if(T>600) 100; else 1;"
+## THIRD EXAMPLE ## -> I expect that after 300 units of time appear all the genotypes
+muexpression = "if(T>300) 10000; else 1;"
 set.seed(2)
 sim3 <- oncoSimulIndiv(fe,
                       model = "McFL", 
                       onlyCancer = FALSE, 
-                      finalTime = 1000,
+                      finalTime = 500,
                       mu = 1e-6,
                       muFactor = muexpression,
                       initSize = 5000, 
@@ -62,14 +62,16 @@ sim3 <- oncoSimulIndiv(fe,
 
 plot(sim3, show = "genotypes", col = c("green", "red", "yellow"))
 #######################################################################
-
-# higher to lower mutationRate
+## FOURTH EXAMPLE ## -> this is more complex, but I actually expect something similar to the previous one
+##                      I don't know if this specification alter significantly the resulting plot
+muexpression = "if(T>300) 10000; else if(T>400) 100; else 1;"
 set.seed(2)
 sim4 <- oncoSimulIndiv(fe,
                        model = "McFL", 
                        onlyCancer = FALSE, 
-                       finalTime = 1000,
-                       mu = 1e-2,
+                       finalTime = 500,
+                       mu = 1e-6,
+                       muFactor = muexpression,
                        initSize = 5000, 
                        keepPhylog = FALSE,
                        seed = NULL, 
@@ -77,15 +79,16 @@ sim4 <- oncoSimulIndiv(fe,
                        errorHitWallTime = FALSE)
 
 plot(sim4, show = "genotypes", col = c("green", "red", "yellow"))
-##############################################################
-
+#######################################################################
+## FIFTH EXAMPLE ## I will include an "and" just to show that we can use a mu expression following this configuration
+muexpression = "if(T>300 and T<400) 10000; else if(T>400) 100; else 1;"
 set.seed(2)
 sim5 <- oncoSimulIndiv(fe,
                        model = "McFL", 
                        onlyCancer = FALSE, 
-                       finalTime = 1000,
-                       mu = 1e-2,
-                       muFactor = c((1/1000),0),
+                       finalTime = 500,
+                       mu = 1e-6,
+                       muFactor = muexpression,
                        initSize = 5000, 
                        keepPhylog = FALSE,
                        seed = NULL, 
@@ -93,30 +96,32 @@ sim5 <- oncoSimulIndiv(fe,
                        errorHitWallTime = FALSE)
 
 plot(sim5, show = "genotypes", col = c("green", "red", "yellow"))
-###################################################################
-
+####################################################################
+## SIXTH EXAMPLE ## update after using relative frequencies
+muexpression = "if(f_1>0.3) 100; else 1;"
 set.seed(2)
 sim6 <- oncoSimulIndiv(fe,
                        model = "McFL", 
                        onlyCancer = FALSE, 
-                       finalTime = 1000,
-                       mu = 1e-2,
-                       muFactor = c((1/10000),200),
+                       finalTime = 500,
+                       mu = 1e-6,
+                       muFactor = muexpression,
                        initSize = 5000, 
                        keepPhylog = FALSE,
                        seed = NULL, 
                        errorHitMaxTries = FALSE, 
                        errorHitWallTime = FALSE)
 
-plot(sim6, show = "genotypes", col = c("purple", "red", "yellow"))
+plot(sim6, show = "genotypes", col = c("green", "red", "yellow"))
+####################################################################
 ####################################################################
 sim1$pops.by.time[nrow(sim1$pops.by.time), ]
 sim2$pops.by.time[nrow(sim2$pops.by.time), ]
 sim3$pops.by.time[nrow(sim3$pops.by.time), ]
 sim4$pops.by.time[nrow(sim4$pops.by.time), ]
 sim5$pops.by.time[nrow(sim5$pops.by.time), ]
-sim6$pops.by.time[nrow(sim6$pops.by.time), ]
 ####################################################################
+## SEVENTH EXAMPLE ## update after using absolute frequencies
 library(OncoSimulR)
 rar3 <- data.frame(Genotype = c("WT", "A", "B", "C"), 
                    Fitness = c("1",
@@ -144,7 +149,7 @@ tmp3 <- oncoSimulIndiv(afear3,
 plot(tmp3, show = "genotypes")
 #############################################################
 
-muexpression = "if( n_1 > 10 ) 100; else 1;"
+muexpression = "if( n_1 > 20 ) 100; else 1;"
 set.seed(1)
 tmp4 <- oncoSimulIndiv(afear3, 
                        model = "McFL", 

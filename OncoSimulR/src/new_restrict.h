@@ -304,6 +304,10 @@ double mutationFromScratch(const std::vector<double>& mu,
 	 			 const double& currentTime,
 	 			 std::vector<std::string>& multfact);
 
+std::map<std::string, double> getEFVMap(const fitnessEffectsAll& F,
+                                        const std::vector<Genotype>& Genotypes,
+                                        const std::vector<spParamsP>& popParams);
+
 // double mutationFromParent(const std::vector<double>& mu,
 // 			  const spParamsP& newP,
 // 			  const spParamsP& parentP,

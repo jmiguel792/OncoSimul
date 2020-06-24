@@ -1817,17 +1817,25 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   return out;
 }
 
+std::map<std::string, double> getEFVMap(const fitnessEffectsAll& F,
+                                        const std::vector<Genotype>& Genotypes,
+                                        const std::vector<spParamsP>& popParams){
+  
+  evalFVars_struct symbol_table_struct = evalFVars(F, Genotypes, popParams);
+  
+  std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
+  
+  return EFVMap;
+  
+}
+
+
 std::string findRelOrAbsVariable(std::string& muExpr){
+  
   std::string fRelOrAbs;
-  if(muExpr.find_first_of("f_") != std::string::npos){
-    std::string s = "if(";
-    unsigned first = muExpr.find_first_of(s);
-    unsigned end_pos = first + s.length();
-    unsigned last = muExpr.find_first_of(">");
-    fRelOrAbs = muExpr.substr(end_pos, last-end_pos);
-    std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
-    fRelOrAbs.erase(spaces, fRelOrAbs.end());
-  } else if(muExpr.find_first_of("n_") != std::string::npos){
+  
+  if(muExpr.find("f_") != std::string::npos){
+    std::cout << "f_ found" << std::endl;
     std::string s = "if(";
     unsigned first = muExpr.find_first_of(s);
     unsigned end_pos = first + s.length();
@@ -1836,7 +1844,17 @@ std::string findRelOrAbsVariable(std::string& muExpr){
     std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
     fRelOrAbs.erase(spaces, fRelOrAbs.end());
     
-  } else { fRelOrAbs = fRelOrAbs; }
+  } else if(muExpr.find("n_") != std::string::npos){
+    std::cout << "n_ found" << std::endl;
+    std::string s = "if(";
+    unsigned first = muExpr.find_first_of(s);
+    unsigned end_pos = first + s.length();
+    unsigned last = muExpr.find_first_of(">");
+    fRelOrAbs = muExpr.substr(end_pos, last-end_pos);
+    std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
+    fRelOrAbs.erase(spaces, fRelOrAbs.end());
+    
+  } else { std::cout << "nothing found" << std::endl; }
   
   std::cout << "fRelOrAbs: " << fRelOrAbs << std::endl;
   return fRelOrAbs;
@@ -1958,9 +1976,9 @@ double mutationFromScratch(const std::vector<double>& mu,
   // when we are sampling.
   
   mumult *= muProd(fe,Genotypes, popParams, currentTime, multfact);
-  //std::cout << "running mutationFromScratch" << std::endl;
-  //std::cout << "multiplication factor: " << mumult << std::endl;
-  //std::cout << "currentTime: " << currentTime << std::endl;
+  std::cout << "running mutationFromScratch" << std::endl;
+  std::cout << "multiplication factor: " << mumult << std::endl;
+  std::cout << "currentTime: " << currentTime << std::endl;
   
   if(mu.size() == 1) {
     if(mutationPropGrowth)
