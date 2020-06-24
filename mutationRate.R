@@ -45,7 +45,8 @@ sim2 <- oncoSimulIndiv(fe,
 plot(sim2, show = "genotypes", col = c("black", "red", "yellow"))
 ###################################################################
 
-muexpression = "if(T>400) 10000; else 1;"
+muexpression = "if( f_1 > 0.3 ) 10000; else 1;"
+#muexpression = "if(T>400 and T<600) 10000; else if(T>600) 100; else 1;"
 set.seed(2)
 sim3 <- oncoSimulIndiv(fe,
                       model = "McFL", 
@@ -119,8 +120,8 @@ sim6$pops.by.time[nrow(sim6$pops.by.time), ]
 library(OncoSimulR)
 rar3 <- data.frame(Genotype = c("WT", "A", "B", "C"), 
                    Fitness = c("1",
-                               "1.1 + .3*(n_2/N)",
-                               "1.2 + .4*(n_1/N)",
+                               "1.1 + .3*(n_2/N)", #(n_2/N)
+                               "1.2 + .4*(n_1/N)", #(n_1/N)
                                "1.0 + .5 * ( n_1 > 20)"),
                    stringsAsFactors = FALSE)
 
@@ -141,3 +142,20 @@ tmp3 <- oncoSimulIndiv(afear3,
                        errorHitWallTime = FALSE)
 
 plot(tmp3, show = "genotypes")
+#############################################################
+
+muexpression = "if( n_1 > 10 ) 100; else 1;"
+set.seed(1)
+tmp4 <- oncoSimulIndiv(afear3, 
+                       model = "McFL", 
+                       onlyCancer = FALSE, 
+                       finalTime = 100,
+                       mu = 1e-4,
+                       muFactor = muexpression,
+                       initSize = 5000, 
+                       keepPhylog = FALSE,
+                       seed = NULL, 
+                       errorHitMaxTries = FALSE, 
+                       errorHitWallTime = FALSE)
+
+plot(tmp4, show = "genotypes")

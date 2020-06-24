@@ -1817,20 +1817,61 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   return out;
 }
 
-double evalMutationRateEcuation(const double& currentTime,
+std::string findRelOrAbsVariable(std::string& muExpr){
+  std::string fRelOrAbs;
+  if(muExpr.find_first_of("f_") != std::string::npos){
+    std::string s = "if(";
+    unsigned first = muExpr.find_first_of(s);
+    unsigned end_pos = first + s.length();
+    unsigned last = muExpr.find_first_of(">");
+    fRelOrAbs = muExpr.substr(end_pos, last-end_pos);
+    std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
+    fRelOrAbs.erase(spaces, fRelOrAbs.end());
+  } else if(muExpr.find_first_of("n_") != std::string::npos){
+    std::string s = "if(";
+    unsigned first = muExpr.find_first_of(s);
+    unsigned end_pos = first + s.length();
+    unsigned last = muExpr.find_first_of(">");
+    fRelOrAbs = muExpr.substr(end_pos, last-end_pos);
+    std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
+    fRelOrAbs.erase(spaces, fRelOrAbs.end());
+    
+  } else { fRelOrAbs = fRelOrAbs; }
+  
+  std::cout << "fRelOrAbs: " << fRelOrAbs << std::endl;
+  return fRelOrAbs;
+}
+
+double evalMutationRateEcuation(const fitnessEffectsAll& fe,
+                                const std::vector<Genotype>& Genotypes,
+                                const std::vector<spParamsP>& popParams,
+                                const double& currentTime,
                                 std::vector<std::string>& multfact){
   
   double m;
   
+  evalFVars_struct symbol_table_struct = evalFVars(fe, Genotypes, popParams);
+  
+  std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
+  
   std::string expr_string = multfact[0]; //exprt expression
   
   double T = currentTime; //to have access to currentTime
+  
+  std::string freqVar = findRelOrAbsVariable(expr_string);
   
   typedef exprtk::symbol_table<double> symbol_table_t;
   typedef exprtk::expression<double> expression_t;
   typedef exprtk::parser<double> parser_t;
   
   symbol_table_t symbol_table;
+  
+  for(auto& it : EFVMap){
+    if(it.first == freqVar){
+      symbol_table.add_constant(freqVar, it.second);
+    } else {continue;}
+  }
+  
   symbol_table.add_constant("T", T); //Pass current time to exprtk
   symbol_table.add_constants();
   
@@ -1867,6 +1908,8 @@ double evalMutationRateEcuation(const double& currentTime,
 }
 
 double muProd(const fitnessEffectsAll& fe,
+              const std::vector<Genotype>& Genotypes,
+              const std::vector<spParamsP>& popParams,
               const double& currentTime,
               std::vector<std::string>& multfact){
   
@@ -1878,11 +1921,11 @@ double muProd(const fitnessEffectsAll& fe,
   if(fe.frequencyDependentFitness){
     if(multfact[0] == "None"){
       mult = 1.0;
-      std::cout << "mult-fdf-None: " << mult << std::endl;
+      //std::cout << "mult-fdf-None: " << mult << std::endl;
       
     } else {
-      mult = evalMutationRateEcuation(currentTime, multfact);
-      std::cout << "mult-fdf: " << mult << std::endl;
+      mult = evalMutationRateEcuation(fe, Genotypes, popParams,currentTime, multfact);
+      //std::cout << "mult-fdf: " << mult << std::endl;
     }
     
   } else { mult = 1.0; }
@@ -1914,10 +1957,10 @@ double mutationFromScratch(const std::vector<double>& mu,
   // In BNB_nr.cpp, in nr_innerBNB function
   // when we are sampling.
   
-  mumult *= muProd(fe, currentTime, multfact);
-  std::cout << "running mutationFromScratch" << std::endl;
-  std::cout << "multiplication factor: " << mumult << std::endl;
-  std::cout << "currentTime: " << currentTime << std::endl;
+  mumult *= muProd(fe,Genotypes, popParams, currentTime, multfact);
+  //std::cout << "running mutationFromScratch" << std::endl;
+  //std::cout << "multiplication factor: " << mumult << std::endl;
+  //std::cout << "currentTime: " << currentTime << std::endl;
   
   if(mu.size() == 1) {
     if(mutationPropGrowth)

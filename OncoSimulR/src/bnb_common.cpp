@@ -1188,10 +1188,10 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
-    if(multfact[0].find_first_of("T") != std::string::npos){
+    if(multfact[0].find_first_of("T") != std::string::npos){ //find currentTime in str expression
       std::string s = ">";
       
-      if(multfact[0].find_first_of("and")){
+      if(multfact[0].find_first_of("and") != std::string::npos){
         unsigned first = multfact[0].find_first_of(s);
         unsigned end_pos = first + s.length();
         unsigned last = multfact[0].find_first_of("and");
@@ -1218,7 +1218,7 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
         } else { continue; }
       }
       
-    } else { continue; }
+    } else {continue;}
     
   }
 
@@ -1245,10 +1245,10 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
-    if(multfact[0].find_first_of("T") != std::string::npos){
+    if(multfact[0].find_first_of("T") != std::string::npos){ //find currentTime in str expression
       std::string s = ">";
       
-      if(multfact[0].find_first_of("and")){
+      if(multfact[0].find_first_of("and") != std::string::npos){
         unsigned first = multfact[0].find_first_of(s);
         unsigned end_pos = first + s.length();
         unsigned last = multfact[0].find_first_of("and");
@@ -1275,7 +1275,7 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
         } else { continue; }
       }
       
-    } else { continue; }
+    } else {continue;}
   }
 }
 
@@ -1298,10 +1298,10 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
-    if(multfact[0].find_first_of("T") != std::string::npos){
+    if(multfact[0].find_first_of("T") != std::string::npos){ //find currentTime in str expression
       std::string s = ">";
       
-      if(multfact[0].find_first_of("and")){
+      if(multfact[0].find_first_of("and") != std::string::npos){
         unsigned first = multfact[0].find_first_of(s);
         unsigned end_pos = first + s.length();
         unsigned last = multfact[0].find_first_of("and");
@@ -1328,7 +1328,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
         } else { continue; }
       }
       
-    } else { continue; }
+    } else {continue;}
   }
 
 }
