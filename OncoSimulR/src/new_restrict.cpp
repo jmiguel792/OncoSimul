@@ -1422,12 +1422,11 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   
   std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
   
-  /*
   for(const auto& iterator : EFVMap){
     std::cout << "EFVMap" << std::endl;
     std::cout << "first iterator: " << iterator.first << std::endl;
     std::cout << "second iterator: " << iterator.second << std::endl;
-  }*/
+  }
   
   std::string gs = concatIntsString(ge.flGenes);
   //std::cout << "string gs: " << gs << std::endl;
@@ -1936,7 +1935,7 @@ double muProd(const fitnessEffectsAll& fe,
   //std::cout << "muFactor: " << multfact[0] << std::endl;
   //std::cout << "timeFactor: " << multfact[1] << std::endl;
   
-  if(fe.frequencyDependentFitness){
+  if(fe.frequencyDependentFitness){ //FDF
     if(multfact[0] == "None"){
       mult = 1.0;
       //std::cout << "mult-fdf-None: " << mult << std::endl;
@@ -1946,7 +1945,16 @@ double muProd(const fitnessEffectsAll& fe,
       //std::cout << "mult-fdf: " << mult << std::endl;
     }
     
-  } else { mult = 1.0; }
+  } else { //No-FDF
+    if(multfact[0] == "None"){
+      mult = 1.0;
+      std::cout << "noFDF-None" << std::endl;
+    } else {
+      mult = evalMutationRateEcuation(fe, Genotypes, popParams,currentTime, multfact);
+      std::cout << "noFDF-muExpression" << std::endl;
+    }
+  }
+  
   return mult;
 }
 
@@ -1967,6 +1975,7 @@ double mutationFromScratch(const std::vector<double>& mu,
   
   if(full2mutator.size() > 0) { // so there are mutator effects
     mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime, multfact);
+    std::cout << "mumult from evalMutator: " << mumult << std::endl;
   } else mumult = 1.0;
   //FIXME: here the code for altering mutation rate
   // with a procedure like ExprTk for fitness??

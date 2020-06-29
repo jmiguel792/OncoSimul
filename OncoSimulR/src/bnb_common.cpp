@@ -1030,9 +1030,11 @@ void computeMcFarlandError_new(double& em1,
 
 
 void updateRatesMcFarlandLog(std::vector<spParamsP>& popParams,
-			     double& adjust_fitness_MF,
-			     const double& K,
-			     const double& totPopSize){
+                double& adjust_fitness_MF,
+                const double& K,
+                const double& totPopSize){
+  
+  //std::cout << "updateRatesMcFLLog" << std::endl;
 
   // from original log(1 + totPopSize/K)
   adjust_fitness_MF = log1p(totPopSize/K);
@@ -1052,6 +1054,8 @@ void updateRatesMcFarlandLog_D(std::vector<spParamsP>& popParams,
 			     double& adjust_fitness_MF,
 			     const double& K,
 			     const double& totPopSize){
+  
+  //std::cout << "updateRatesMcFLLog_D" << std::endl;
 
   // from original log(1 + totPopSize/K)
   // adjust_fitness_MF = log1p(totPopSize/K);
@@ -1116,6 +1120,8 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
+  
+  //std::cout << "updateRatesFDFMcFLLog" << std::endl;
 
   adjust_fitness_MF = log1p(totPopSize/K);
   for(size_t i = 0; i < popParams.size(); ++i) {
@@ -1220,6 +1226,8 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
+  
+  //std::cout << "updateRatesFDFMcFLLog_D" << std::endl;
 
   // adjust_fitness_MF = log1p(totPopSize/K);
   // Min death rate is 1.0
@@ -1280,6 +1288,8 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
+  
+  //std::cout << "updateRatesFDFExp" << std::endl;
 
   for(size_t i = 0; i < popParams.size(); ++i) {
 
@@ -1334,6 +1344,8 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
+  
+  //std::cout << "updateRatesFDFMcFBozic" << std::endl;
 
   for(size_t i = 0; i < popParams.size(); ++i) {
     popParams[i].death =  prodDeathFitness(evalGenotypeFitness(Genotypes[i],

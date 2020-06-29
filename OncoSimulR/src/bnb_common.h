@@ -157,14 +157,14 @@ void computeMcFarlandError_new(double& en1,
 			       const double& K);
 
 void updateRatesMcFarland(std::vector<spParamsP>& popParams,
-				 double& adjust_fitness_MF,
-				 const double& K,
-			  const double& totPopSize);
+                          double& adjust_fitness_MF,
+                          const double& K,
+                          const double& totPopSize);
 
 void updateRatesMcFarlandLog(std::vector<spParamsP>& popParams,
-				    double& adjust_fitness_MF,
-				    const double& K,
-			     const double& totPopSize);
+                             double& adjust_fitness_MF,
+                             const double& K,
+                             const double& totPopSize);
 
 void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
@@ -182,7 +182,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
 void updateRatesMcFarlandLog_D(std::vector<spParamsP>& popParams,
 				    double& adjust_fitness_MF,
 				    const double& K,
-			     const double& totPopSize);
+			      const double& totPopSize);
 
 void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
