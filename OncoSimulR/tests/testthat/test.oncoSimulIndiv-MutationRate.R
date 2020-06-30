@@ -28,22 +28,22 @@ test_that("printing oncosimul object", {
   
 })
 
-test_that("find number in muExpression for oncoSimulIndiv", {
-  
-  Rcpp::sourceCpp(file = "OncoSimul/miscell-files/test-findNumber.cpp")
-  muexpression = "if(T>300) 10000; else 1;"
-  expect_identical(readr::parse_number(muexpression), findNumber(muexpression))
-  
-})
+#test_that("find number in muExpression for oncoSimulIndiv", {
+#  
+#  Rcpp::sourceCpp(file = "OncoSimul/miscell-files/test-findNumber.cpp")
+#  muexpression = "if(T>300) 10000; else 1;"
+#  expect_identical(readr::parse_number(muexpression), findNumber(muexpression))
+#  
+#})
 
-test_that("find number when used relative or absolute frequencies", {
-  
-  Rcpp::sourceCpp(file = "OncoSimul/miscell-files/test-findNumberFvars.cpp")
-  muexpressionRel = "if(f_>0.3) 100; else 1;"
-  muexpressionAbs = "if(n_1>10) 100; else 1;"
-  expect_identical("f_", findVars(muexpressionRel))
-  expect_identical("n_1", findVars(muexpressionAbs))
-})
+#test_that("find number when used relative or absolute frequencies", {
+#  
+#  Rcpp::sourceCpp(file = "OncoSimul/miscell-files/test-findNumberFvars.cpp")
+#  muexpressionRel = "if(f_>0.3) 100; else 1;"
+#  muexpressionAbs = "if(n_1>10) 100; else 1;"
+#  expect_identical("f_", findVars(muexpressionRel))
+#  expect_identical("n_1", findVars(muexpressionAbs))
+#})
 
 test_that("print oncosimul object when fvars", {
   
