@@ -1422,11 +1422,12 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   
   std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
   
+  /*
   for(const auto& iterator : EFVMap){
     std::cout << "EFVMap" << std::endl;
     std::cout << "first iterator: " << iterator.first << std::endl;
     std::cout << "second iterator: " << iterator.second << std::endl;
-  }
+  }*/
   
   std::string gs = concatIntsString(ge.flGenes);
   //std::cout << "string gs: " << gs << std::endl;
@@ -1834,7 +1835,7 @@ std::string findRelOrAbsVariable(std::string& muExpr){
   std::string fRelOrAbs;
   
   if(muExpr.find("f_") != std::string::npos){
-    std::cout << "f_ found" << std::endl;
+    //std::cout << "f_ found" << std::endl;
     std::string s = "if(";
     unsigned first = muExpr.find_first_of(s);
     unsigned end_pos = first + s.length();
@@ -1844,7 +1845,7 @@ std::string findRelOrAbsVariable(std::string& muExpr){
     fRelOrAbs.erase(spaces, fRelOrAbs.end());
     
   } else if(muExpr.find("n_") != std::string::npos){
-    std::cout << "n_ found" << std::endl;
+    //std::cout << "n_ found" << std::endl;
     std::string s = "if(";
     unsigned first = muExpr.find_first_of(s);
     unsigned end_pos = first + s.length();
@@ -1853,9 +1854,12 @@ std::string findRelOrAbsVariable(std::string& muExpr){
     std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
     fRelOrAbs.erase(spaces, fRelOrAbs.end());
     
-  } else { std::cout << "nothing found" << std::endl; }
+  } else { 
+    //std::cout << "nothing found" << std::endl; 
+    fRelOrAbs = fRelOrAbs;
+  }
   
-  std::cout << "fRelOrAbs: " << fRelOrAbs << std::endl;
+  //std::cout << "fRelOrAbs: " << fRelOrAbs << std::endl;
   return fRelOrAbs;
 }
 
@@ -1918,7 +1922,7 @@ double evalMutationRateEcuation(const fitnessEffectsAll& fe,
   }
   
   m = expression.value();
-  std::cout << "expression value: " << m << std::endl;
+  //std::cout << "expression value: " << m << std::endl;
   
   return m;
   
@@ -1948,10 +1952,10 @@ double muProd(const fitnessEffectsAll& fe,
   } else { //No-FDF
     if(multfact[0] == "None"){
       mult = 1.0;
-      std::cout << "noFDF-None" << std::endl;
+      //std::cout << "noFDF-None" << std::endl;
     } else {
       mult = evalMutationRateEcuation(fe, Genotypes, popParams,currentTime, multfact);
-      std::cout << "noFDF-muExpression" << std::endl;
+      //std::cout << "noFDF-muExpression" << std::endl;
     }
   }
   
@@ -1975,7 +1979,7 @@ double mutationFromScratch(const std::vector<double>& mu,
   
   if(full2mutator.size() > 0) { // so there are mutator effects
     mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime, multfact);
-    std::cout << "mumult from evalMutator: " << mumult << std::endl;
+    //std::cout << "mumult from evalMutator: " << mumult << std::endl;
   } else mumult = 1.0;
   //FIXME: here the code for altering mutation rate
   // with a procedure like ExprTk for fitness??
@@ -1985,9 +1989,9 @@ double mutationFromScratch(const std::vector<double>& mu,
   // when we are sampling.
   
   mumult *= muProd(fe,Genotypes, popParams, currentTime, multfact);
-  std::cout << "running mutationFromScratch" << std::endl;
-  std::cout << "multiplication factor: " << mumult << std::endl;
-  std::cout << "currentTime: " << currentTime << std::endl;
+  //std::cout << "running mutationFromScratch" << std::endl;
+  //std::cout << "multiplication factor: " << mumult << std::endl;
+  //std::cout << "currentTime: " << currentTime << std::endl;
   
   if(mu.size() == 1) {
     if(mutationPropGrowth)

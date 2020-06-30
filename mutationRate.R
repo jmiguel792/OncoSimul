@@ -63,7 +63,7 @@ sim3 <- oncoSimulIndiv(fe,
 plot(sim3, show = "genotypes", col = c("green", "red", "yellow"))
 #######################################################################
 ## FOURTH EXAMPLE ## -> this is more complex, but I actually expect something similar to the previous one
-##                      I don't know if this specification alter significantly the resulting plot
+##                      I don't know if this specification alter significantly the resulting plot. The next one is the good one.
 muexpression = "if(T>300) 10000; else if(T>400) 100; else 1;"
 set.seed(2)
 sim4 <- oncoSimulIndiv(fe,
@@ -95,10 +95,10 @@ sim5 <- oncoSimulIndiv(fe,
                        errorHitMaxTries = FALSE, 
                        errorHitWallTime = FALSE)
 
-plot(sim5, show = "genotypes", col = c("green", "red", "yellow"))
+plot(sim5, show = "genotypes", col = c("black", "red", "yellow"))
 ####################################################################
 ## SIXTH EXAMPLE ## update after using relative frequencies
-muexpression = "if(f_1>0.3) 100; else 1;"
+muexpression = "if(f_>0.3) 100; else 1;"
 set.seed(2)
 sim6 <- oncoSimulIndiv(fe,
                        model = "McFL", 
@@ -149,7 +149,7 @@ tmp3 <- oncoSimulIndiv(afear3,
 plot(tmp3, show = "genotypes")
 #############################################################
 
-muexpression = "if( n_1 > 10 ) 100; else 1;"
+muexpression = "if(n_1 > 10) 100; else 1;"
 set.seed(1)
 tmp4 <- oncoSimulIndiv(afear3, 
                        model = "McFL", 
@@ -165,7 +165,7 @@ tmp4 <- oncoSimulIndiv(afear3,
 
 plot(tmp4, show = "genotypes")
 ##############################################################
-library(OncoSimulR)
+library(OncoSimulR) ## NO-FDF
 
 set.seed(1) ## for reproducibility
 ## 17 genes, 7 with no direct fitness effects
@@ -192,7 +192,7 @@ mue1 <- oncoSimulIndiv(fe3, muEF = fm3,
                        onlyCancer = FALSE)
 plot(mue1)
 ################################################################
-set.seed(1) ## for reproducibility
+set.seed(1) ## for reproducibility -> MUTATORS
 ## 17 genes, 7 with no direct fitness effects
 ni <- c(rep(0, 7), runif(10, min = -0.01, max = 0.1))
 names(ni) <- c("a1", "a2", "b1", "b2", "b3", "c1", "c2",
@@ -218,7 +218,7 @@ mue1 <- oncoSimulIndiv(fe3, muEF = fm3,
                        onlyCancer = FALSE)
 plot(mue1)
 ##############################################################
-library(OncoSimulR)
+library(OncoSimulR) ## NO-FDF -- NO INTERACTION GENES
 sa <- 0.1
 sb <- -0.2
 sab <- 0.25
@@ -238,7 +238,7 @@ RNGkind("Mersenne-Twister")
 set.seed(983)
 ep1 <- oncoSimulIndiv(sv2, model = "McFL",
                       mu = 5e-6,
-                      muFactor = "if(T>200) 100; else 1;",
+                      muFactor = "None", #"if(T>200) 100; else 1;"
                       sampleEvery = 0.025,
                       keepEvery = 0.5,
                       initSize = 2000,

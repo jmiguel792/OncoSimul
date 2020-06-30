@@ -22,7 +22,8 @@
 }
 \usage{
  oncoSimulIndiv(fp, model = "Exp", 
-                numPassengers = 0, mu = 1e-6, muEF = NULL,
+                numPassengers = 0, mu = 1e-6, 
+                muFactor = "None", muEF = NULL,
                 detectionSize = 1e8, detectionDrivers = 4,
                 detectionProb = NA,
                 sampleEvery = ifelse(model \%in\% c("Bozic", "Exp"), 1,
@@ -46,6 +47,7 @@
                 seed = NULL)
 
 oncoSimulPop(Nindiv, fp, model = "Exp", numPassengers = 0, mu = 1e-6,
+                muFactor = "None",
                 muEF = NULL,
                 detectionSize = 1e8, detectionDrivers = 4,
                 detectionProb = NA,
@@ -76,6 +78,7 @@ oncoSimulSample(Nindiv,
                 model = "Exp",
                 numPassengers = 0,
                 mu = 1e-6,
+                muFactor = "None",
                 muEF = NULL,
                 detectionSize = round(runif(Nindiv, 1e5, 1e8)),
 
@@ -180,6 +183,14 @@ oncoSimulSample(Nindiv,
 
   See also \code{mutationPropGrowth}. 
 
+}
+
+\item{muFactor}{
+  Mutation rate factor. A string that code a expression for the mutation rate.
+  This expression is performed through exprtk library from c++ code and produces
+  changes in the mutation rate depending on the expression. For instance, we can
+  access to the current time of the simulation and specify a different mutation
+  rate at a certain timepoint.
 }
 
 \item{muEF}{
