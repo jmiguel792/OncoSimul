@@ -1131,6 +1131,16 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
+    //mutations in popParams is only updated if needed:
+    //-If currentTime is parsed by exprtk (with or without any "and" in mu expression)
+    // "and" means for example this expression: "if(T>300 and T<400) 10000; else if(T>400) 100; else 1;"
+    //-If we pass a mu expression like these ones:
+    // "if(f_>0.3) 100; else 1;" -> relative fvars
+    // ""if(n_1>10) 100; else 1;" -> absolute fvars
+    // When we pass these type of expressions it is necessary to check if the fValue specified in
+    // the expression is greater than the corresponding value in EFVMap. If this condition is 
+    // satisfied then we sample and update -> simulation continues from here
+    
     if(multfact[0].find("T") != std::string::npos){ //find currentTime in str expression
       std::string s = ">";
       

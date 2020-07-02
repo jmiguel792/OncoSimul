@@ -1821,6 +1821,10 @@ std::map<std::string, double> getEFVMap(const fitnessEffectsAll& F,
                                         const std::vector<Genotype>& Genotypes,
                                         const std::vector<spParamsP>& popParams){
   
+  //This is a function to pass the EFVMap to "bnb_common.cpp" because I need
+  //the functions linked to this one in order to sample or updating when 
+  //rel or abs vars are passed from OncoSimulIndiv
+  
   evalFVars_struct symbol_table_struct = evalFVars(F, Genotypes, popParams);
   
   std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
@@ -1831,6 +1835,10 @@ std::map<std::string, double> getEFVMap(const fitnessEffectsAll& F,
 
 
 std::string findRelOrAbsVariable(std::string& muExpr){
+  
+  //This function will work and return a string when we pass a mu expression from R
+  //with rel or abs vars in order to modify mumult value when this condition is
+  //fullfilled during the simulation
   
   std::string fRelOrAbs;
   
@@ -1869,6 +1877,14 @@ double evalMutationRateEcuation(const fitnessEffectsAll& fe,
                                 const double& currentTime,
                                 std::vector<std::string>& multfact){
   
+  
+  //This function returns the expression value of the mu expression passed from R
+  //That expression is parsed here with exprtk library.
+  //This one differs from "evalGenotypeFDFitnessEcuation" when it adds the EFVMAp elements
+  //as constants because these ones are useful in case of we pass a mu expression in which
+  //these elements have to be parsed in exprtk and compared with a referencevalue in 
+  //mu expression and if this is satisfied then we sample and update the simulation values
+  
   double m;
   
   evalFVars_struct symbol_table_struct = evalFVars(fe, Genotypes, popParams);
@@ -1879,6 +1895,8 @@ double evalMutationRateEcuation(const fitnessEffectsAll& fe,
   
   double T = currentTime; //to have access to currentTime
   
+  //This function is needed to find rel or abs vars depending on the type of
+  //mu expression we pass from R with OncoSimulIndiv
   std::string freqVar = findRelOrAbsVariable(expr_string);
   
   typedef exprtk::symbol_table<double> symbol_table_t;
@@ -1936,6 +1954,12 @@ double muProd(const fitnessEffectsAll& fe,
   
   double mult;
   
+  //multfact is a vector<string> that brings the mu expression from R
+  //If there is not any expression its value is "None" so there will not
+  //any change in the mumult value.
+  //Then we can use the FDF or Non-FDF functionality to pass any expression
+  //that affects to mumult value.
+  
   //std::cout << "muFactor: " << multfact[0] << std::endl;
   //std::cout << "timeFactor: " << multfact[1] << std::endl;
   
@@ -1988,6 +2012,8 @@ double mutationFromScratch(const std::vector<double>& mu,
   // In BNB_nr.cpp, in nr_innerBNB function
   // when we are sampling.
   
+  //muProd function provides a new value to mumult as long as there is
+  //any mu expression passed from R code in OncoSimulIndiv function
   mumult *= muProd(fe,Genotypes, popParams, currentTime, multfact);
   //std::cout << "running mutationFromScratch" << std::endl;
   //std::cout << "multiplication factor: " << mumult << std::endl;
