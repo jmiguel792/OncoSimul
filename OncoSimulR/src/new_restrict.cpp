@@ -1894,6 +1894,7 @@ double evalMutationRateEcuation(const fitnessEffectsAll& fe,
   std::string expr_string = multfact[0]; //exprt expression
   
   double T = currentTime; //to have access to currentTime
+  double N = totalPop(popParams);
   
   //This function is needed to find rel or abs vars depending on the type of
   //mu expression we pass from R with OncoSimulIndiv
