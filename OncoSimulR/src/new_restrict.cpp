@@ -1410,11 +1410,188 @@ double totalPop(const std::vector<spParamsP>& popParams){
 	return sum;
 }
 
+std::string findRelOrAbsVariable(std::string& muExpr){
+  
+  //This function will work and return a string when we pass a mu expression from R
+  //with rel or abs vars in order to modify mumult value when this condition is
+  //fullfilled during the simulation
+  
+  std::string fRelOrAbs;
+  
+  if(muExpr.find("f_") != std::string::npos){
+    //std::cout << "f_ found" << std::endl;
+    std::string s = "if(";
+    unsigned first = muExpr.find_first_of(s);
+    unsigned end_pos = first + s.length();
+    unsigned last = muExpr.find_first_of(">");
+    fRelOrAbs = muExpr.substr(end_pos, last-end_pos);
+    std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
+    fRelOrAbs.erase(spaces, fRelOrAbs.end());
+    
+  } else if(muExpr.find("n_") != std::string::npos){
+    //std::cout << "n_ found" << std::endl;
+    std::string s = "if(";
+    unsigned first = muExpr.find_first_of(s);
+    unsigned end_pos = first + s.length();
+    unsigned last = muExpr.find_first_of(">");
+    fRelOrAbs = muExpr.substr(end_pos, last-end_pos);
+    std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
+    fRelOrAbs.erase(spaces, fRelOrAbs.end());
+    
+  } else { 
+    //std::cout << "nothing found" << std::endl; 
+    fRelOrAbs = fRelOrAbs;
+  }
+  
+  //std::cout << "fRelOrAbs: " << fRelOrAbs << std::endl;
+  return fRelOrAbs;
+}
+
+double evalPopReduceEcuation(const fitnessEffectsAll& fe,
+                             const std::vector<Genotype>& Genotypes,
+                             const std::vector<spParamsP>& popParams,
+                             const double& currentTime,
+                             std::vector<std::string>& treduce){
+  
+  double m;
+  
+  evalFVars_struct symbol_table_struct = evalFVars(fe, Genotypes, popParams);
+  std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
+  
+  std::string expr_string = treduce[0]; // value obtained from popReduce expression
+  std::string freqVar = findRelOrAbsVariable(expr_string);
+  
+  double T = currentTime; // to have access to current time
+  double N = totalPop(popParams); // to have acess to total population
+  
+  //reserve constants using exprtk procedure -> frel, nabs, T, N
+  typedef exprtk::symbol_table<double> symbol_table_t;
+  typedef exprtk::expression<double> expression_t;
+  typedef exprtk::parser<double> parser_t;
+  
+  symbol_table_t symbol_table;
+  
+  for(auto& it : EFVMap){
+    if(it.first == freqVar){
+      symbol_table.add_constant(freqVar, it.second); //pass f or n vars to exprtk
+    } else {continue;}
+  }
+  
+  symbol_table.add_constant("T", T); //Pass current time to exprtk
+  symbol_table.add_constant("N", N); //Pass total population to exprtk
+  symbol_table.add_constants();
+  
+  expression_t expression;
+  expression.register_symbol_table(symbol_table);
+  
+  parser_t parser;
+  
+  if (!parser.compile(expr_string, expression)){
+    
+    Rcpp::Rcout << "\nexprtk parser error: \n" << std::endl;
+    for (std::size_t i = 0; i < parser.error_count(); ++i){
+      typedef exprtk::parser_error::type error_t;
+      error_t error = parser.get_error(i);
+      REprintf("Error[%02zu] Position: %02zu Type: [%14s] Msg: %s Expression: %s\n",
+               i,
+               error.token.position,
+               exprtk::parser_error::to_str(error.mode).c_str(),
+               error.diagnostic.c_str(),
+               expr_string.c_str());
+    }
+    
+    std::string errorMessage1 = "Wrong popReduceEcuation evaluation, ";
+    std::string errorMessage2 = "probably bad popReduce especification.";
+    std::string errorMessage = errorMessage1 + errorMessage2;
+    throw std::invalid_argument(errorMessage);
+  }
+  
+  m = expression.value();
+  //std::cout << "evalPopValue: " << m << std::endl;
+  return m;
+  
+}
+
+// [[Rcpp::export]]
+IntegerVector rmultinomPOP(double size,  Rcpp::NumericVector prob) {
+  // meaning of n, size, prob as in ?rmultinom
+  // opposite of sample() - n=number of draws
+  double pp;            
+  int ii;
+  int probsize = prob.size();
+  // Return object
+  IntegerVector draws(probsize);
+  if (size < 0 || size == NA_INTEGER) throw std::range_error( "Invalid size");
+  long double p_tot = 0.;
+  p_tot = std::accumulate(prob.begin(), prob.end(), p_tot);
+  if (fabs((double)(p_tot - 1.)) > 1e-7) {
+    throw std::range_error("Probabilities don't sum to 1, please use FixProb");
+  }
+  
+  // do as rbinom
+  if (size == 0 ) {
+    return draws;
+  }
+  //rmultinom(size, REAL(prob), k, &INTEGER(ans)[ik]);
+  // for each slot
+  for (ii = 0; ii < probsize-1; ii++) { /* (p_tot, n) are for "remaining binomial" */
+        if (prob[ii]) {
+          pp = prob[ii] / p_tot;
+          // >= 1; > 1 happens because of rounding 
+          draws[ii] = ((pp < 1.) ? (int) Rf_rbinom((double) size,  pp) : size);
+          size -= draws[ii];
+        } // else { ret[ii] = 0; }
+        // all done
+        if (size <= 0)  return draws;
+        // i.e. p_tot = sum(prob[(k+1):K]) 
+        p_tot -= prob[ii]; 
+  }
+  // the rest go here
+  draws[probsize-1] = size;
+  //Rcpp::Rcout << "\n MULT = "<< draws;
+  return draws;
+}
+
+Rcpp::IntegerVector popProd(const fitnessEffectsAll& fe,
+                            const std::vector<Genotype>& Genotypes,
+                            const std::vector<spParamsP>& popParams,
+                            const double& currentTime,
+                            std::vector<std::string>& treduce){
+  
+  //generate the probabilities for the multinomial
+  Rcpp::NumericVector probs(Rcpp::runif(popParams.size()));
+  probs = probs/Rcpp::sum(probs); //standardize the probabilites to sum 1
+  //std::cout << "popParams size: " << popParams.size() << std::endl;
+  //double totPopSize = totalPop(popParams);
+  
+  /*
+   for(size_t i=0; i<popParams.size(); i++){
+   probs[i] = popParams[i].popSize/totPopSize;
+   std::cout << "popSize: " << probs[i] << std::endl;
+   }*/
+  
+  //the results from the multinomial
+  double sizePop = evalPopReduceEcuation(fe, Genotypes, popParams, currentTime, treduce);
+  Rcpp::IntegerVector newPop;
+  
+  if(sizePop != 0){
+    //std::cout << "creating newPops now that sizePop is not 0" << std::endl;
+    newPop = rmultinomPOP(sizePop, probs);
+  } else {
+    //std::cout << "popReduce is for now 0" << std::endl;
+  }
+  
+  //Rcpp::Rcout << newPop << std::endl;
+  
+  return newPop;
+}
+
 double evalGenotypeFDFitnessEcuation(const Genotype& ge,
                                      const fitnessEffectsAll& F,
                                      const std::vector<Genotype>& Genotypes,
                                      const std::vector<spParamsP>& popParams,
-                                     const double& currentTime){
+                                     const double& currentTime,
+                                     std::vector<std::string>& treduce){
   
   double f;
   
@@ -1436,9 +1613,22 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   //std::cout << "expr string: " << expr_string << std::endl;
   
   double N = totalPop(popParams);
+  //std::cout << "TotalPop: " << N << std::endl;
   
   double T = currentTime;
   //std::cout << "currentTime: " << currentTime;
+  
+  if(treduce[0] != "None"){
+    //std::cout << "creating newPops" << std::endl;
+    std::vector<int> newPops = Rcpp::as<std::vector<int>>(popProd(F, Genotypes, popParams, 
+                                                                  currentTime, treduce));
+    /*
+    for(size_t i=0; i<newPops.size(); i++){
+      std::cout << newPops[i] << std::endl;
+    }*/
+  } else {
+    //std::cout << "popReduce is None" << std::endl;
+  }
   
   /*
   if (T == std::numeric_limits<double>::infinity() 
@@ -1495,7 +1685,8 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
 	const fitnessEffectsAll& F,
 	const std::vector<Genotype>& Genotypes,
 	const std::vector<spParamsP>& popParams,
-	const double& currentTime){
+	const double& currentTime,
+	std::vector<std::string>& treduce){
 
   // check_disable_later
   checkLegitGenotype(ge, F);
@@ -1525,7 +1716,7 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
 			if(F.fitnessLandscape.flFDFmap.find(gs) == F.fitnessLandscape.flFDFmap.end()) {
 	    	s.push_back(-1.0);
 			} else {
-	      s.push_back(evalGenotypeFDFitnessEcuation(ge, F, Genotypes, popParams, currentTime) - 1);
+	      s.push_back(evalGenotypeFDFitnessEcuation(ge, F, Genotypes, popParams, currentTime, treduce) - 1);
 	    	}
 		}else{
 			if(F.fitnessLandscape.flmap.find(gs) == F.fitnessLandscape.flmap.end()) {
@@ -1611,6 +1802,7 @@ double evalMutator(const Genotype& fullge,
 			const std::vector<spParamsP>& popParams,
 			const double& currentTime,
 			std::vector<std::string>& multfact,
+			std::vector<std::string>& treduce,
 		  bool verbose = false) {
   // In contrast to nr_fitness, that sets birth and death, this simply
   // returns the multiplication factor for the mutation rate. This is used
@@ -1647,7 +1839,7 @@ double evalMutator(const Genotype& fullge,
     return 1.0;
   } else {
     Genotype newg = convertGenotypeFromInts(g2, muEF);
-    vector<double> s = evalGenotypeFitness(newg, muEF, Genotypes, popParams, currentTime);
+    vector<double> s = evalGenotypeFitness(newg, muEF, Genotypes, popParams, currentTime, treduce);
 
     // just for checking
     if(verbose) {
@@ -1695,13 +1887,15 @@ double evalRGenotype(Rcpp::IntegerVector rG,
 	bool prodNeg,
 	Rcpp::CharacterVector calledBy_,
 	double currentTime,
-	Rcpp::CharacterVector multfact_) {
+	Rcpp::CharacterVector multfact_,
+	Rcpp::CharacterVector treduce_) {
   // Can evaluate both ONLY fitness or ONLY mutator. Not both at the same
   // time. Use evalRGenotypeAndMut for that.
 
   const std::string calledBy = Rcpp::as<std::string>(calledBy_);
 	const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
 	std::vector<std::string> multfact = Rcpp::as<std::vector<std::string>>(multfact_);
+	std::vector<std::string> treduce = Rcpp::as<std::vector<std::string>>(treduce_);
 
 	if(rG.size() == 0 && fdf == false) {
 		// Why don't we evaluate it?
@@ -1729,7 +1923,7 @@ double evalRGenotype(Rcpp::IntegerVector rG,
   //const Rcpp::List rF(rFE);
   fitnessEffectsAll F = convertFitnessEffects(rFE);
   Genotype g = convertGenotypeFromR(rG, F);
-  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime);
+  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime, treduce);
 
   if(verbose) {
     std::string sprod;
@@ -1762,12 +1956,14 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
 					bool verbose,
 					bool prodNeg,
           double currentTime,
-          Rcpp::CharacterVector multfact_) {
+          Rcpp::CharacterVector multfact_,
+          Rcpp::CharacterVector treduce_) {
   // Basically to test evalMutator. We repeat the conversion to genotype,
   // but that is unavoidable here.
   
   const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
   std::vector<std::string> multfact = Rcpp::as<std::vector<std::string>>(multfact_);
+  std::vector<std::string> treduce = Rcpp::as<std::vector<std::string>>(treduce_);
   
   /*
   if(rG.size() == 0 && fdf == false) {
@@ -1796,7 +1992,7 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   fitnessEffectsAll F = convertFitnessEffects(rFE);
   fitnessEffectsAll muef = convertFitnessEffects(muEF);
   Genotype g = convertGenotypeFromR(rG, F);
-  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime);
+  vector<double> s = evalGenotypeFitness(g, F, Genotypes, popParams, currentTime, treduce);
   
   if(!prodNeg)
     out[0] = prodFitness(s);
@@ -1812,7 +2008,7 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   // Genotype fullge = convertGenotypeFromR(rG, F);
 
   const std::vector<int> full2mutator = Rcpp::as<std::vector<int> >(full2mutator_);
-  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, currentTime, multfact);
+  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, currentTime, multfact, treduce);
 
   return out;
 }
@@ -1831,44 +2027,6 @@ std::map<std::string, double> getEFVMap(const fitnessEffectsAll& F,
   
   return EFVMap;
   
-}
-
-
-std::string findRelOrAbsVariable(std::string& muExpr){
-  
-  //This function will work and return a string when we pass a mu expression from R
-  //with rel or abs vars in order to modify mumult value when this condition is
-  //fullfilled during the simulation
-  
-  std::string fRelOrAbs;
-  
-  if(muExpr.find("f_") != std::string::npos){
-    //std::cout << "f_ found" << std::endl;
-    std::string s = "if(";
-    unsigned first = muExpr.find_first_of(s);
-    unsigned end_pos = first + s.length();
-    unsigned last = muExpr.find_first_of(">");
-    fRelOrAbs = muExpr.substr(end_pos, last-end_pos);
-    std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
-    fRelOrAbs.erase(spaces, fRelOrAbs.end());
-    
-  } else if(muExpr.find("n_") != std::string::npos){
-    //std::cout << "n_ found" << std::endl;
-    std::string s = "if(";
-    unsigned first = muExpr.find_first_of(s);
-    unsigned end_pos = first + s.length();
-    unsigned last = muExpr.find_first_of(">");
-    fRelOrAbs = muExpr.substr(end_pos, last-end_pos);
-    std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
-    fRelOrAbs.erase(spaces, fRelOrAbs.end());
-    
-  } else { 
-    //std::cout << "nothing found" << std::endl; 
-    fRelOrAbs = fRelOrAbs;
-  }
-  
-  //std::cout << "fRelOrAbs: " << fRelOrAbs << std::endl;
-  return fRelOrAbs;
 }
 
 double evalMutationRateEcuation(const fitnessEffectsAll& fe,
@@ -1998,12 +2156,13 @@ double mutationFromScratch(const std::vector<double>& mu,
 				 const std::vector<Genotype>& Genotypes,
 	 			 const std::vector<spParamsP>& popParams,
 	 			 const double& currentTime,
-	 			 std::vector<std::string>& multfact) {
+	 			 std::vector<std::string>& multfact,
+	 			 std::vector<std::string>& treduce) {
 
   double mumult;
   
   if(full2mutator.size() > 0) { // so there are mutator effects
-    mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime, multfact);
+    mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime, multfact, treduce);
     //std::cout << "mumult from evalMutator: " << mumult << std::endl;
   } else mumult = 1.0;
   //FIXME: here the code for altering mutation rate

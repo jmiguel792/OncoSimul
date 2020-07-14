@@ -1116,7 +1116,8 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
 	const int& mutationPropGrowth,
 	const std::vector<int>& full2mutator,
 	const fitnessEffectsAll& muEF,
-	std::vector<std::string>& multfact) {
+	std::vector<std::string>& multfact,
+	std::vector<std::string>& treduce) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1127,7 +1128,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
   for(size_t i = 0; i < popParams.size(); ++i) {
     popParams[i].death = adjust_fitness_MF;
     popParams[i].birth = prodFitness(evalGenotypeFitness(Genotypes[i],
-              fitnessEffects, Genotypes, lastPopParams, currentTime));
+              fitnessEffects, Genotypes, lastPopParams, currentTime, treduce));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
@@ -1154,7 +1155,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else { continue; }
         
       } else {
@@ -1167,7 +1168,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else { continue; }
       }
       
@@ -1187,7 +1188,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else {continue;}
         
       }
@@ -1208,7 +1209,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else {continue;}
         
       }
@@ -1232,7 +1233,8 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
 	const int& mutationPropGrowth,
 	const std::vector<int>& full2mutator,
 	const fitnessEffectsAll& muEF,
-	std::vector<std::string>& multfact) {
+	std::vector<std::string>& multfact,
+	std::vector<std::string>& treduce) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1245,7 +1247,7 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
   for(size_t i = 0; i < popParams.size(); ++i) {
     popParams[i].death = adjust_fitness_MF;
     popParams[i].birth = prodFitness(evalGenotypeFitness(Genotypes[i],
-              fitnessEffects, Genotypes, lastPopParams, currentTime));
+              fitnessEffects, Genotypes, lastPopParams, currentTime, treduce));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
@@ -1262,7 +1264,7 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else { continue; }
         
       } else {
@@ -1275,7 +1277,7 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else { continue; }
       }
       
@@ -1295,7 +1297,7 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else {continue;}
         
       }
@@ -1316,7 +1318,7 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else {continue;}
         
       }
@@ -1337,7 +1339,8 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   const int& mutationPropGrowth,
   const std::vector<int>& full2mutator,
   const fitnessEffectsAll& muEF,
-  std::vector<std::string>& multfact) {
+  std::vector<std::string>& multfact,
+  std::vector<std::string>& treduce) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1347,7 +1350,7 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   for(size_t i = 0; i < popParams.size(); ++i) {
 
     popParams[i].birth = prodFitness(evalGenotypeFitness(Genotypes[i],
-                fitnessEffects, Genotypes, lastPopParams, currentTime));
+                fitnessEffects, Genotypes, lastPopParams, currentTime, treduce));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
@@ -1364,7 +1367,7 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else { continue; }
         
       } else {
@@ -1377,7 +1380,7 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else { continue; }
       }
       
@@ -1397,7 +1400,7 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else {continue;}
         
       }
@@ -1418,7 +1421,7 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else {continue;}
         
       }
@@ -1436,7 +1439,8 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const int& mutationPropGrowth,
   const std::vector<int>& full2mutator,
   const fitnessEffectsAll& muEF,
-  std::vector<std::string>& multfact) {
+  std::vector<std::string>& multfact,
+  std::vector<std::string>& treduce) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1445,7 +1449,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
 
   for(size_t i = 0; i < popParams.size(); ++i) {
     popParams[i].death =  prodDeathFitness(evalGenotypeFitness(Genotypes[i],
-      fitnessEffects, Genotypes, lastPopParams, currentTime));
+      fitnessEffects, Genotypes, lastPopParams, currentTime, treduce));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
@@ -1462,7 +1466,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else { continue; }
         
       } else {
@@ -1475,7 +1479,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else { continue; }
       }
       
@@ -1495,7 +1499,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else {continue;}
         
       }
@@ -1516,7 +1520,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
           popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
                                                       fitnessEffects, mutationPropGrowth,
                                                       full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
+                                                      popParams, currentTime, multfact, treduce);
         } else {continue;}
         
       }

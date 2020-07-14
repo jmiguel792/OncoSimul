@@ -275,7 +275,8 @@ std::vector<double> evalGenotypeFitness(const Genotype& ge,
   const fitnessEffectsAll& F,
   const std::vector<Genotype>& Genotypes,
   const std::vector<spParamsP>& popParams,
-  const double& currentTime);
+  const double& currentTime,
+  std::vector<std::string>& treduce);
 
 fitnessEffectsAll convertFitnessEffects(Rcpp::List rFE);
 std::vector<int> getGenotypeDrivers(const Genotype& ge, const std::vector<int>& drv);
@@ -302,7 +303,8 @@ double mutationFromScratch(const std::vector<double>& mu,
          const std::vector<Genotype>& Genotypes,
 	 			 const std::vector<spParamsP>& popParams,
 	 			 const double& currentTime,
-	 			 std::vector<std::string>& multfact);
+	 			 std::vector<std::string>& multfact,
+	 			 std::vector<std::string>& treduce);
 
 std::map<std::string, double> getEFVMap(const fitnessEffectsAll& F,
                                         const std::vector<Genotype>& Genotypes,

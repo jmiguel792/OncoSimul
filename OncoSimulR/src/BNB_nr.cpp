@@ -57,7 +57,8 @@ void nr_fitness(spParamsP& tmpP,
 		const TypeModel typeModel,
 		std::vector<Genotype>& Genotypes,
 	  std::vector<spParamsP>& popParams,
-	  const double& currentTime) {
+	  const double& currentTime,
+	  std::vector<std::string>& treduce) {
 		       // const double& genTime,
 		       // const double& adjust_fitness_B,
 		       // const double& adjust_fitness_MF) {
@@ -82,7 +83,7 @@ void nr_fitness(spParamsP& tmpP,
 	}
 
   if(typeModel == TypeModel::bozic1) {
-    tmpP.death = prodDeathFitness(evalGenotypeFitness(ge, F, Genotypes, popParams, currentTime));
+    tmpP.death = prodDeathFitness(evalGenotypeFitness(ge, F, Genotypes, popParams, currentTime, treduce));
     if( tmpP.death > 99) {
       tmpP.birth = 0.0;
     } else {
@@ -93,7 +94,7 @@ void nr_fitness(spParamsP& tmpP,
   //   tmpP.birth = std::max(0.0, (1.0/genTime) * (1.0 - 0.5 * pp ));
   //   tmpP.death = (0.5/genTime) * pp;
   } else {
-    double fitness = prodFitness(evalGenotypeFitness(ge, F, Genotypes, popParams, currentTime));
+    double fitness = prodFitness(evalGenotypeFitness(ge, F, Genotypes, popParams, currentTime, treduce));
     if( fitness <= 0.0) {
       tmpP.absfitness = 0.0;
       tmpP.death = 1.0;
@@ -960,6 +961,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 			double& ratioForce,
 			double& currentTime,
 			std::vector<std::string>& multfact,
+			std::vector<std::string>& treduce,
 			int& speciesFS,
 			int& outNS_i,
 			int& iter,
@@ -1249,11 +1251,11 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
     if(typeModel == TypeModel::mcfarlandlog) {
       popParams[0].death = log1p(totPopSize/K);
       popParams[0].birth = prodFitness(evalGenotypeFitness(Genotypes[0],
-								fitnessEffects, Genotypes, popParams, currentTime));
+								fitnessEffects, Genotypes, popParams, currentTime, treduce));
     } else if(typeModel == TypeModel::mcfarlandlog_d) {
       popParams[0].death = std::max(1.0, log1p(totPopSize/K));
       popParams[0].birth = prodFitness(evalGenotypeFitness(Genotypes[0],
-								fitnessEffects, Genotypes, popParams, currentTime));
+								fitnessEffects, Genotypes, popParams, currentTime, treduce));
     } else if(typeModel == TypeModel::bozic1) {
       tmpParam.birth =  1.0;
       tmpParam.death = -99.9;
@@ -1279,7 +1281,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
       nr_fitness(popParams[0], tmpParam,
 		 Genotypes[0],
 		 fitnessEffects,
-		 typeModel, Genotypes, popParams, currentTime);
+		 typeModel, Genotypes, popParams, currentTime, treduce);
     // , genTime);
     //		 adjust_fitness_B, adjust_fitness_MF);
     // we pass as the parent the tmpParam; it better initialize
@@ -1317,7 +1319,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
     if(typeModel == TypeModel::mcfarlandlog) {
       if(fitnessEffects.frequencyDependentFitness){
 	popParams[0].birth = prodFitness(evalGenotypeFitness(Genotypes[0],
-							     fitnessEffects, Genotypes, popParams, currentTime));
+							     fitnessEffects, Genotypes, popParams, currentTime, treduce));
       } else {
 	popParams[0].birth = 1.0;
       }
@@ -1326,7 +1328,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
     } else if(typeModel == TypeModel::mcfarlandlog_d) {
       if(fitnessEffects.frequencyDependentFitness){
 	popParams[0].birth = prodFitness(evalGenotypeFitness(Genotypes[0],
-							     fitnessEffects, Genotypes, popParams, currentTime));
+							     fitnessEffects, Genotypes, popParams, currentTime, treduce));
       }else{
 	popParams[0].birth = 1.0;
       }
@@ -1336,7 +1338,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 
 			if(fitnessEffects.frequencyDependentFitness){
  				popParams[0].birth = prodDeathFitness(evalGenotypeFitness(Genotypes[0],
- 					fitnessEffects, Genotypes, popParams, currentTime));
+ 					fitnessEffects, Genotypes, popParams, currentTime, treduce));
  			}else{
 				popParams[0].birth = 1.0;
 
@@ -1349,7 +1351,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 
 			if(fitnessEffects.frequencyDependentFitness){
 				popParams[0].birth = prodFitness(evalGenotypeFitness(Genotypes[0],
-					fitnessEffects, Genotypes, popParams, currentTime));
+					fitnessEffects, Genotypes, popParams, currentTime, treduce));
 			}else{
 				popParams[0].birth = 1.0;
 			}
@@ -1370,7 +1372,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
   popParams[0].mutation = mutationFromScratch(mu, popParams[0], Genotypes[0],
 					      fitnessEffects, mutationPropGrowth,
 					      full2mutator, muEF,
-								Genotypes, popParams, currentTime, multfact);
+								Genotypes, popParams, currentTime, multfact, treduce);
   W_f_st(popParams[0]);
   R_f_st(popParams[0]);
 
@@ -1713,7 +1715,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 	  nr_fitness(tmpParam, popParams[nextMutant],
 		     newGenotype,
 		     fitnessEffects,
-		     typeModel, Genotypes, popParams, currentTime);// , genTime,
+		     typeModel, Genotypes, popParams, currentTime, treduce);// , genTime,
 		     // adjust_fitness_B, adjust_fitness_MF);
 
 	  if(tmpParam.birth > 0.0) {
@@ -1729,7 +1731,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 	    tmpParam.mutation = mutationFromScratch(mu, tmpParam, newGenotype,
 					       fitnessEffects,
 					       mutationPropGrowth, full2mutator,
-						    muEF, Genotypes, popParams, currentTime, multfact);
+						    muEF, Genotypes, popParams, currentTime, multfact, treduce);
 	    // tmpParam.mutation = mutationFromParent(mu, tmpParam, popParams[nextMutant],
 	    // 					   newMutations, mutationPropGrowth,
 	    // 					   newGenotype, full2mutator,
@@ -2043,25 +2045,25 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 	  
 	  updateRatesFDFMcFarlandLog(popParams, Genotypes, fitnessEffects,
 				     adjust_fitness_MF, K, totPopSize, currentTime,
-				     mu, mutationPropGrowth, full2mutator, muEF, multfact);
+				     mu, mutationPropGrowth, full2mutator, muEF, multfact, treduce);
 	  
 	} else if( (typeModel == TypeModel::mcfarlandlog_d) ) {
 	  
 	  updateRatesFDFMcFarlandLog_D(popParams, Genotypes, fitnessEffects,
 				     adjust_fitness_MF, K, totPopSize, currentTime,
-				     mu, mutationPropGrowth, full2mutator, muEF, multfact);
+				     mu, mutationPropGrowth, full2mutator, muEF, multfact, treduce);
 	  
 	} else if(typeModel == TypeModel::exp){
 	  
 	  updateRatesFDFExp(popParams, Genotypes, fitnessEffects, 
                      currentTime, mu, mutationPropGrowth, full2mutator, muEF, 
-                     multfact);
+                     multfact, treduce);
 	  
 	}else if(typeModel == TypeModel::bozic1){
 	  
 	  updateRatesFDFBozic(popParams, Genotypes, fitnessEffects,
                        currentTime, mu, mutationPropGrowth, full2mutator, muEF, 
-                       multfact);
+                       multfact, treduce);
 	  
 	} else {
 	  throw std::invalid_argument("this ain't a valid typeModel");
@@ -2091,6 +2093,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 			Rcpp::NumericVector mu_,
 			Rcpp::CharacterVector muFactor_,
+			Rcpp::CharacterVector popReduce_,
 			double death,
 			double initSize,
 			double sampleEvery,
@@ -2135,6 +2138,7 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
   precissionLoss();
   const std::vector<double> mu = Rcpp::as<std::vector<double> >(mu_);
   const std::vector<std::string> muFactor = Rcpp::as<std::vector<std::string>> (muFactor_);
+  const std::vector<std::string> popReduce = Rcpp::as<std::vector<std::string>> (popReduce_);
   const std::vector<int> initMutant = Rcpp::as<std::vector<int> >(initMutant_);
   const TypeModel typeModel = stringToModel(Rcpp::as<std::string>(typeFitness_));
 
@@ -2308,6 +2312,9 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
   std::vector<std::string> multfact;
   multfact.push_back(muFactor[0]); //exprtk for mumult
   
+  std::vector<std::string> treduce;
+  treduce.push_back(popReduce[0]);
+  
   int iter = 0;
 
   int ti_dbl_min = 0;
@@ -2373,6 +2380,7 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 	       ratioForce,
 	       currentTime,
 	       multfact,
+	       treduce,
 	       speciesFS,
 	       outNS_i,
 	       iter,
