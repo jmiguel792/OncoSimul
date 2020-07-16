@@ -959,7 +959,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 			// double& en1,
 			double& ratioForce,
 			double& currentTime,
-			std::vector<std::string>& multfact,
+			const std::string& muFactor,
 			int& speciesFS,
 			int& outNS_i,
 			int& iter,
@@ -1370,7 +1370,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
   popParams[0].mutation = mutationFromScratch(mu, popParams[0], Genotypes[0],
 					      fitnessEffects, mutationPropGrowth,
 					      full2mutator, muEF,
-								Genotypes, popParams, currentTime, multfact);
+								Genotypes, popParams, currentTime, muFactor);
   W_f_st(popParams[0]);
   R_f_st(popParams[0]);
 
@@ -1729,7 +1729,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 	    tmpParam.mutation = mutationFromScratch(mu, tmpParam, newGenotype,
 					       fitnessEffects,
 					       mutationPropGrowth, full2mutator,
-						    muEF, Genotypes, popParams, currentTime, multfact);
+						    muEF, Genotypes, popParams, currentTime, muFactor);
 	    // tmpParam.mutation = mutationFromParent(mu, tmpParam, popParams[nextMutant],
 	    // 					   newMutations, mutationPropGrowth,
 	    // 					   newGenotype, full2mutator,
@@ -2029,7 +2029,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
       // 	updateRatesMcFarland(popParams, adjust_fitness_MF,
       // 			     K, totPopSize);
       // } else if( (typeModel == TypeModel::mcfarlandlog) ) {
-      if (typeModel == TypeModel::mcfarlandlog && !fitnessEffects.frequencyDependentFitness){
+      if (typeModel == TypeModel::mcfarlandlog && !fitnessEffects.frequencyDependentFitness){ //No-FDF
 	
 	updateRatesMcFarlandLog(popParams, adjust_fitness_MF, K, totPopSize);
 
@@ -2037,36 +2037,45 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 
 	updateRatesMcFarlandLog_D(popParams, adjust_fitness_MF, K, totPopSize);
 
-      } else if (fitnessEffects.frequencyDependentFitness){
+      } else if (fitnessEffects.frequencyDependentFitness){ //FDF
 	
 	if( (typeModel == TypeModel::mcfarlandlog) ) {
 	  
 	  updateRatesFDFMcFarlandLog(popParams, Genotypes, fitnessEffects,
-				     adjust_fitness_MF, K, totPopSize, currentTime,
-				     mu, mutationPropGrowth, full2mutator, muEF, multfact);
+				     adjust_fitness_MF, K, totPopSize, currentTime);
+	  
+	  updateMutationRate(mu, popParams[0], Genotypes[0], fitnessEffects, mutationPropGrowth, full2mutator,
+                      muEF, Genotypes, popParams, currentTime, muFactor);
 	  
 	} else if( (typeModel == TypeModel::mcfarlandlog_d) ) {
 	  
 	  updateRatesFDFMcFarlandLog_D(popParams, Genotypes, fitnessEffects,
-				     adjust_fitness_MF, K, totPopSize, currentTime,
-				     mu, mutationPropGrowth, full2mutator, muEF, multfact);
+				     adjust_fitness_MF, K, totPopSize, currentTime);
+	  
+	  updateMutationRate(mu, popParams[0], Genotypes[0], fitnessEffects, mutationPropGrowth, full2mutator,
+                      muEF, Genotypes, popParams, currentTime, muFactor);
 	  
 	} else if(typeModel == TypeModel::exp){
 	  
 	  updateRatesFDFExp(popParams, Genotypes, fitnessEffects, 
-                     currentTime, mu, mutationPropGrowth, full2mutator, muEF, 
-                     multfact);
+                     currentTime);
 	  
-	}else if(typeModel == TypeModel::bozic1){
+	  updateMutationRate(mu, popParams[0], Genotypes[0], fitnessEffects, mutationPropGrowth, full2mutator,
+                      muEF, Genotypes, popParams, currentTime, muFactor);
+	  
+	} else if(typeModel == TypeModel::bozic1){
 	  
 	  updateRatesFDFBozic(popParams, Genotypes, fitnessEffects,
-                       currentTime, mu, mutationPropGrowth, full2mutator, muEF, 
-                       multfact);
+                       currentTime);
+	  
+	  updateMutationRate(mu, popParams[0], Genotypes[0], fitnessEffects, mutationPropGrowth, full2mutator,
+                      muEF, Genotypes, popParams, currentTime, muFactor);
 	  
 	} else {
 	  throw std::invalid_argument("this ain't a valid typeModel");
 	}
-      }
+	
+  }
 
 #ifdef MIN_RATIO_MUTS_NR
       // could go inside sample_all_pop but here we are sure death, etc, current
@@ -2134,7 +2143,7 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 
   precissionLoss();
   const std::vector<double> mu = Rcpp::as<std::vector<double> >(mu_);
-  const std::vector<std::string> muFactor = Rcpp::as<std::vector<std::string>> (muFactor_);
+  const std::vector<std::string> multfact = Rcpp::as<std::vector<std::string>> (muFactor_);
   const std::vector<int> initMutant = Rcpp::as<std::vector<int> >(initMutant_);
   const TypeModel typeModel = stringToModel(Rcpp::as<std::string>(typeFitness_));
 
@@ -2305,8 +2314,9 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 
   double currentTime = 0;
   
-  std::vector<std::string> multfact;
-  multfact.push_back(muFactor[0]); //exprtk for mumult
+  const std::string muFactor = multfact[0]; //exprtk for mumult
+  //std::vector<std::string> multfact;
+  //multfact.push_back(muFactor[0]); //exprtk for mumult
   
   int iter = 0;
 
@@ -2366,13 +2376,13 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 	       verbosity,
 	       totPopSize,
 	       em1,
-		  em1sc,
+		     em1sc,
 	       // n_0,
 	       // 	  // n_1,
 	       // 	  en1,
 	       ratioForce,
 	       currentTime,
-	       multfact,
+	       muFactor,
 	       speciesFS,
 	       outNS_i,
 	       iter,

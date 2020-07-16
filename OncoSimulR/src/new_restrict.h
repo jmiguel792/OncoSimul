@@ -292,6 +292,12 @@ double prodFitness(const std::vector<double>& s);
 
 double prodDeathFitness(const std::vector<double>& s);
 
+double muProd(const fitnessEffectsAll& fe,
+  const std::vector<Genotype>& Genotypes,
+  const std::vector<spParamsP>& popParams,
+  const double& currentTime,
+  const std::string& muFactor);
+
 double mutationFromScratch(const std::vector<double>& mu,
 			   const spParamsP& spP,
 			   const Genotype& g,
@@ -302,7 +308,7 @@ double mutationFromScratch(const std::vector<double>& mu,
          const std::vector<Genotype>& Genotypes,
 	 			 const std::vector<spParamsP>& popParams,
 	 			 const double& currentTime,
-	 			 std::vector<std::string>& multfact);
+	 			 const std::string& muFactor);
 
 std::map<std::string, double> getEFVMap(const fitnessEffectsAll& F,
                                         const std::vector<Genotype>& Genotypes,

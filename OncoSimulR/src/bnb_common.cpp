@@ -1111,12 +1111,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
   double& adjust_fitness_MF,
 	const double& K,
 	const double& totPopSize,
-	const double& currentTime,
-	const std::vector<double>& mu,
-	const int& mutationPropGrowth,
-	const std::vector<int>& full2mutator,
-	const fitnessEffectsAll& muEF,
-	std::vector<std::string>& multfact) {
+	const double& currentTime) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1131,91 +1126,6 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
-    //mutations in popParams is only updated if needed:
-    //-If currentTime is parsed by exprtk (with or without any "and" in mu expression)
-    // "and" means for example this expression: "if(T>300 and T<400) 10000; else if(T>400) 100; else 1;"
-    //-If we pass a mu expression like these ones:
-    // "if(f_>0.3) 100; else 1;" -> relative fvars
-    // ""if(n_1>10) 100; else 1;" -> absolute fvars
-    // When we pass these type of expressions it is necessary to check if the fValue specified in
-    // the expression is greater than the corresponding value in EFVMap. If this condition is 
-    // satisfied then we sample and update -> simulation continues from here
-    
-    if(multfact[0].find("T") != std::string::npos){ //find currentTime in str expression
-      std::string s = ">";
-      
-      if(multfact[0].find_first_of("and") != std::string::npos){
-        unsigned first = multfact[0].find_first_of(s);
-        unsigned end_pos = first + s.length();
-        unsigned last = multfact[0].find_first_of("and");
-        double time = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double
-        //std::cout << "string-double-and: " << time << std::endl;
-        if(currentTime > time){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else { continue; }
-        
-      } else {
-        unsigned first = multfact[0].find_first_of(s);
-        unsigned end_pos = first + s.length();
-        unsigned last = multfact[0].find_first_of(")");
-        double time = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double
-        //std::cout << "string-double-no-and: " << time << std::endl;
-        if(currentTime > time){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else { continue; }
-      }
-      
-    } else if(multfact[0].find("f_") != std::string::npos) { //find fRelvariables
-      
-      std::string s = ">";
-      unsigned first = multfact[0].find_first_of(s);
-      unsigned end_pos = first + s.length();
-      unsigned last = multfact[0].find_first_of(")");
-      double fValue = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double -> reference to update
-      //std::cout << "string-double-fRelVars: " << fValue << std::endl;
-    
-      std::map<std::string, double> EFVMap = getEFVMap(fitnessEffects, Genotypes, popParams);
-      
-      for(auto& it : EFVMap){
-        if(it.second > fValue){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else {continue;}
-        
-      }
-      
-    } else if(multfact[0].find("n_") != std::string::npos){ //find fAbsVariables
-      
-      std::string s = ">";
-      unsigned first = multfact[0].find_first_of(s);
-      unsigned end_pos = first + s.length();
-      unsigned last = multfact[0].find_first_of(")");
-      double fValue = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double -> reference to update
-      //std::cout << "string-double-fAbsVars: " << fValue << std::endl;
-      
-      std::map<std::string, double> EFVMap = getEFVMap(fitnessEffects, Genotypes, popParams);
-      
-      for(auto& it : EFVMap){
-        if(it.second > fValue){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else {continue;}
-        
-      }
-      
-      
-    } else {continue;}
-    
   }
 
 }
@@ -1227,12 +1137,7 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
   double& adjust_fitness_MF,
 	const double& K,
 	const double& totPopSize,
-	const double& currentTime,
-	const std::vector<double>& mu,
-	const int& mutationPropGrowth,
-	const std::vector<int>& full2mutator,
-	const fitnessEffectsAll& muEF,
-	std::vector<std::string>& multfact) {
+	const double& currentTime) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1249,95 +1154,14 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
-    if(multfact[0].find("T") != std::string::npos){ //find currentTime in str expression
-      std::string s = ">";
-      
-      if(multfact[0].find_first_of("and") != std::string::npos){
-        unsigned first = multfact[0].find_first_of(s);
-        unsigned end_pos = first + s.length();
-        unsigned last = multfact[0].find_first_of("and");
-        double time = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double
-        //std::cout << "string-double-and: " << time << std::endl;
-        if(currentTime > time){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else { continue; }
-        
-      } else {
-        unsigned first = multfact[0].find_first_of(s);
-        unsigned end_pos = first + s.length();
-        unsigned last = multfact[0].find_first_of(")");
-        double time = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double
-        //std::cout << "string-double-no-and: " << time << std::endl;
-        if(currentTime > time){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else { continue; }
-      }
-      
-    } else if(multfact[0].find("f_") != std::string::npos) { //find fRelvariables
-      
-      std::string s = ">";
-      unsigned first = multfact[0].find_first_of(s);
-      unsigned end_pos = first + s.length();
-      unsigned last = multfact[0].find_first_of(")");
-      double fValue = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double -> reference to update
-      //std::cout << "string-double-fRelVars: " << fValue << std::endl;
-      
-      std::map<std::string, double> EFVMap = getEFVMap(fitnessEffects, Genotypes, popParams);
-      
-      for(auto& it : EFVMap){
-        if(it.second > fValue){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else {continue;}
-        
-      }
-      
-    } else if(multfact[0].find("n_") != std::string::npos){ //find fAbsVariables
-      
-      std::string s = ">";
-      unsigned first = multfact[0].find_first_of(s);
-      unsigned end_pos = first + s.length();
-      unsigned last = multfact[0].find_first_of(")");
-      double fValue = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double -> reference to update
-      //std::cout << "string-double-fAbsVars: " << fValue << std::endl;
-      
-      std::map<std::string, double> EFVMap = getEFVMap(fitnessEffects, Genotypes, popParams);
-      
-      for(auto& it : EFVMap){
-        if(it.second > fValue){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else {continue;}
-        
-      }
-      
-      
-    } else {continue;}
-    
   }
 
 }
 
-
 void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
   const fitnessEffectsAll& fitnessEffects,
-  const double& currentTime,
-  const std::vector<double>& mu,
-  const int& mutationPropGrowth,
-  const std::vector<int>& full2mutator,
-  const fitnessEffectsAll& muEF,
-  std::vector<std::string>& multfact) {
+  const double& currentTime) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1351,92 +1175,13 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
     
-    if(multfact[0].find("T") != std::string::npos){ //find currentTime in str expression
-      std::string s = ">";
-      
-      if(multfact[0].find_first_of("and") != std::string::npos){
-        unsigned first = multfact[0].find_first_of(s);
-        unsigned end_pos = first + s.length();
-        unsigned last = multfact[0].find_first_of("and");
-        double time = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double
-        //std::cout << "string-double-and: " << time << std::endl;
-        if(currentTime > time){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else { continue; }
-        
-      } else {
-        unsigned first = multfact[0].find_first_of(s);
-        unsigned end_pos = first + s.length();
-        unsigned last = multfact[0].find_first_of(")");
-        double time = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double
-        //std::cout << "string-double-no-and: " << time << std::endl;
-        if(currentTime > time){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else { continue; }
-      }
-      
-    } else if(multfact[0].find("f_") != std::string::npos) { //find fRelvariables
-      
-      std::string s = ">";
-      unsigned first = multfact[0].find_first_of(s);
-      unsigned end_pos = first + s.length();
-      unsigned last = multfact[0].find_first_of(")");
-      double fValue = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double -> reference to update
-      //std::cout << "string-double-fRelVars: " << fValue << std::endl;
-      
-      std::map<std::string, double> EFVMap = getEFVMap(fitnessEffects, Genotypes, popParams);
-      
-      for(auto& it : EFVMap){
-        if(it.second > fValue){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else {continue;}
-        
-      }
-      
-    } else if(multfact[0].find("n_") != std::string::npos){ //find fAbsVariables
-      
-      std::string s = ">";
-      unsigned first = multfact[0].find_first_of(s);
-      unsigned end_pos = first + s.length();
-      unsigned last = multfact[0].find_first_of(")");
-      double fValue = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double -> reference to update
-      //std::cout << "string-double-fAbsVars: " << fValue << std::endl;
-      
-      std::map<std::string, double> EFVMap = getEFVMap(fitnessEffects, Genotypes, popParams);
-      
-      for(auto& it : EFVMap){
-        if(it.second > fValue){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else {continue;}
-        
-      }
-      
-      
-    } else {continue;}
   }
 }
 
 void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
   const fitnessEffectsAll& fitnessEffects,
-  const double& currentTime,
-  const std::vector<double>& mu,
-  const int& mutationPropGrowth,
-  const std::vector<int>& full2mutator,
-  const fitnessEffectsAll& muEF,
-  std::vector<std::string>& multfact) {
+  const double& currentTime) {
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
@@ -1448,83 +1193,38 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
       fitnessEffects, Genotypes, lastPopParams, currentTime));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
-    
-    if(multfact[0].find("T") != std::string::npos){ //find currentTime in str expression
-      std::string s = ">";
-      
-      if(multfact[0].find_first_of("and") != std::string::npos){
-        unsigned first = multfact[0].find_first_of(s);
-        unsigned end_pos = first + s.length();
-        unsigned last = multfact[0].find_first_of("and");
-        double time = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double
-        //std::cout << "string-double-and: " << time << std::endl;
-        if(currentTime > time){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else { continue; }
-        
-      } else {
-        unsigned first = multfact[0].find_first_of(s);
-        unsigned end_pos = first + s.length();
-        unsigned last = multfact[0].find_first_of(")");
-        double time = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double
-        //std::cout << "string-double-no-and: " << time << std::endl;
-        if(currentTime > time){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else { continue; }
-      }
-      
-    } else if(multfact[0].find("f_") != std::string::npos) { //find fRelvariables
-      
-      std::string s = ">";
-      unsigned first = multfact[0].find_first_of(s);
-      unsigned end_pos = first + s.length();
-      unsigned last = multfact[0].find_first_of(")");
-      double fValue = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double -> reference to update
-      //std::cout << "string-double-fRelVars: " << fValue << std::endl;
-      
-      std::map<std::string, double> EFVMap = getEFVMap(fitnessEffects, Genotypes, popParams);
-      
-      for(auto& it : EFVMap){
-        if(it.second > fValue){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else {continue;}
-        
-      }
-      
-    } else if(multfact[0].find("n_") != std::string::npos){ //find fAbsVariables
-      
-      std::string s = ">";
-      unsigned first = multfact[0].find_first_of(s);
-      unsigned end_pos = first + s.length();
-      unsigned last = multfact[0].find_first_of(")");
-      double fValue = std::stod(multfact[0].substr(end_pos, last-end_pos)); //string to double -> reference to update
-      //std::cout << "string-double-fAbsVars: " << fValue << std::endl;
-      
-      std::map<std::string, double> EFVMap = getEFVMap(fitnessEffects, Genotypes, popParams);
-      
-      for(auto& it : EFVMap){
-        if(it.second > fValue){
-          popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i],
-                                                      fitnessEffects, mutationPropGrowth,
-                                                      full2mutator, muEF, Genotypes,
-                                                      popParams, currentTime, multfact);
-        } else {continue;}
-        
-      }
-      
-      
-    } else {continue;}
+
   }
 
+}
+
+void updateMutationRate(const std::vector<double>& mu,
+    const spParamsP& spP,
+    const Genotype& g,
+    const fitnessEffectsAll& fitnessEffects,
+    const int mutationPropGrowth,
+    const std::vector<int> full2mutator,
+    const fitnessEffectsAll& muEF,
+    const std::vector<Genotype>& Genotypes,
+    std::vector<spParamsP>& popParams,
+    const double& currentTime,
+    const std::string& muFactor) {
+  
+  const std::vector<spParamsP>& lastPopParams = popParams;
+  
+  double mult = muProd(fitnessEffects, Genotypes, popParams, currentTime, muFactor);
+  
+  if(muFactor != "None" and mult != 1.0){
+    //std::cout << "updating mutation rate";
+    //std::cout << "currentTime: " << currentTime;
+    for(size_t i=0; i<popParams.size(); i++) {
+      popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i], fitnessEffects,
+                                                  mutationPropGrowth, full2mutator, muEF, Genotypes,
+                                                  popParams, currentTime, muFactor);
+    }
+  } else {
+    //std::cout << "muFactor is None or 1.0" << std::endl;
+  }
 }
 
 

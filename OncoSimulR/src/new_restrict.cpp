@@ -1453,9 +1453,11 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   typedef exprtk::parser<double> parser_t;
   
   symbol_table_t symbol_table;
+  
   for(auto& iterator : EFVMap){
     symbol_table.add_variable(iterator.first, iterator.second);
   }
+  
   symbol_table.add_constant("N", N); //We reserve N to total population size
   symbol_table.add_constant("T", T); //Pass current time to exprtk
   symbol_table.add_constants();
@@ -1610,7 +1612,6 @@ double evalMutator(const Genotype& fullge,
 			const std::vector<Genotype>& Genotypes,
 			const std::vector<spParamsP>& popParams,
 			const double& currentTime,
-			std::vector<std::string>& multfact,
 		  bool verbose = false) {
   // In contrast to nr_fitness, that sets birth and death, this simply
   // returns the multiplication factor for the mutation rate. This is used
@@ -1694,14 +1695,12 @@ double evalRGenotype(Rcpp::IntegerVector rG,
 	bool verbose,
 	bool prodNeg,
 	Rcpp::CharacterVector calledBy_,
-	double currentTime,
-	Rcpp::CharacterVector multfact_) {
+	double currentTime) {
   // Can evaluate both ONLY fitness or ONLY mutator. Not both at the same
   // time. Use evalRGenotypeAndMut for that.
 
   const std::string calledBy = Rcpp::as<std::string>(calledBy_);
 	const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
-	std::vector<std::string> multfact = Rcpp::as<std::vector<std::string>>(multfact_);
 
 	if(rG.size() == 0 && fdf == false) {
 		// Why don't we evaluate it?
@@ -1761,13 +1760,11 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
 					Rcpp::IntegerVector full2mutator_,
 					bool verbose,
 					bool prodNeg,
-          double currentTime,
-          Rcpp::CharacterVector multfact_) {
+          double currentTime) {
   // Basically to test evalMutator. We repeat the conversion to genotype,
   // but that is unavoidable here.
   
   const bool fdf = as<bool>(rFE["frequencyDependentFitness"]);
-  std::vector<std::string> multfact = Rcpp::as<std::vector<std::string>>(multfact_);
   
   /*
   if(rG.size() == 0 && fdf == false) {
@@ -1812,7 +1809,7 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   // Genotype fullge = convertGenotypeFromR(rG, F);
 
   const std::vector<int> full2mutator = Rcpp::as<std::vector<int> >(full2mutator_);
-  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, currentTime, multfact);
+  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, currentTime);
 
   return out;
 }
@@ -1833,49 +1830,11 @@ std::map<std::string, double> getEFVMap(const fitnessEffectsAll& F,
   
 }
 
-
-std::string findRelOrAbsVariable(std::string& muExpr){
-  
-  //This function will work and return a string when we pass a mu expression from R
-  //with rel or abs vars in order to modify mumult value when this condition is
-  //fullfilled during the simulation
-  
-  std::string fRelOrAbs;
-  
-  if(muExpr.find("f_") != std::string::npos){
-    //std::cout << "f_ found" << std::endl;
-    std::string s = "if(";
-    unsigned first = muExpr.find_first_of(s);
-    unsigned end_pos = first + s.length();
-    unsigned last = muExpr.find_first_of(">");
-    fRelOrAbs = muExpr.substr(end_pos, last-end_pos);
-    std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
-    fRelOrAbs.erase(spaces, fRelOrAbs.end());
-    
-  } else if(muExpr.find("n_") != std::string::npos){
-    //std::cout << "n_ found" << std::endl;
-    std::string s = "if(";
-    unsigned first = muExpr.find_first_of(s);
-    unsigned end_pos = first + s.length();
-    unsigned last = muExpr.find_first_of(">");
-    fRelOrAbs = muExpr.substr(end_pos, last-end_pos);
-    std::string::iterator spaces = std::remove(fRelOrAbs.begin(), fRelOrAbs.end(), ' '); //remove whitespaces
-    fRelOrAbs.erase(spaces, fRelOrAbs.end());
-    
-  } else { 
-    //std::cout << "nothing found" << std::endl; 
-    fRelOrAbs = fRelOrAbs;
-  }
-  
-  //std::cout << "fRelOrAbs: " << fRelOrAbs << std::endl;
-  return fRelOrAbs;
-}
-
 double evalMutationRateEcuation(const fitnessEffectsAll& fe,
                                 const std::vector<Genotype>& Genotypes,
                                 const std::vector<spParamsP>& popParams,
                                 const double& currentTime,
-                                std::vector<std::string>& multfact){
+                                const std::string& muFactor){
   
   
   //This function returns the expression value of the mu expression passed from R
@@ -1891,14 +1850,13 @@ double evalMutationRateEcuation(const fitnessEffectsAll& fe,
   
   std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
   
-  std::string expr_string = multfact[0]; //exprt expression
+  std::string expr_string = muFactor; //exprt expression
   
   double T = currentTime; //to have access to currentTime
-  double N = totalPop(popParams);
+  double N = totalPop(popParams); //to have access to totPopSize
   
   //This function is needed to find rel or abs vars depending on the type of
   //mu expression we pass from R with OncoSimulIndiv
-  std::string freqVar = findRelOrAbsVariable(expr_string);
   
   typedef exprtk::symbol_table<double> symbol_table_t;
   typedef exprtk::expression<double> expression_t;
@@ -1907,12 +1865,11 @@ double evalMutationRateEcuation(const fitnessEffectsAll& fe,
   symbol_table_t symbol_table;
   
   for(auto& it : EFVMap){
-    if(it.first == freqVar){
-      symbol_table.add_constant(freqVar, it.second);
-    } else {continue;}
+    symbol_table.add_constant(it.first, it.second); //Pass fvars: rel/abs to exprk
   }
   
   symbol_table.add_constant("T", T); //Pass current time to exprtk
+  symbol_table.add_constant("N", N); //Pass totPopSize
   symbol_table.add_constants();
   
   expression_t expression;
@@ -1951,35 +1908,32 @@ double muProd(const fitnessEffectsAll& fe,
               const std::vector<Genotype>& Genotypes,
               const std::vector<spParamsP>& popParams,
               const double& currentTime,
-              std::vector<std::string>& multfact){
+              const std::string& muFactor){
   
   double mult;
   
-  //multfact is a vector<string> that brings the mu expression from R
-  //If there is not any expression its value is "None" so there will not
+  //muFactor brings the mu expression from R
+  //If there is not any expression its value is "None" so there will not be
   //any change in the mumult value.
   //Then we can use the FDF or Non-FDF functionality to pass any expression
   //that affects to mumult value.
   
-  //std::cout << "muFactor: " << multfact[0] << std::endl;
-  //std::cout << "timeFactor: " << multfact[1] << std::endl;
-  
   if(fe.frequencyDependentFitness){ //FDF
-    if(multfact[0] == "None"){
+    if(muFactor == "None"){
       mult = 1.0;
       //std::cout << "mult-fdf-None: " << mult << std::endl;
       
     } else {
-      mult = evalMutationRateEcuation(fe, Genotypes, popParams,currentTime, multfact);
+      mult = evalMutationRateEcuation(fe, Genotypes, popParams,currentTime, muFactor);
       //std::cout << "mult-fdf: " << mult << std::endl;
     }
     
   } else { //No-FDF
-    if(multfact[0] == "None"){
+    if(muFactor == "None"){
       mult = 1.0;
       //std::cout << "noFDF-None" << std::endl;
     } else {
-      mult = evalMutationRateEcuation(fe, Genotypes, popParams,currentTime, multfact);
+      mult = evalMutationRateEcuation(fe, Genotypes, popParams,currentTime, muFactor);
       //std::cout << "noFDF-muExpression" << std::endl;
     }
   }
@@ -1998,12 +1952,12 @@ double mutationFromScratch(const std::vector<double>& mu,
 				 const std::vector<Genotype>& Genotypes,
 	 			 const std::vector<spParamsP>& popParams,
 	 			 const double& currentTime,
-	 			 std::vector<std::string>& multfact) {
+	 			 const std::string& muFactor) {
 
   double mumult;
   
   if(full2mutator.size() > 0) { // so there are mutator effects
-    mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime, multfact);
+    mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime);
     //std::cout << "mumult from evalMutator: " << mumult << std::endl;
   } else mumult = 1.0;
   //FIXME: here the code for altering mutation rate
@@ -2015,10 +1969,10 @@ double mutationFromScratch(const std::vector<double>& mu,
   
   //muProd function provides a new value to mumult as long as there is
   //any mu expression passed from R code in OncoSimulIndiv function
-  mumult *= muProd(fe,Genotypes, popParams, currentTime, multfact);
-  //std::cout << "running mutationFromScratch" << std::endl;
-  //std::cout << "multiplication factor: " << mumult << std::endl;
-  //std::cout << "currentTime: " << currentTime << std::endl;
+  mumult *= muProd(fe,Genotypes, popParams, currentTime, muFactor);
+  //std::cout << "running mutationFromScratch";
+  //std::cout << "multiplication factor: " << mumult;
+  //std::cout << "currentTime: " << currentTime;
   
   if(mu.size() == 1) {
     if(mutationPropGrowth)

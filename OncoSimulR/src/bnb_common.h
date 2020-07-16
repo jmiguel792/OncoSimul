@@ -172,12 +172,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
   double& adjust_fitness_MF,
   const double& K,
   const double& totPopSize,
-  const double& currentTime,
-  const std::vector<double>& mu,
-  const int& mutationPropGrowth,
-  const std::vector<int>& full2mutator,
-  const fitnessEffectsAll& muEF,
-  std::vector<std::string>& multfact);
+  const double& currentTime);
 
 void updateRatesMcFarlandLog_D(std::vector<spParamsP>& popParams,
 				    double& adjust_fitness_MF,
@@ -190,33 +185,29 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
   double& adjust_fitness_MF,
   const double& K,
   const double& totPopSize,
-  const double& currentTime,
-  const std::vector<double>& mu,
-  const int& mutationPropGrowth,
-  const std::vector<int>& full2mutator,
-  const fitnessEffectsAll& muEF,
-  std::vector<std::string>& multfact);
-
+  const double& currentTime);
 
 void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
   const fitnessEffectsAll& fitnessEffects,
-  const double& currentTime,
-  const std::vector<double>& mu,
-  const int& mutationPropGrowth,
-  const std::vector<int>& full2mutator,
-  const fitnessEffectsAll& muEF,
-  std::vector<std::string>& multfact);
+  const double& currentTime);
 
 void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
   const fitnessEffectsAll& fitnessEffects,
-  const double& currentTime,
-  const std::vector<double>& mu,
-  const int& mutationPropGrowth,
-  const std::vector<int>& full2mutator,
-  const fitnessEffectsAll& muEF,
-  std::vector<std::string>& multfact);
+  const double& currentTime);
+
+void updateMutationRate(const std::vector<double>& mu,
+    const spParamsP& spP,
+    const Genotype& g,
+    const fitnessEffectsAll& fitnessEffects,
+    const int mutationPropGrowth,
+    const std::vector<int> full2mutator,
+    const fitnessEffectsAll& muEF,
+    const std::vector<Genotype>& Genotypes,
+    std::vector<spParamsP>& popParams,
+    const double& currentTime,
+    const std::string& muFactor);
 
 void updateRatesMcFarland0(std::vector<spParamsP>& popParams,
 				  double& adjust_fitness_MF,
