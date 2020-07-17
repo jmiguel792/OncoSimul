@@ -1852,8 +1852,17 @@ double evalMutationRateEcuation(const fitnessEffectsAll& fe,
   
   std::string expr_string = muFactor; //exprt expression
   
+  /*
+  for(const auto& iterator : EFVMap){
+    std::cout << "EFVMap ";
+    std::cout << "first iterator: " << iterator.first << " ";
+    std::cout << "second iterator: " << iterator.second << std::endl;
+  }*/
+  
   double T = currentTime; //to have access to currentTime
+  //std::cout << "currentTime: " << T;
   double N = totalPop(popParams); //to have access to totPopSize
+  //std::cout << "totpopsize: " << N;
   
   //This function is needed to find rel or abs vars depending on the type of
   //mu expression we pass from R with OncoSimulIndiv

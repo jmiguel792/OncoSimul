@@ -2031,15 +2031,23 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
       // } else if( (typeModel == TypeModel::mcfarlandlog) ) {
       if (typeModel == TypeModel::mcfarlandlog && !fitnessEffects.frequencyDependentFitness){ //No-FDF
 	
+	//std::cout << "typeModel is mcfarlandlog and FDF is not active" << std::endl;
 	updateRatesMcFarlandLog(popParams, adjust_fitness_MF, K, totPopSize);
+	updateMutationRate(mu, popParams[0], Genotypes[0], fitnessEffects, mutationPropGrowth, full2mutator,
+                    muEF, Genotypes, popParams, currentTime, muFactor);
 
       } else if(typeModel == TypeModel::mcfarlandlog_d && !fitnessEffects.frequencyDependentFitness ) {
 
+  //std::cout << "typeModel is mcfarlandlog_d and FDF is not active" << std::endl;
 	updateRatesMcFarlandLog_D(popParams, adjust_fitness_MF, K, totPopSize);
+	updateMutationRate(mu, popParams[0], Genotypes[0], fitnessEffects, mutationPropGrowth, full2mutator,
+                    muEF, Genotypes, popParams, currentTime, muFactor);
 
       } else if (fitnessEffects.frequencyDependentFitness){ //FDF
 	
 	if( (typeModel == TypeModel::mcfarlandlog) ) {
+	  
+	  //std::cout << "typeModel is mcfarlandlog and FDF is active" << std::endl;
 	  
 	  updateRatesFDFMcFarlandLog(popParams, Genotypes, fitnessEffects,
 				     adjust_fitness_MF, K, totPopSize, currentTime);
@@ -2049,6 +2057,8 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 	  
 	} else if( (typeModel == TypeModel::mcfarlandlog_d) ) {
 	  
+	  //std::cout << "typeModel is mcfarlandlog_d and FDF is active" << std::endl;
+	  
 	  updateRatesFDFMcFarlandLog_D(popParams, Genotypes, fitnessEffects,
 				     adjust_fitness_MF, K, totPopSize, currentTime);
 	  
@@ -2057,6 +2067,8 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 	  
 	} else if(typeModel == TypeModel::exp){
 	  
+	  //std::cout << "typeModel is exp and FDF is active" << std::endl;
+	  
 	  updateRatesFDFExp(popParams, Genotypes, fitnessEffects, 
                      currentTime);
 	  
@@ -2064,6 +2076,8 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
                       muEF, Genotypes, popParams, currentTime, muFactor);
 	  
 	} else if(typeModel == TypeModel::bozic1){
+	  
+	  //std::cout << "typeModel is bozic and FDF is active" << std::endl;
 	  
 	  updateRatesFDFBozic(popParams, Genotypes, fitnessEffects,
                        currentTime);
