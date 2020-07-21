@@ -585,6 +585,12 @@ oncoSimulIndiv <- function(fp,
 
     if(is_null_na(sampleEvery)) stop("sampleEvery cannot be NULL or NA")
     
+    if(!is.character(muFactor)) stop("muFactor must be a string")
+    
+    if(is.character(muFactor) && muFactor != "None") {
+        message("Exprtk expression for mutation rate defined.")
+    }
+    
     if(!inherits(fp, "fitnessEffects")) {
         if(any(unlist(lapply(list(fp, 
                                   numPassengers,

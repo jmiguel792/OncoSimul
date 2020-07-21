@@ -1933,7 +1933,7 @@ double muProd(const fitnessEffectsAll& fe,
       //std::cout << "mult-fdf-None: " << mult << std::endl;
       
     } else {
-      mult = evalMutationRateEcuation(fe, Genotypes, popParams,currentTime, muFactor);
+      mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
       //std::cout << "mult-fdf: " << mult << std::endl;
     }
     
@@ -1942,7 +1942,7 @@ double muProd(const fitnessEffectsAll& fe,
       mult = 1.0;
       //std::cout << "noFDF-None" << std::endl;
     } else {
-      mult = evalMutationRateEcuation(fe, Genotypes, popParams,currentTime, muFactor);
+      mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
       //std::cout << "noFDF-muExpression" << std::endl;
     }
   }
@@ -1978,7 +1978,7 @@ double mutationFromScratch(const std::vector<double>& mu,
   
   //muProd function provides a new value to mumult as long as there is
   //any mu expression passed from R code in OncoSimulIndiv function
-  mumult *= muProd(fe,Genotypes, popParams, currentTime, muFactor);
+  mumult *= muProd(fe, Genotypes, popParams, currentTime, muFactor);
   //std::cout << "running mutationFromScratch";
   //std::cout << "multiplication factor: " << mumult;
   //std::cout << "currentTime: " << currentTime;
