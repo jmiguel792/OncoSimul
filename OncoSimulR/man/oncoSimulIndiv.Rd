@@ -187,10 +187,10 @@ oncoSimulSample(Nindiv,
 
 \item{muFactor}{
   Mutation rate factor. A string that code a expression for the mutation rate.
-  This expression is performed through exprtk library from c++ code and produces
-  changes in the mutation rate depending on the expression. For instance, we can
-  access to the current time of the simulation and specify a different mutation
-  rate at a certain timepoint.
+  This expression is interpreted by exprtk library in c++ and produces changes
+  in the mutation rate depending on the expression. For instance, we can access 
+  to the current time of the simulation and specify a different mutation rate, 
+  multiplying it at a certain timepoint by a number resulting from exprtk expression.
 }
 
 \item{muEF}{
@@ -1045,7 +1045,7 @@ pancrSamp <- oncoSimulSample(2, pancr)
 pancrSamp
 
 ## Modify mutation rate
-muExpr <- "if(T>200) log(T); else 1 + 1/N;" #exprtk expression for mutation rate
+muExpr <- "if(T>200) log(T); else 1 + 1/N;"
 pancr2 <- oncoSimulIndiv(pancr, model = "Exp", muFactor = muExpr)
 plot(pancr2)
 
