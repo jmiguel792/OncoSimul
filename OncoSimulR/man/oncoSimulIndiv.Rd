@@ -953,6 +953,23 @@ plot(mcf1s, addtot = TRUE, lwdClone = 0.6, log = "")
 summary(mcf1s)
 plot(mcf1s)
 
+## modify mutation rate
+muExpr <- "if(T>300) log(T); else 1;"
+mcf2s <-  oncoSimulIndiv(mcf1,
+                         model = "McFL",
+                         mu = 1e-7,
+                         muFactor = muExpr,
+                         detectionSize = 1e8,
+                         detectionDrivers = 100,
+                         sampleEvery = 0.02,
+                         keepEvery = 2,
+                         initSize = 2000,
+                         finalTime = 1000,
+                         onlyCancer = FALSE)
+plot(mcf2s, addtot = TRUE, lwdClone = 0.6, log = "")
+summary(mcf2s)
+plot(mcf2s)
+
 
 #### Order effects with modules, and 5 genes without interactions
 #### with fitness effects from an exponential distribution
