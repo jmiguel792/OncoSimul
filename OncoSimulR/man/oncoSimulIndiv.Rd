@@ -1058,7 +1058,7 @@ femuv <- allFitnessEffects(noIntGenes = ni)
 oncoSimulIndiv(femuv, mu = muv)
 
 
-#########Frequency dependent fitness examples
+#########Frequency dependent fitness examples#########
 
 ## An example with cooperation. Presence of WT favours all clones
 ## and all clones have a positive effect on themselves
