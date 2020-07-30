@@ -1216,14 +1216,15 @@ void updateMutationRate(const std::vector<double>& mu,
   
   if(muFactor != "None" and mult != 1.0){
     //std::cout << "updating mutation rate";
-    //std::cout << "currentTime: " << currentTime;
+    //std::cout << "currentTime: " << currentTime << std::endl;
     for(size_t i=0; i<popParams.size(); i++) {
       popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i], fitnessEffects,
                                                   mutationPropGrowth, full2mutator, muEF, Genotypes,
                                                   popParams, currentTime, muFactor);
+      
+      //std::cout << "spP.mutation: " << popParams[i].mutation;
+      
     }
-  } else {
-    //std::cout << "muFactor is None or 1.0" << std::endl;
   }
 }
 

@@ -1927,23 +1927,15 @@ double muProd(const fitnessEffectsAll& fe,
   //Then we can use the FDF or Non-FDF functionality to pass any expression
   //that affects to mumult value.
   
-  if(fe.frequencyDependentFitness){ //FDF
-    if(muFactor == "None"){
-      mult = 1.0;
-      //std::cout << "mult-fdf-None: " << mult << std::endl;
-      
-    } else {
+  if(muFactor == "None"){
+    mult = 1.0;
+  } else {
+    if(fe.frequencyDependentFitness){ //FDF
+      //std::cout << "FDF situation" << std::endl;
       mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
-      //std::cout << "mult-fdf: " << mult << std::endl;
-    }
-    
-  } else { //No-FDF
-    if(muFactor == "None"){
-      mult = 1.0;
-      //std::cout << "noFDF-None" << std::endl;
-    } else {
+    } else { //No-FDF
+      //std::cout << "NO-FDF situation" << std::endl;
       mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
-      //std::cout << "noFDF-muExpression" << std::endl;
     }
   }
   
