@@ -1222,7 +1222,7 @@ void updateMutationRate(const std::vector<double>& mu,
                                                   mutationPropGrowth, full2mutator, muEF, Genotypes,
                                                   popParams, currentTime, muFactor);
       
-      //std::cout << "spP.mutation: " << popParams[i].mutation;
+      //std::cout << "spP.mutation: " << popParams[i].mutation << std::endl;
       
     }
   }
