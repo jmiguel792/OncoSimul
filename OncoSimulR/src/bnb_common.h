@@ -58,6 +58,7 @@ inline void R_f_st(spParamsP& spP) {
 
 inline double pE_f_st(double& pM, const spParamsP& spP){
   double pE = (spP.death * (1.0 - pM ) )/(spP.W - spP.death - spP.birth * pM );
+  //std::cout << "pE value: " << pE << std::endl;
   if( !std::isfinite(pE) ) {
     DP2(spP.death);  DP2(spP.birth); DP2(pM); DP2(spP.W);
     DP2(spP.mutation);
@@ -73,6 +74,8 @@ inline double pE_f_st(double& pM, const spParamsP& spP){
 
 inline double pB_f_st(const double& pE,
 			     const spParamsP& spP) {
+  double pB = (spP.birth * pE)/spP.death;
+  //std::cout << "pB value: " << pB << std::endl;
   return (spP.birth * pE)/spP.death;
 }
 
@@ -197,6 +200,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const fitnessEffectsAll& fitnessEffects,
   const double& currentTime);
 
+
 void updateMutationRate(const std::vector<double>& mu,
     const spParamsP& spP,
     const Genotype& g,
@@ -208,6 +212,14 @@ void updateMutationRate(const std::vector<double>& mu,
     std::vector<spParamsP>& popParams,
     const double& currentTime,
     const std::string& muFactor);
+
+/*
+void updateMutationRate2(std::vector<double>& mu,
+                         const fitnessEffectsAll& fe,
+                         const std::vector<Genotype>& Genotypes,
+                         const std::vector<spParamsP>& popParams,
+                         const double& currentTime,
+                         const std::string& muFactor);*/
 
 void updateRatesMcFarland0(std::vector<spParamsP>& popParams,
 				  double& adjust_fitness_MF,

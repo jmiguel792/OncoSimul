@@ -63,6 +63,8 @@ double pM_f_st(const double& t,
     print_spP(spP);
     throw std::range_error("pM.f: pM <= 0.0");
   }
+  
+  //std::cout << "pM value: " << pM << std::endl;
   return pM;
 }
 
@@ -112,6 +114,11 @@ double ti_nextTime_tmax_2_st(const spParamsP& spP,
   // W < 0 is a signal that mutation is zero, and thus ti is Inf
   if(spP.mutation == 0) { //   spP.W <= -90.0) {
     ti = tSample + 2.0 * epsilon;
+    
+    //std::cout << "############current time: " << currentTime << " | ";
+    //std::cout << "tSample: " << tSample << " | ";
+    //std::cout << "ti when mutation = 0: " << ti << std::endl;
+    
     // yes, this is silly but to differentiate from
     // r < pM without further info
     // and to lead to finite value in loop for min.
@@ -358,6 +365,10 @@ double Algo2_st(const spParamsP& spP,
   double pm = pM_f_st(t, spP);
   double pe = pE_f_st(pm, spP);
   double pb = pB_f_st(pe, spP);
+  
+  //std::cout << "pm value: " << pm << " | ";
+  //std::cout << "pe value: " << pe << " | ";
+  //std::cout << "pb value: " << pb << std::endl;
 
   // if(spP.numMutablePos == 0) {
   //   // Just do the math. In this case mutation rate is 0. Thus, pM (eq. 8
@@ -1045,6 +1056,20 @@ void updateRatesMcFarlandLog(std::vector<spParamsP>& popParams,
     popParams[i].death = adjust_fitness_MF;
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
+    
+    /*
+    std::cout << "updateRates" << " | ";
+    //std::cout << "currentTime: " << currentTime << " | ";
+    std::cout << "Genotype: " << i << " | ";
+    std::cout << "popSize: " << popParams[i].popSize << " | ";
+    std::cout << "numMutablePos: " << popParams[i].numMutablePos << " | ";
+    std::cout << "mutation: " << popParams[i].mutation << " | ";
+    std::cout << "birth: " << popParams[i].birth << " | ";
+    std::cout << "death: " << popParams[i].death << " | ";
+    std::cout << "W: " << popParams[i].W << " | ";
+    std::cout << "R: " << popParams[i].R << std::endl;
+     */
+    
   }
 }
 
@@ -1198,6 +1223,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
 
 }
 
+
 void updateMutationRate(const std::vector<double>& mu,
     const spParamsP& spP,
     const Genotype& g,
@@ -1217,16 +1243,107 @@ void updateMutationRate(const std::vector<double>& mu,
   if(muFactor != "None" and mult != 1.0){
     //std::cout << "updating mutation rate";
     //std::cout << "currentTime: " << currentTime << std::endl;
+    
+    /*
+    //same as bnb_nr?
+    double mymindummy = 1.0e-11; //1e-10
+    double targetmindummy = 1.0e-10; //1e-9
+    double minmu = *std::min_element(mu.begin(), mu.end());
+    // Very small, but no less than mymindummy, for numerical issues.
+    // We can probably go down to 1e-13. 1e-16 is not good as we get lots
+    // of pE.f not finite. 1e-15 is probably too close, and even if no pE.f
+    // we can get strange behaviors.
+    double dummyMutationRate = std::max(std::min(minmu/1.0e4, targetmindummy),mymindummy);
+    
+    if(minmu <= mymindummy) { // 1e-9
+      double newdd = minmu/100.0;
+      Rcpp::Rcout << "WARNING: the smallest mutation rate is "
+                  << "<= " << mymindummy << ". That is a really small value"
+                  << "(per-base mutation rate in the human genome is"
+                  << " ~ 1e-11 to 1e-9). "
+                  << "Setting dummyMutationRate to your min/100 = "
+                  << newdd
+                  << ". There can be numerical problems later.\n";
+      dummyMutationRate = newdd;
+    }
+    */
+    
     for(size_t i=0; i<popParams.size(); i++) {
+      
+      /*
+      if(popParams[i].numMutablePos == 0){
+        std::cout << "BNB COMMON" << " ";
+        std::cout << "currentTime: " << currentTime << " ";
+        std::cout << "popSize: " << i << " -> " << popParams[i].popSize << " ";
+        std::cout << "numMutablePos: " << popParams[i].numMutablePos << " ";
+        std::cout << "mutation: " << popParams[i].mutation << std::endl;
+      }*/
+      
       popParams[i].mutation = mutationFromScratch(mu, popParams[i], Genotypes[i], fitnessEffects,
                                                   mutationPropGrowth, full2mutator, muEF, Genotypes,
                                                   popParams, currentTime, muFactor);
       
-      //std::cout << "spP.mutation: " << popParams[i].mutation << std::endl;
+      
+      /*
+      //this will make same as bnb_nr -> avoiding the bug correctly?
+      if(popParams[i].mutation == 0){
+        popParams[i].mutation = dummyMutationRate;
+      }*/
+      
+      
+      /*
+      std::cout << "BNBCommon" << " | ";
+      std::cout << "currentTime: " << currentTime << " | ";
+      std::cout << "Genotype: " << i << " | ";
+      std::cout << "popSize: " << popParams[i].popSize << " | ";
+      std::cout << "numMutablePos: " << popParams[i].numMutablePos << " | ";
+      std::cout << "mutation: " << popParams[i].mutation << " | ";
+      std::cout << "birth: " << popParams[i].birth << " | ";
+      std::cout << "death: " << popParams[i].death << " | ";
+      std::cout << "W: " << popParams[i].W << " | ";
+      std::cout << "R: " << popParams[i].R << std::endl;
+       */
       
     }
+    
+    //std::cout << "bnbCommon" << std::endl;
+    //std::cout << "spP.mutation: " << popParams[0].mutation << std::endl;
+    //std::cout << "popSize: " << popParams[0].popSize << std::endl;
+    //std::cout << "numMutablePos: " << popParams[0].numMutablePos << std::endl;
   }
 }
+
+/*
+void updateMutationRate2(std::vector<double>& mu,
+                        const fitnessEffectsAll& fe,
+                        const std::vector<Genotype>& Genotypes,
+                        const std::vector<spParamsP>& popParams,
+                        const double& currentTime,
+                        const std::string& muFactor){
+  
+  double newmu; //new value for updating
+  double mult; //value to multiply to mu for updating
+  std::vector<double> oldmu = {1.0}; //oldmu.size() is now 0
+  
+  if(mu.size() == 1 and oldmu.size() == 1){ //when oldmu.size() > 0 we don't enter here
+    //std::cout << "mu size is 1 and oldmu size is 0" << std::endl;
+    mult = muProd(fe, Genotypes, popParams, currentTime, muFactor);
+    std::cout << "mult: " << mult << " | ";
+    
+    if(mult != 1.0){ //is mult != than 0?
+      newmu = mu[0]*mult; //let's calculate the new value for mu
+      oldmu.push_back(newmu); //we need this for avoiding this block in next iterations
+      mu.clear(); //mu is empty now
+      mu.push_back(newmu); //add newmu value to mu
+    }
+  }
+  
+  std::cout << "current time: " << currentTime << " | ";
+  std::cout << "oldmu size: " << oldmu.size() << " | ";
+  std::cout << "mu: " << mu[0] << std::endl;
+  
+}
+ */
 
 
 // // McFarland0 uses: - penalty as log(1 + N/K), and puts

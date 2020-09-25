@@ -635,6 +635,9 @@ fitnessEffectsAll convertFitnessEffects(Rcpp::List rFE) {
   fe.allGenes = allGenesinFitness(fe);
   fe.genomeSize =  fe.Gene_Module_tabl.size() - 1 + fe.genesNoInt.s.size() +
     fe.fitnessLandscape.NumID.size();
+  
+  //std::cout << "fe genomeSize: " << fe.genomeSize << std::endl;
+    
   fe.drv = as<std::vector<int> > (drv);
   sort(fe.drv.begin(), fe.drv.end()); //should not be needed, but just in case
   // cannot trust R gives it sorted
@@ -1303,24 +1306,51 @@ double frequency(const int& pos, const std::vector<spParamsP>& popParams){
 
 //This function returns 0 if genotype is not in Genotypes and position+1 otherwise
 int findPositionInGenotypes(const std::vector<Genotype>& Genotypes,
-	const std::vector<int> genotype){
+                            const std::vector<int> genotype){
 
-		int index;
+	int index;
 
-		std::vector<std::vector<int> > flGenesInGenotypes;
+	std::vector< std::vector<int> > flGenesInGenotypes;
+	
+	//std::cout << "###" << std::endl;
+	//std::cout << "Genotypes size: " << Genotypes.size() << std::endl;
+	
 	for(size_t i = 0; i < Genotypes.size(); i++){
 		flGenesInGenotypes.push_back(Genotypes[i].flGenes);
 	}
+	
+	//std::cout << "FlGenotypes size: " << flGenesInGenotypes.size() << std::endl;
+	
+	/*
+	for(int row=0; row<flGenesInGenotypes.size(); row++){
+	  for(int col=0; col<flGenesInGenotypes[row].size(); col++){
+	    std::cout << "flGenesVector: " << flGenesInGenotypes[row][col] << std::flush;
+	  }
+	}*/
+	
+	/*
+	for(auto i : flGenesInGenotypes){
+	  for(auto j : i){
+	    std::cout << j << " ";
+	   std::cout << "\n";
+	  }
+	}*/
 
 	int pos = std::find(flGenesInGenotypes.begin(),
 	  flGenesInGenotypes.end(), genotype) - flGenesInGenotypes.begin();
+	
+	//std::cout << "position: " << pos << std::endl;
 
 	int size = flGenesInGenotypes.size();
+	
+	//std::cout << "flGenes size: " << size << std::endl;
 
 	if(pos < size)
 		index = pos + 1;
 	else
 		index = 0;
+	
+	//std::cout << "index: " << index << std::endl;
 
   return index;
 }
@@ -1357,22 +1387,25 @@ evalFVars_struct evalFVars(const fitnessEffectsAll& F,
   for(const auto& iterator : fvarsmap) {
     
     std::vector<int> genotype = stringVectorToIntVector(iterator.first);//genotype (as int vector)
+    
     /*
     for(int x : genotype){
       std::cout << "genotype: " << x << std::endl;
     }*/
+    
     std::string var = iterator.second;//variable associated to genotype
     //std::cout << "fvars-var: " << var << std::endl;
     int position = findPositionInGenotypes(Genotypes, genotype);
+    //std::cout << "***" << std::endl;
+    //std::cout << "position: " << position << std::endl;
     
-    /*
-    std::cout << "fvarsmap" << std::endl;
-    std::cout << "first iterator: " << iterator.first << std::endl;
-    std::cout << "second iterator: " << iterator.second << std::endl;
-     */
+    //std::cout << "fvarsmap" << std::endl;
+    //std::cout << "first iterator: " << iterator.first << std::endl;
+    //std::cout << "second iterator: " << iterator.second << std::endl;
     
     if(position != 0){
       int realPos = position - 1;
+      //std::cout << "realPos: " << realPos << std::endl;
       
       if(freqType == "abs"){
         double freqAbs = popParams[realPos].popSize;
@@ -1937,6 +1970,7 @@ double muProd(const fitnessEffectsAll& fe,
       //std::cout << "NO-FDF situation" << std::endl;
       mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
     }
+    
   }
   
   return mult;
@@ -1970,16 +2004,29 @@ double mutationFromScratch(const std::vector<double>& mu,
   
   //muProd function provides a new value to mumult as long as there is
   //any mu expression passed from R code in OncoSimulIndiv function
+  
   mumult *= muProd(fe, Genotypes, popParams, currentTime, muFactor);
+  
   //std::cout << "running mutationFromScratch";
   //std::cout << "multiplication factor: " << mumult;
   //std::cout << "currentTime: " << currentTime;
   
   if(mu.size() == 1) {
-    if(mutationPropGrowth)
+    if(mutationPropGrowth){
+      //std::cout << "mutationPropGrowth" << std::endl;
+      //std::cout << "mumult: " << mumult << std::endl;
+      //std::cout << "mu: " << mu[0] << std::endl;
+      //std::cout << "spP NMP: " << spP.numMutablePos << std::endl;
+      //std::cout << "spP birth: " << spP.birth << std::endl;
       return(mumult * mu[0] * spP.numMutablePos * spP.birth);
-    else
+    }  else{
+      //std::cout << "NO MPG" << std::endl;
+      //std::cout << "mumult: " << mumult << std::endl;
+      //std::cout << "mu: " << mu[0] << std::endl;
+      //std::cout << "spP NMP: " << spP.numMutablePos << std::endl;
+      //std::cout << "spP birth" << spP.birth << std::endl;
       return(mumult * mu[0] * spP.numMutablePos);
+    }
   } else {
     std::vector<int> sortedG = allGenesinGenotype(g);
     std::vector<int> nonmutated;
