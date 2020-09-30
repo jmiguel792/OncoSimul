@@ -950,8 +950,8 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 			// const double& genTime,
 			const TypeModel typeModel,
 			const int& mutationPropGrowth,
-			const std::vector<double>& mu,
-			//std::vector<double>& muToCheck,
+			std::vector<double>& mu,
+			std::vector<double>& muToCheck,
 			// const double& mu,
 			const double& death,
 			const double& keepEvery,
@@ -2190,7 +2190,12 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
       // 			     K, totPopSize);
       // } else if( (typeModel == TypeModel::mcfarlandlog) ) {
       
-      //std::cout << "nextMutant: " << nextMutant << std::endl;
+      //updateMutationRate -> HERE SOME CODE WHEN MUFACTOR IS NOT NONE
+      if(muFactor != "None"){
+        updateMutationRate(mu, muToCheck, nextMutant,
+                           fitnessEffects, Genotypes, popParams,
+                           currentTime, muFactor);
+      }
       
       if (typeModel == TypeModel::mcfarlandlog && !fitnessEffects.frequencyDependentFitness){ //No-FDF
 	
@@ -2293,8 +2298,8 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 
 
   precissionLoss();
-  const std::vector<double> mu = Rcpp::as<std::vector<double> >(mu_);
-  //std::vector<double> muToCheck;
+  std::vector<double> mu = Rcpp::as<std::vector<double> >(mu_);
+  std::vector<double> muToCheck;
   const std::vector<std::string> multfact = Rcpp::as<std::vector<std::string>> (muFactor_);
   const std::vector<int> initMutant = Rcpp::as<std::vector<int> >(initMutant_);
   const TypeModel typeModel = stringToModel(Rcpp::as<std::string>(typeFitness_));
@@ -2514,7 +2519,7 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 	       typeModel,
 	       mutationPropGrowth,
 	       mu,
-	       //muToCheck,
+	       muToCheck,
 	       death,
 	       keepEvery,
 	       sampleEvery,

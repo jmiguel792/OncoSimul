@@ -200,6 +200,15 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const fitnessEffectsAll& fitnessEffects,
   const double& currentTime);
 
+void updateMutationRate(std::vector<double>& mu,
+  std::vector<double>& muToCheck,
+  int& nextMutant,
+  const fitnessEffectsAll& fe,
+  const std::vector<Genotype>& Genotypes,
+  std::vector<spParamsP>& popParams,
+  const double& currentTime,
+  const std::string& muFactor);
+
 void updateRatesMcFarland0(std::vector<spParamsP>& popParams,
 				  double& adjust_fitness_MF,
 				  const double& K,

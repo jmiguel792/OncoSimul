@@ -1223,6 +1223,41 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
 
 }
 
+void updateMutationRate(std::vector<double>& mu,
+                        std::vector<double>& muToCheck,
+                        int& nextMutant,
+                        const fitnessEffectsAll& fe,
+                        const std::vector<Genotype>& Genotypes,
+                        std::vector<spParamsP>& popParams,
+                        const double& currentTime,
+                        const std::string& muFactor){
+  
+  //const std::vector<double>& newmu = mu;
+  const std::vector<spParamsP>& lastPopParams = popParams;
+  
+  double newmu;
+  double mult = muProd(fe, Genotypes, popParams, currentTime, muFactor);
+  
+  if(mult != 1.0){
+    muToCheck.push_back(mult);
+    if(mu.size() == 1 && muToCheck.size() == 1){
+      newmu = mu[0]*mult;
+      mu.clear();
+      mu.push_back(newmu);
+      
+      std::cout << "MU UPDATED: " << mu[0] << " | ";
+      std::cout << "nextMutant: " << nextMutant << " | ";
+      
+      popParams[nextMutant].mutation 
+        = mu[0]*popParams[nextMutant].numMutablePos*popParams[nextMutant].birth;
+      
+      std::cout << "NM updated: " << popParams[nextMutant].mutation << std::endl;
+      std::cout << std::endl;
+    }
+  }
+  
+}
+
 
 // // McFarland0 uses: - penalty as log(1 + N/K), and puts
 // // that in the birth rate.
