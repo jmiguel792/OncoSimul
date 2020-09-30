@@ -1954,30 +1954,37 @@ double muProd(const fitnessEffectsAll& fe,
   
   double mult;
   
-  //muFactor brings the mu expression from R
-  //If there is not any expression its value is "None" so there will not be
-  //any change in the mumult value.
-  //Then we can use the FDF or Non-FDF functionality to pass any expression
-  //that affects to mumult value.
-  
-  if(muFactor == "None"){
-    mult = 1.0;
+  if(fe.frequencyDependentFitness){
+    mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
   } else {
-    if(fe.frequencyDependentFitness){ //FDF
-      //std::cout << "FDF situation" << std::endl;
-      mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
-    } else { //No-FDF
-      //std::cout << "NO-FDF situation" << std::endl;
-      mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
-    }
-    
+    mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
   }
   
   return mult;
 }
 
+std::vector<double> updateMutationRate(const std::vector<double>& mu,
+    //std::vector<double>& muToCheck,
+    const fitnessEffectsAll& fe,
+    const std::vector<Genotype>& Genotypes,
+    const std::vector<spParamsP>& popParams,
+    const double& currentTime,
+    const std::string& muFactor){
+  
+  double mult = muProd(fe, Genotypes, popParams, currentTime, muFactor);
+  double newmu = mu[0]*mult;
+  std::vector<double> newmu_;
+  newmu_.push_back(newmu);
+  //mu.clear();
+  //mu.push_back(newmu);
+  
+  return newmu_;
+  
+}
+
 
 double mutationFromScratch(const std::vector<double>& mu,
+         //std::vector<double>& muToCheck,
 			   const spParamsP& spP,
 			   const Genotype& g,
 			   const fitnessEffectsAll& fe,
@@ -1990,6 +1997,8 @@ double mutationFromScratch(const std::vector<double>& mu,
 	 			 const std::string& muFactor) {
 
   double mumult;
+  std::vector<double> newmu;
+  double mult;
   
   if(full2mutator.size() > 0) { // so there are mutator effects
     mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime);
@@ -2002,31 +2011,53 @@ double mutationFromScratch(const std::vector<double>& mu,
   // In BNB_nr.cpp, in nr_innerBNB function
   // when we are sampling.
   
-  //muProd function provides a new value to mumult as long as there is
-  //any mu expression passed from R code in OncoSimulIndiv function
-  
-  mumult *= muProd(fe, Genotypes, popParams, currentTime, muFactor);
-  
-  //std::cout << "running mutationFromScratch";
-  //std::cout << "multiplication factor: " << mumult;
-  //std::cout << "currentTime: " << currentTime;
-  
   if(mu.size() == 1) {
     if(mutationPropGrowth){
-      //std::cout << "mutationPropGrowth" << std::endl;
-      //std::cout << "mumult: " << mumult << std::endl;
-      //std::cout << "mu: " << mu[0] << std::endl;
-      //std::cout << "spP NMP: " << spP.numMutablePos << std::endl;
-      //std::cout << "spP birth: " << spP.birth << std::endl;
-      return(mumult * mu[0] * spP.numMutablePos * spP.birth);
-    }  else{
-      //std::cout << "NO MPG" << std::endl;
-      //std::cout << "mumult: " << mumult << std::endl;
-      //std::cout << "mu: " << mu[0] << std::endl;
-      //std::cout << "spP NMP: " << spP.numMutablePos << std::endl;
-      //std::cout << "spP birth" << spP.birth << std::endl;
+      
+      if(muFactor != "None"){ //muFactor is TRUE
+        std::cout << "MFS NR" << " | ";
+        std::cout << "currentTime: " << currentTime << " | ";
+        std::cout << "muFactor TRUE" << " | ";
+        std::cout << "mu before changing: " << mu[0] << std::endl;
+        mult = muProd(fe, Genotypes, popParams, currentTime, muFactor);
+        
+        if(mult != 1.0){ //run this block when muFactor condition is accomplished
+          newmu = updateMutationRate(mu, fe, Genotypes, popParams, currentTime, muFactor);
+          std::cout << "MFS NR" << " | ";
+          std::cout << "mult value: " << mult << " | ";
+          std::cout << "mumult: " << mumult << " | ";
+          std::cout << "mu value is newmu: " << newmu[0] << " | ";
+          std::cout << "NMP: " << spP.numMutablePos << " | ";
+          std::cout << "birth: " << spP.birth << std::endl;
+          return(mumult * newmu[0] * spP.numMutablePos * spP.birth);
+          
+        } else { //when running MFS and muFactor is still not applied
+          std::cout << "MFS NR" << " | ";
+          std::cout << "mult value but ELSE: " << mult << " | ";
+          std::cout << "mumult: " << mumult << " | ";
+          std::cout << "mu value: " << mu[0] << " | ";
+          std::cout << "NMP: " << spP.numMutablePos << " | ";
+          std::cout << "birth: " << spP.birth << std::endl;
+          return(mumult * mu[0] * spP.numMutablePos * spP.birth);
+        }
+        
+      } else { // there's not muFactor
+        std::cout << "MFS NR" << " | ";
+        std::cout << "currentTime: " << currentTime << " | ";
+        std::cout << "muFactor None" << " | ";
+        std::cout << "mumult: " << mumult << " | ";
+        std::cout << "mu: " << mu[0] << " | ";
+        std::cout << "NMP: " << spP.numMutablePos << " | ";
+        std::cout << "birth: " << spP.birth << std::endl;
+        return(mumult * mu[0] * spP.numMutablePos * spP.birth);
+      }
+      
+      
+    } else {
+      std::cout << "mutationPropGrowth is false" << std::endl;
       return(mumult * mu[0] * spP.numMutablePos);
     }
+    
   } else {
     std::vector<int> sortedG = allGenesinGenotype(g);
     std::vector<int> nonmutated;

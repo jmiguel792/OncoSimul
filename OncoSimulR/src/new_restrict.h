@@ -298,7 +298,16 @@ double muProd(const fitnessEffectsAll& fe,
   const double& currentTime,
   const std::string& muFactor);
 
+std::vector<double> updateMutationRate(const std::vector<double>& mu,
+    //std::vector<double>& muToCheck,
+    const fitnessEffectsAll& fe,
+    const std::vector<Genotype>& Genotypes,
+    const std::vector<spParamsP>& popParams,
+    const double& currentTime,
+    const std::string& muFactor);
+
 double mutationFromScratch(const std::vector<double>& mu,
+         //::vector<double>& muToCheck,                 
 			   const spParamsP& spP,
 			   const Genotype& g,
 			   const fitnessEffectsAll& fe,
@@ -309,10 +318,6 @@ double mutationFromScratch(const std::vector<double>& mu,
 	 			 const std::vector<spParamsP>& popParams,
 	 			 const double& currentTime,
 	 			 const std::string& muFactor);
-
-std::map<std::string, double> getEFVMap(const fitnessEffectsAll& F,
-                                        const std::vector<Genotype>& Genotypes,
-                                        const std::vector<spParamsP>& popParams);
 
 // double mutationFromParent(const std::vector<double>& mu,
 // 			  const spParamsP& newP,
