@@ -2192,7 +2192,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
       
       //updateMutationRate -> HERE SOME CODE WHEN MUFACTOR IS NOT NONE
       if(muFactor != "None"){
-        updateMutationRate(mu, muToCheck, nextMutant,
+        updateMutationRate(mu, muToCheck, //nextMutant,
                            fitnessEffects, Genotypes, popParams,
                            currentTime, muFactor);
       }

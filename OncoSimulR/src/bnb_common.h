@@ -202,7 +202,7 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
 
 void updateMutationRate(std::vector<double>& mu,
   std::vector<double>& muToCheck,
-  int& nextMutant,
+  //int& nextMutant,
   const fitnessEffectsAll& fe,
   const std::vector<Genotype>& Genotypes,
   std::vector<spParamsP>& popParams,

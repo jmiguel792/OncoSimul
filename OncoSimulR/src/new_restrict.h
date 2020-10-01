@@ -299,7 +299,7 @@ double muProd(const fitnessEffectsAll& fe,
   const std::string& muFactor);
 
 double mutationFromScratch(std::vector<double>& mu,
-         //::vector<double>& muToCheck,                 
+         //std::vector<double>& muToCheck,                 
 			   const spParamsP& spP,
 			   const Genotype& g,
 			   const fitnessEffectsAll& fe,
