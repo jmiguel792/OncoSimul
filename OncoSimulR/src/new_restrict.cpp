@@ -1963,27 +1963,6 @@ double muProd(const fitnessEffectsAll& fe,
   return mult;
 }
 
-/*
-std::vector<double> updateMutationRate(const std::vector<double>& mu,
-    //std::vector<double>& muToCheck,
-    const fitnessEffectsAll& fe,
-    const std::vector<Genotype>& Genotypes,
-    const std::vector<spParamsP>& popParams,
-    const double& currentTime,
-    const std::string& muFactor){
-  
-  double mult = muProd(fe, Genotypes, popParams, currentTime, muFactor);
-  double newmu = mu[0]*mult;
-  std::vector<double> newmu_;
-  newmu_.push_back(newmu);
-  //mu.clear();
-  //mu.push_back(newmu);
-  
-  return newmu_;
-  
-}*/
-
-
 double mutationFromScratch(std::vector<double>& mu,
          //std::vector<double>& muToCheck,
 			   const spParamsP& spP,
