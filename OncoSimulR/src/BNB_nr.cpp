@@ -950,8 +950,8 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 			// const double& genTime,
 			const TypeModel typeModel,
 			const int& mutationPropGrowth,
-			const std::vector<double>& mu,
-			//std::vector<double>& muToCheck,
+			std::vector<double>& mu,
+			std::vector<double>& muToCheck,
 			// const double& mu,
 			const double& death,
 			const double& keepEvery,
@@ -1389,7 +1389,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
   W_f_st(popParams[0]);
   R_f_st(popParams[0]);
   
-  
+  /*
   for(size_t i=0; i<popParams.size(); i++){
     std::cout << "MFS INIT" << " | ";
     std::cout << "currentTime: " << currentTime << " | ";
@@ -1403,7 +1403,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
     //std::cout << "W: " << popParams[i].W << " | ";
     //std::cout << "R: " << popParams[i].R << std::endl;
     //std::cout << " " << std::endl; 
-  }
+  }*/
 
 
   // X1: end of mess of initialization block
@@ -1803,12 +1803,14 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 					                mutationPropGrowth, full2mutator,
 						              muEF, Genotypes, popParams, currentTime, muFactor);
 	    
+	    /*
 	    std::cout << "MFS BNB 1" << " | ";
 	    //std::cout << "currentTime: " << currentTime << " | ";
 	    std::cout << "NM genotype: " << nextMutant << " | ";
 	    std::cout << "NM popSize: " << popParams[nextMutant].popSize << " | ";
 	    std::cout << "NM NMP: " << popParams[nextMutant].numMutablePos << " | ";
 	    std::cout << "NM mutation: " << popParams[nextMutant].mutation << std::endl;
+	    */
 	    
 	    // tmpParam.mutation = mutationFromParent(mu, tmpParam, popParams[nextMutant],
 	    // 					   newMutations, mutationPropGrowth,
@@ -1828,18 +1830,19 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 	    R_f_st(tmpParam);
 	    tmpParam.timeLastUpdate = -99999.99999; //mapTimes_updateP does what it should.
 	    
+	    /*
 	    std::cout << "MFS BNB 2" << " | ";
 	    std::cout << "tmp popSize: " << tmpParam.popSize << " | ";
 	    std::cout << "tmp NMP: " << tmpParam.numMutablePos << " | ";
 	    std::cout << "tmp mutation: " << tmpParam.mutation << std::endl;
-	    //std::cout << std::endl;
+	    */
 	      
 	    // as this is a new species
 	    popParams.push_back(tmpParam);
 	    Genotypes.push_back(newGenotype);
 	    
 	    //I want to see the mutation value
-	    
+	    /*
 	    for(size_t i=0; i<popParams.size(); i++){
 	      std::cout << "MFS BNB 3" << " | ";
 	      //std::cout << "currentTime: " << currentTime << " | ";
@@ -1852,9 +1855,7 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
 	      //std::cout << "W: " << popParams[i].W << " | ";
 	      //std::cout << "R: " << popParams[i].R << std::endl;
 	      //std::cout << " " << std::endl; 
-	    }
-	    
-	    std::cout << std::endl;
+	    }*/
 	    
 	    //just to see the new genotype
 	    /*
@@ -2190,7 +2191,11 @@ static void nr_innerBNB (const fitnessEffectsAll& fitnessEffects,
       // 			     K, totPopSize);
       // } else if( (typeModel == TypeModel::mcfarlandlog) ) {
       
-      //std::cout << "nextMutant: " << nextMutant << std::endl;
+      if(muFactor != "None"){
+        updateMutationRate(mu, muToCheck,
+                           fitnessEffects, Genotypes, popParams,
+                           currentTime, muFactor);
+      }
       
       if (typeModel == TypeModel::mcfarlandlog && !fitnessEffects.frequencyDependentFitness){ //No-FDF
 	
@@ -2293,8 +2298,8 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 
 
   precissionLoss();
-  const std::vector<double> mu = Rcpp::as<std::vector<double> >(mu_);
-  //std::vector<double> muToCheck;
+  std::vector<double> mu = Rcpp::as<std::vector<double> >(mu_);
+  std::vector<double> muToCheck;
   const std::vector<std::string> multfact = Rcpp::as<std::vector<std::string>> (muFactor_);
   const std::vector<int> initMutant = Rcpp::as<std::vector<int> >(initMutant_);
   const TypeModel typeModel = stringToModel(Rcpp::as<std::string>(typeFitness_));
@@ -2466,9 +2471,7 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 
   double currentTime = 0;
   
-  const std::string muFactor = multfact[0]; //exprtk for mumult
-  //std::vector<std::string> multfact;
-  //multfact.push_back(muFactor[0]); //exprtk for mumult
+  const std::string muFactor = multfact[0]; //exprtk for mutation rate
   
   int iter = 0;
 
@@ -2514,7 +2517,7 @@ Rcpp::List nr_BNB_Algo5(Rcpp::List rFE,
 	       typeModel,
 	       mutationPropGrowth,
 	       mu,
-	       //muToCheck,
+	       muToCheck,
 	       death,
 	       keepEvery,
 	       sampleEvery,

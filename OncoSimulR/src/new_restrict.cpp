@@ -1963,27 +1963,7 @@ double muProd(const fitnessEffectsAll& fe,
   return mult;
 }
 
-std::vector<double> updateMutationRate(const std::vector<double>& mu,
-    //std::vector<double>& muToCheck,
-    const fitnessEffectsAll& fe,
-    const std::vector<Genotype>& Genotypes,
-    const std::vector<spParamsP>& popParams,
-    const double& currentTime,
-    const std::string& muFactor){
-  
-  double mult = muProd(fe, Genotypes, popParams, currentTime, muFactor);
-  double newmu = mu[0]*mult;
-  std::vector<double> newmu_;
-  newmu_.push_back(newmu);
-  //mu.clear();
-  //mu.push_back(newmu);
-  
-  return newmu_;
-  
-}
-
-
-double mutationFromScratch(const std::vector<double>& mu,
+double mutationFromScratch(std::vector<double>& mu,
          //std::vector<double>& muToCheck,
 			   const spParamsP& spP,
 			   const Genotype& g,
@@ -1997,8 +1977,6 @@ double mutationFromScratch(const std::vector<double>& mu,
 	 			 const std::string& muFactor) {
 
   double mumult;
-  std::vector<double> newmu;
-  double mult;
   
   if(full2mutator.size() > 0) { // so there are mutator effects
     mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime);
@@ -2013,48 +1991,21 @@ double mutationFromScratch(const std::vector<double>& mu,
   
   if(mu.size() == 1) {
     if(mutationPropGrowth){
-      
-      if(muFactor != "None"){ //muFactor is TRUE
-        std::cout << "MFS NR" << " | ";
-        std::cout << "currentTime: " << currentTime << " | ";
-        std::cout << "muFactor TRUE" << " | ";
-        std::cout << "mu before changing: " << mu[0] << std::endl;
-        mult = muProd(fe, Genotypes, popParams, currentTime, muFactor);
-        
-        if(mult != 1.0){ //run this block when muFactor condition is accomplished
-          newmu = updateMutationRate(mu, fe, Genotypes, popParams, currentTime, muFactor);
-          std::cout << "MFS NR" << " | ";
-          std::cout << "mult value: " << mult << " | ";
-          std::cout << "mumult: " << mumult << " | ";
-          std::cout << "mu value is newmu: " << newmu[0] << " | ";
-          std::cout << "NMP: " << spP.numMutablePos << " | ";
-          std::cout << "birth: " << spP.birth << std::endl;
-          return(mumult * newmu[0] * spP.numMutablePos * spP.birth);
-          
-        } else { //when running MFS and muFactor is still not applied
-          std::cout << "MFS NR" << " | ";
-          std::cout << "mult value but ELSE: " << mult << " | ";
-          std::cout << "mumult: " << mumult << " | ";
-          std::cout << "mu value: " << mu[0] << " | ";
-          std::cout << "NMP: " << spP.numMutablePos << " | ";
-          std::cout << "birth: " << spP.birth << std::endl;
-          return(mumult * mu[0] * spP.numMutablePos * spP.birth);
-        }
-        
-      } else { // there's not muFactor
-        std::cout << "MFS NR" << " | ";
-        std::cout << "currentTime: " << currentTime << " | ";
-        std::cout << "muFactor None" << " | ";
-        std::cout << "mumult: " << mumult << " | ";
-        std::cout << "mu: " << mu[0] << " | ";
-        std::cout << "NMP: " << spP.numMutablePos << " | ";
-        std::cout << "birth: " << spP.birth << std::endl;
-        return(mumult * mu[0] * spP.numMutablePos * spP.birth);
-      }
-      
+      //std::cout << "BNB NEW_RESTRICT MPG +" << " | ";
+      //std::cout << "currentTime: " << currentTime << " | ";
+      //std::cout << "mumult: " << mumult << " | ";
+      //std::cout << "mu value: " << mu[0] << " | ";
+      //std::cout << "NMP: " << spP.numMutablePos << " | ";
+      //std::cout << "birth: " << spP.birth << std::endl;
+      return(mumult * mu[0] * spP.numMutablePos * spP.birth);
       
     } else {
-      std::cout << "mutationPropGrowth is false" << std::endl;
+      //std::cout << "BNB NEW_RESTRICT MPG -" << " | ";
+      //std::cout << "currentTime: " << currentTime << " | ";
+      //std::cout << "mumult: " << mumult << " | ";
+      //std::cout << "mu value: " << mu[0] << " | ";
+      //std::cout << "NMP: " << spP.numMutablePos << " | ";
+      //std::cout << "birth: " << spP.birth << std::endl;
       return(mumult * mu[0] * spP.numMutablePos);
     }
     
@@ -2075,6 +2026,17 @@ double mutationFromScratch(const std::vector<double>& mu,
     }
     if(mutationPropGrowth)
       mutrate *= spP.birth;
+    
+    //std::cout << "BNB NEW_RESTRICT mu.size > 1" << " | ";
+    //std::cout << "currentTime: " << currentTime << " | ";
+    //std::cout << "NMP: " << spP.numMutablePos << " | ";
+    //std::cout << "birth: " << spP.birth << std::endl;
+    
+    /*
+    for(int i=0; i<mu.size(); i++){
+      std::cout << "mu value: " << mu[i] << std::endl;
+    }*/
+    
     return(mumult * mutrate);
   }
 }

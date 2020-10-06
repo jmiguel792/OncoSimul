@@ -12183,7 +12183,7 @@ plot(epm1, show = "genotypes", xlim = c(0, 4000),
      thinData = TRUE, thinData.keep = 0.03)
 
 set.seed(4)
-muExpr <- "if(N>1000) (1/sqrt(T))*100; else 1;"
+muExpr <- "if(N>500) (1/sqrt(T)); else 1;"
 epm2 <- oncoSimulIndiv(pancr, model = "McFL",
                       mu = 1e-6,
                       muFactor = muExpr,
@@ -12194,7 +12194,7 @@ epm2 <- oncoSimulIndiv(pancr, model = "McFL",
                       onlyCancer = FALSE)
 
 par(cex = 0.7)
-plot(epm2, show = "genotypes", xlim = c(0, 4000), 
+plot(epm2, show = "genotypes", xlim = c(0, 1880), 
      ylim = c(0, 2400),
      thinData = TRUE, thinData.keep = 0.03)
 
@@ -12203,18 +12203,18 @@ summary(epm2)
 ```
 
 
-What we can see is that there are more number of genotypes when a mutation rate expression
-is applied, as we have done for the second plot. Also, we observe that the number of clones
-is greater than in the first one, and that the restrictions in the order of accumulations of
-mutations are different in both plots. This event can be explained because we have changed the
-mutation rate as a therapeutic intervention.
+What we can see is that there are more genotypes when a mutation rate expression is applied, 
+as we have done for the second plot, and we observe that the number of clones is greater 
+in this one compared to the first plot. This event can be explained because we have changed the
+mutation rate as a therapeutic intervention, where the condition to change the mutation rate was
+that the total population size (N) was greater than 500. 
 
 
 ### Modifying mutation rate using exponential model without FDF {#exMutRate2}
 
 We will use the same pancreatic cancer poset as previous example, but now applying a exponential
 growth model instead of McFL. In this example, we will use different exprtk expressions in order to
-decrease or increase the mutation rate.
+decrease the mutation rate unlike the previous example.
 
 ```{r examplesMutRateNoFDF2}
 pancr <- allFitnessEffects(
@@ -12235,29 +12235,19 @@ pancrExp1 <- oncoSimulIndiv(pancr, model = "Exp")
 plot(pancrExp1)
 
 set.seed(1)
-muExpr1 <- "if(T>600) 1/log(T); else 1 + 1/N;" #Decreasing mutation rate
+muExpr1 <- "if(T>200) 1/log(T); else 1;" #Decreasing mutation rate
 pancrExp2 <- oncoSimulIndiv(pancr, model = "Exp", muFactor = muExpr1)
 plot(pancrExp2)
 
-set.seed(1)
-muExpr2 <- "if(T>400) 10*(log(T)); else 1 + 1/N;" #Increasing mutation rate
-pancrExp3 <- oncoSimulIndiv(pancr, model = "Exp", muFactor = muExpr2)
-plot(pancrExp3)
-
 summary(pancrExp1)
 summary(pancrExp2)
-summary(pancrExp3)
 ```
 
 
 As we can observe, when we decrease the mutation rate during the simulation, the number
-of clones decreases significantly and the maximum number of drivers is reduced to 2.
-However, the total population size is quite similar to the first plot when we did not
-introduce any mutation rate expression through exprtk.
-
-On the other hand, when we increase the mutation rate, the number of clones is lower and 
-the total population size decreases significantly, but the maximum number of drivers increases to 4,
-since the mutation rate increased from time 400 until the end of simulation.
+of clones decreases significantly. However, the total population size is quite similar
+to the first plot where we did not introduce any mutation rate expression through exprtk.
+Thus, we obtain similar N but with less genotypes because the mutation rate has decreased.
 
 
 ### Examples using frequency dependent fitness {#exMutRateFDF}
@@ -12338,6 +12328,9 @@ and the populations of A and B genotypes increase significantly, while the WT po
 
 
 ```{r exMutRateFDF2}
+sim1$TotalPopSize #N for sim1
+sim2$TotalPopSize #N for sim2
+sim3$TotalPopSize #N for sim3
 sim1$pops.by.time[nrow(sim1$pops.by.time), ] #last pops for sim1
 sim2$pops.by.time[nrow(sim2$pops.by.time), ] #last pops for sim2
 sim3$pops.by.time[nrow(sim3$pops.by.time), ] #last pops for sim3
@@ -12346,9 +12339,8 @@ sim3$pops.by.time[nrow(sim3$pops.by.time), ] #last pops for sim3
 
 In the second example, we plot again three situations in which we apply different mutation rate
 expressions, to show how efficient is the expresivity of exprtk library. As this is an example where
-the fitness is defined by absolute frequencies, we can change the mutation rate using the current time (T),
-the total population size (N), the absolute frequencies of each genotype (n_, n_1, n_2 ...), besides the
-complete functionality of exprtk.
+the fitness is defined by absolute frequencies, we can change the mutation rate using the current time (T), the total population size (N), the absolute frequencies of each genotype (n_, n_1, n_2 ...), 
+besides the complete functionality of exprtk.
 
 
 ```{r exMutRateFDF3}

@@ -1223,6 +1223,90 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
 
 }
 
+void updateMutationRate(std::vector<double>& mu,
+                        std::vector<double>& muToCheck,
+                        const fitnessEffectsAll& fe,
+                        const std::vector<Genotype>& Genotypes,
+                        std::vector<spParamsP>& popParams,
+                        const double& currentTime,
+                        const std::string& muFactor){
+  
+  const std::vector<spParamsP>& lastPopParams = popParams;
+  
+  double newmu;
+  double mult = muProd(fe, Genotypes, popParams, currentTime, muFactor);
+  
+  if(mult != 1.0){ //this step is needed to avoid else 1 when exprtk is used
+    
+    if(mu.size() == 1){ //check if mu.size() is one
+      muToCheck.push_back(mult);
+      //std::cout << "mu size is 1" << std::endl;
+      
+      if(muToCheck.size() == 1){ //this is used to run the code block once
+        for(size_t i=0; i<popParams.size(); i++){
+          if(popParams[i].numMutablePos != 0){
+            popParams[i].mutation *= mult;
+            
+            /*
+            std::cout << "**********" << std::endl;
+            std::cout << "UPDATE MUTATION" << " | ";
+            std::cout << "currentTime: " << currentTime << " | ";
+            std::cout << "genotype: " << i << " | ";
+            std::cout << "popsize: " << popParams[i].popSize << " | ";
+            std::cout << "NMP: " << popParams[i].numMutablePos << " | ";
+            std::cout << "mutation updated: " << popParams[i].mutation << std::endl;
+             */
+          }
+        }
+        
+        newmu = mu[0]*mult;
+        mu.clear();
+        mu.push_back(newmu);
+        
+        //std::cout << "MU UPDATED: " << mu[0] << std::endl;
+        //std::cout << "**********" << std::endl;
+        
+      }
+      
+    } else if(mu.size() > 1){ //check if mu.size() is bigger than one
+      muToCheck.push_back(mult);
+      //std::cout << "mu size is > 1" << std::endl;
+      
+      if(muToCheck.size() == 1){ //this is used to run the code block once
+        for(size_t i=0; i<popParams.size(); i++){
+          if(popParams[i].numMutablePos != 0){
+            popParams[i].mutation *= mult;
+            
+            /*
+            std::cout << "**********" << std::endl;
+            std::cout << "UPDATE MUTATION" << " | ";
+            std::cout << "currentTime: " << currentTime << " | ";
+            std::cout << "genotype: " << i << " | ";
+            std::cout << "popsize: " << popParams[i].popSize << " | ";
+            std::cout << "NMP: " << popParams[i].numMutablePos << " | ";
+            std::cout << "mutation updated: " << popParams[i].mutation << std::endl;
+             */
+          }
+        }
+        
+        //transform the mu vector by multiplying all elements by scalar (mult)
+        std::transform(mu.begin(), mu.end(), mu.begin(), [&mult](const double&c){return c*mult;});
+        
+        /*
+        for(int i=0; i<mu.size(); i++){
+          std::cout << "mu value after updating: " << mu[i] << std::endl;
+        }*/
+        
+      }
+      
+    } else { //this should never happens -> mu cannot be empty
+      throw std::invalid_argument("mu.size() must be one or bigger");
+    }
+    
+  }
+  
+}
+
 
 // // McFarland0 uses: - penalty as log(1 + N/K), and puts
 // // that in the birth rate.
