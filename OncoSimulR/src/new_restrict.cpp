@@ -1991,15 +1991,21 @@ double mutationFromScratch(std::vector<double>& mu,
   
   if(mu.size() == 1) {
     if(mutationPropGrowth){
-      std::cout << "BNB NEW_RESTRICT" << " | ";
-      std::cout << "currentTime: " << currentTime << " | ";
-      std::cout << "mumult: " << mumult << " | ";
-      std::cout << "mu value: " << mu[0] << " | ";
-      std::cout << "NMP: " << spP.numMutablePos << " | ";
-      std::cout << "birth: " << spP.birth << std::endl;
+      //std::cout << "BNB NEW_RESTRICT MPG +" << " | ";
+      //std::cout << "currentTime: " << currentTime << " | ";
+      //std::cout << "mumult: " << mumult << " | ";
+      //std::cout << "mu value: " << mu[0] << " | ";
+      //std::cout << "NMP: " << spP.numMutablePos << " | ";
+      //std::cout << "birth: " << spP.birth << std::endl;
       return(mumult * mu[0] * spP.numMutablePos * spP.birth);
       
     } else {
+      //std::cout << "BNB NEW_RESTRICT MPG -" << " | ";
+      //std::cout << "currentTime: " << currentTime << " | ";
+      //std::cout << "mumult: " << mumult << " | ";
+      //std::cout << "mu value: " << mu[0] << " | ";
+      //std::cout << "NMP: " << spP.numMutablePos << " | ";
+      //std::cout << "birth: " << spP.birth << std::endl;
       return(mumult * mu[0] * spP.numMutablePos);
     }
     
@@ -2020,6 +2026,17 @@ double mutationFromScratch(std::vector<double>& mu,
     }
     if(mutationPropGrowth)
       mutrate *= spP.birth;
+    
+    //std::cout << "BNB NEW_RESTRICT mu.size > 1" << " | ";
+    //std::cout << "currentTime: " << currentTime << " | ";
+    //std::cout << "NMP: " << spP.numMutablePos << " | ";
+    //std::cout << "birth: " << spP.birth << std::endl;
+    
+    /*
+    for(int i=0; i<mu.size(); i++){
+      std::cout << "mu value: " << mu[i] << std::endl;
+    }*/
+    
     return(mumult * mutrate);
   }
 }
