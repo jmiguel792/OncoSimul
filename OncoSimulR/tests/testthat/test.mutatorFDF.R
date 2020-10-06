@@ -12,7 +12,7 @@ test_that("eval fitness and mut OK", {
                    Fitness = c("max(3, 2*f_)",
                                "max(1.5, 3*(f_ + f_1))",
                                "max(1.5, 3*(f_ + f_2))",
-                               "max(2, 5*f_ - 0.5*( f_1 + f_2) + 15*f_1_2)"),
+                               "max(2, 5*f_ - 0.5*(f_1 + f_2) + 15*f_1_2)"),
                    stringsAsFactors = FALSE)
   
   fe <- allFitnessEffects(genotFitness = r1, 

@@ -43,7 +43,8 @@ evalAllGenotypesMut <- function(mutatorEffects,
                                 max = 256,
                                 addwt = FALSE,
                                 spPopSizes = NULL,
-                                currentTime = 0) {
+                                currentTime = 0
+                                ) {
     evalAllGenotypesORMut(
         fmEffects = mutatorEffects,
         order = FALSE,
@@ -60,7 +61,8 @@ evalGenotypeMut <- function(genotype,
                             spPopSizes = NULL,
                             verbose = FALSE,
                             echo = FALSE,
-                            currentTime = 0) {
+                            currentTime = 0
+                            ) {
     
     if(inherits(mutatorEffects, "fitnessEffects"))
         stop("You are trying to get the mutator effects of a fitness specification. ",
@@ -77,4 +79,3 @@ evalGenotypeMut <- function(genotype,
                       )
 
 }
-

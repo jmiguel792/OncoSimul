@@ -58,6 +58,7 @@ inline void R_f_st(spParamsP& spP) {
 
 inline double pE_f_st(double& pM, const spParamsP& spP){
   double pE = (spP.death * (1.0 - pM ) )/(spP.W - spP.death - spP.birth * pM );
+  //std::cout << "pE value: " << pE << std::endl;
   if( !std::isfinite(pE) ) {
     DP2(spP.death);  DP2(spP.birth); DP2(pM); DP2(spP.W);
     DP2(spP.mutation);
@@ -73,6 +74,8 @@ inline double pE_f_st(double& pM, const spParamsP& spP){
 
 inline double pB_f_st(const double& pE,
 			     const spParamsP& spP) {
+  double pB = (spP.birth * pE)/spP.death;
+  //std::cout << "pB value: " << pB << std::endl;
   return (spP.birth * pE)/spP.death;
 }
 
@@ -157,14 +160,14 @@ void computeMcFarlandError_new(double& en1,
 			       const double& K);
 
 void updateRatesMcFarland(std::vector<spParamsP>& popParams,
-				 double& adjust_fitness_MF,
-				 const double& K,
-			  const double& totPopSize);
+                          double& adjust_fitness_MF,
+                          const double& K,
+                          const double& totPopSize);
 
 void updateRatesMcFarlandLog(std::vector<spParamsP>& popParams,
-				    double& adjust_fitness_MF,
-				    const double& K,
-			     const double& totPopSize);
+                             double& adjust_fitness_MF,
+                             const double& K,
+                             const double& totPopSize);
 
 void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
@@ -177,7 +180,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
 void updateRatesMcFarlandLog_D(std::vector<spParamsP>& popParams,
 				    double& adjust_fitness_MF,
 				    const double& K,
-			     const double& totPopSize);
+			      const double& totPopSize);
 
 void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
@@ -186,7 +189,6 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
   const double& K,
   const double& totPopSize,
   const double& currentTime);
-
 
 void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
@@ -198,12 +200,20 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
   const fitnessEffectsAll& fitnessEffects,
   const double& currentTime);
 
+void updateMutationRate(std::vector<double>& mu,
+  std::vector<double>& muToCheck,
+  const fitnessEffectsAll& fe,
+  const std::vector<Genotype>& Genotypes,
+  std::vector<spParamsP>& popParams,
+  const double& currentTime,
+  const std::string& muFactor);
+
 void updateRatesMcFarland0(std::vector<spParamsP>& popParams,
 				  double& adjust_fitness_MF,
 				  const double& K,
 				  const double& totPopSize,
 				  const int& mutationPropGrowth,
-			   const double& mu);
+			    const double& mu);
 
 void updateRatesBeeren(std::vector<spParamsP>& popParams,
 			      double& adjust_fitness_B,
@@ -212,7 +222,7 @@ void updateRatesBeeren(std::vector<spParamsP>& popParams,
 			      const double& alpha,
 			      const double& totPopSize,
 			      const int& mutationPropGrowth,
-		       const double& mu);
+		        const double& mu);
 
 void detect_ti_duplicates(const std::multimap<double, int>& m,
 			  const double ti,

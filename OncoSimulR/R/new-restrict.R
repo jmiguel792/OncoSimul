@@ -425,12 +425,12 @@ fVariablesN <- function (g, frequencyType) {
     combinationsList <- append(combinationsList,
                                  combn(1:g, i, list, simplify = TRUE))
   }
-
+    
   if (frequencyType == "abs"){
     fsVector <-sapply(sapply(combinationsList,
                              function(x) paste0(x, collapse = "_")),
                       function(x) paste0("n_", x))
-  }else{
+  } else {
     fsVector <-sapply(sapply(combinationsList,
                              function(x) paste0(x, collapse = "_")),
                       function(x) paste0("f_", x))
@@ -759,10 +759,18 @@ allFitnessORMutatorEffects <- function(rT = NULL,
         Gene = colnames(genotFitness)[-ncol(genotFitness)],
         GeneNumID = cnn,
         stringsAsFactors = FALSE)
+      
+      if(frequencyType == "auto"){
+        ch <- paste(as.character(fitnessLandscape_df[, ncol(fitnessLandscape_df)]), collapse = "")
+        #print(ch)
+        if( grepl("f_", ch, fixed = TRUE) ){
+          frequencyType = "rel"
+        } else{
+          frequencyType = "abs"
+        }
+      } else{ frequencyType = frequencyType }
 
-      fitnessLandscapeVariables = fVariablesN(ncol(genotFitness) - 1,
-                                              frequencyType)
-
+      fitnessLandscapeVariables = fVariablesN(ncol(genotFitness) - 1, frequencyType)
     }
 
     if(!is.null(drvNames)) {
@@ -1063,8 +1071,15 @@ allFitnessEffects <- function(rT = NULL,
 
   }else{
 
-    if(!(frequencyType %in% c('abs', 'rel'))){
-      stop("frequencyType must be 'abs' (absolute) or 'rel' (relative).")
+    #frequencyType="auto"?          
+    #if(!(frequencyType %in% c('abs', 'rel', 'auto'))){
+    #  stop("frequencyType must be 'abs' (absolute), 'rel' (relative), auto (automatic).")
+    #}
+    
+    if(!(frequencyType %in% c('abs', 'rel', 'auto'))){
+      #set frequencyType = "auto" in case you did not specify 'rel' or 'abs'
+      frequencyType = "auto"
+      message("frequencyType set to 'auto'")
     }
 
     if(is.null(genotFitness)) {
@@ -1465,7 +1480,8 @@ evalGenotype <- function(genotype,
                          verbose = FALSE,
                          echo = FALSE,
                          model = "",
-                         currentTime = 0) {
+                         currentTime = 0
+                         ) {
   
     if(inherits(fitnessEffects, "mutatorEffects"))
          stop("You are trying to get the fitness of a mutator specification. ",
@@ -1486,8 +1502,7 @@ evalGenotype <- function(genotype,
                       echo = echo,
                       model  = model ,
                       calledBy_= "evalGenotype",
-                      currentTime = currentTime
-                      )
+                      currentTime = currentTime)
 }
 
 
@@ -1498,7 +1513,8 @@ evalGenotypeFitAndMut <- function(genotype,
                                   verbose = FALSE,
                                   echo = FALSE,
                                   model = "",
-                                  currentTime = 0) {
+                                  currentTime = 0
+                                  ) {
     
     ## Must deal with objects from previous, pre flfast, modifications
     if(!exists("fitnessLandscape_gene_id", where = fitnessEffects)) {
@@ -1756,7 +1772,8 @@ evalAllGenotypesORMut <- function(fmEffects,
                                              FALSE,
                                              prodNeg,
                                              calledBy_,
-                                             currentTime),
+                                             currentTime
+                                             ),
                    1.1)
 
 
@@ -1821,8 +1838,7 @@ evalAllGenotypes <- function(fitnessEffects,
         model = model,
         spPopSizes = spPopSizes,
         calledBy_= "evalGenotype",
-        currentTime = currentTime
-    )
+        currentTime = currentTime)
 }
 
 generateAllGenotypes <- function(fitnessEffects, order = TRUE, max = 256) {
@@ -1931,7 +1947,8 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                                    full2mutator_ = full2mutator_,
                                                    verbose = FALSE,
                                                    prodNeg = prodNeg,
-                                                   currentTime = currentTime),
+                                                   currentTime = currentTime
+                                                   ),
                    c(1.1, 2.2)))
     
     if(fitnessEffects$frequencyDependentFitness){
@@ -1942,7 +1959,8 @@ evalAllGenotypesFitAndMut <- function(fitnessEffects, mutatorEffects,
                                     full2mutator_ = full2mutator_,
                                     verbose = FALSE, 
                                     prodNeg = prodNeg, 
-                                    currentTime = currentTime)
+                                    currentTime = currentTime
+                                    )
       allf <- rbind(evalWT, allf)
       genotypes <- c("WT", allg$genotNames)
       
@@ -2143,6 +2161,7 @@ nr_oncoSimul.internal <- function(rFE,
                                   birth,
                                   death,
                                   mu,
+                                  muFactor,
                                   initSize,
                                   sampleEvery,
                                   detectionSize,
@@ -2427,6 +2446,7 @@ nr_oncoSimul.internal <- function(rFE,
     return(c(
         nr_BNB_Algo5(rFE = rFE,
                      mu_ = mu,
+                     muFactor_ = muFactor,
                      death = death,
                      initSize = initSize,
                      sampleEvery = sampleEvery,

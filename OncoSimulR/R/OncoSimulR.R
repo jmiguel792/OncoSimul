@@ -23,6 +23,7 @@ oncoSimulSample <- function(Nindiv,
                             model = "Exp",
                             numPassengers = 0,
                             mu = 1e-6,
+                            muFactor = "None",
                             muEF = NULL,
                             detectionSize = round(runif(Nindiv, 1e5, 1e8)),
                             detectionDrivers = {
@@ -170,6 +171,7 @@ oncoSimulSample <- function(Nindiv,
                                model = model,
                                numPassengers = numPassengers,
                                mu = mu,
+                               muFactor = muFactor,
                                muEF = muEF,
                                detectionSize = params[indiv, "detectionSize"],
                                detectionDrivers = params[indiv, "detectionDrivers"],
@@ -355,6 +357,7 @@ oncoSimulPop <- function(Nindiv,
                          model = "Exp",
                          numPassengers = 0,
                          mu = 1e-6,
+                         muFactor = "None",
                          muEF = NULL,
                          detectionSize = 1e8,
                          detectionDrivers = 4,
@@ -403,6 +406,7 @@ oncoSimulPop <- function(Nindiv,
                         model = model,
                         numPassengers = numPassengers,
                         mu = mu,
+                        muFactor = muFactor,
                         muEF = muEF,
                         detectionSize = detectionSize,
                         detectionDrivers = detectionDrivers,
@@ -445,6 +449,7 @@ oncoSimulIndiv <- function(fp,
                            model = "Exp",
                            numPassengers = 0,
                            mu = 1e-6,
+                           muFactor = "None",
                            muEF = NULL,
                            detectionSize = 1e8,
                            detectionDrivers = 4,
@@ -580,6 +585,12 @@ oncoSimulIndiv <- function(fp,
 
     if(is_null_na(sampleEvery)) stop("sampleEvery cannot be NULL or NA")
     
+    if(!is.character(muFactor)) stop("muFactor must be a string")
+    
+    if(is.character(muFactor) && muFactor != "None") {
+        message("Exprtk expression for mutation rate defined.")
+    }
+    
     if(!inherits(fp, "fitnessEffects")) {
         if(any(unlist(lapply(list(fp, 
                                   numPassengers,
@@ -627,7 +638,7 @@ oncoSimulIndiv <- function(fp,
                                      birth = birth,
                                      s = s,
                                      death = death,  
-                                     mu =  mu,  
+                                     mu =  mu,
                                      initSize =  initSize, 
                                      sampleEvery =  sampleEvery,  
                                      detectionSize =  detectionSize, 
@@ -688,10 +699,12 @@ oncoSimulIndiv <- function(fp,
             if(AND_DrvProbExit)
                 stop("It makes no sense to pass AND_DrvProbExit and a fixation list.")
         }
+        
         op <- try(nr_oncoSimul.internal(rFE = fp, 
                                         birth = birth,
                                         death = death,  
-                                        mu =  mu,  
+                                        mu =  mu,
+                                        muFactor = muFactor,
                                         initSize =  initSize, 
                                         sampleEvery =  sampleEvery,  
                                         detectionSize =  detectionSize, 

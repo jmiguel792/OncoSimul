@@ -22,7 +22,8 @@
 }
 \usage{
  oncoSimulIndiv(fp, model = "Exp", 
-                numPassengers = 0, mu = 1e-6, muEF = NULL,
+                numPassengers = 0, mu = 1e-6, 
+                muFactor = "None", muEF = NULL,
                 detectionSize = 1e8, detectionDrivers = 4,
                 detectionProb = NA,
                 sampleEvery = ifelse(model \%in\% c("Bozic", "Exp"), 1,
@@ -46,6 +47,7 @@
                 seed = NULL)
 
 oncoSimulPop(Nindiv, fp, model = "Exp", numPassengers = 0, mu = 1e-6,
+                muFactor = "None",
                 muEF = NULL,
                 detectionSize = 1e8, detectionDrivers = 4,
                 detectionProb = NA,
@@ -76,6 +78,7 @@ oncoSimulSample(Nindiv,
                 model = "Exp",
                 numPassengers = 0,
                 mu = 1e-6,
+                muFactor = "None",
                 muEF = NULL,
                 detectionSize = round(runif(Nindiv, 1e5, 1e8)),
 
@@ -180,6 +183,14 @@ oncoSimulSample(Nindiv,
 
   See also \code{mutationPropGrowth}. 
 
+}
+
+\item{muFactor}{
+  Mutation rate factor. A string that code a expression for the mutation rate.
+  This expression is interpreted by exprtk library in c++ and produces changes
+  in the mutation rate depending on the expression. For instance, we can access 
+  to the current time of the simulation and specify a different mutation rate, 
+  multiplying it at a certain timepoint by a number resulting from exprtk expression.
 }
 
 \item{muEF}{
@@ -942,6 +953,23 @@ plot(mcf1s, addtot = TRUE, lwdClone = 0.6, log = "")
 summary(mcf1s)
 plot(mcf1s)
 
+## modify mutation rate
+muExpr <- "if(T>300) log(T); else 1;"
+mcf2s <-  oncoSimulIndiv(mcf1,
+                         model = "McFL",
+                         mu = 1e-7,
+                         muFactor = muExpr,
+                         detectionSize = 1e8,
+                         detectionDrivers = 100,
+                         sampleEvery = 0.02,
+                         keepEvery = 2,
+                         initSize = 2000,
+                         finalTime = 1000,
+                         onlyCancer = FALSE)
+plot(mcf2s, addtot = TRUE, lwdClone = 0.6, log = "")
+summary(mcf2s)
+plot(mcf2s)
+
 
 #### Order effects with modules, and 5 genes without interactions
 #### with fitness effects from an exponential distribution
@@ -997,6 +1025,21 @@ pancr <- allFitnessEffects(data.frame(parent = c("Root", rep("KRAS", 4), "SMAD4"
                                       typeDep = "MN"))
 plot(pancr)
 
+## Modify mutation rate after a certain timepoint
+## We use T (current time) and N (total population size)
+## which are reserved variables during the simulation
+## to change fitness or mutation rate of genes.
+
+muExpr <- "if(T>4000) (1/sqrt(T) + 1/N)*100; else 1;"
+ep2 <- oncoSimulIndiv(pancr, model = "McFL",
+                      mu = 1e-6,
+                      muFactor = muExpr,
+                      sampleEvery = 0.02,
+                      keepEvery = 1,
+                      initSize = 1000,
+                      finalTime = 10000,
+                      onlyCancer = FALSE)
+
 ### Use an exponential growth model
 
 pancr1 <- oncoSimulIndiv(pancr, model = "Exp")
@@ -1018,6 +1061,11 @@ pancrSPop
 pancrSamp <- oncoSimulSample(2, pancr)
 pancrSamp
 
+## Modify mutation rate
+muExpr <- "if(T>200) log(T); else 1 + 1/N;"
+pancr2 <- oncoSimulIndiv(pancr, model = "Exp", muFactor = muExpr)
+plot(pancr2)
+
 
 ## Using gene-specific mutation rates
 muv <- c("U" = 1e-3, "z" = 1e-7, "e" = 1e-6, "m" = 1e-5, "D" = 1e-4)
@@ -1027,7 +1075,7 @@ femuv <- allFitnessEffects(noIntGenes = ni)
 oncoSimulIndiv(femuv, mu = muv)
 
 
-#########Frequency dependent fitness examples
+#########Frequency dependent fitness examples#########
 
 ## An example with cooperation. Presence of WT favours all clones
 ## and all clones have a positive effect on themselves
@@ -1055,6 +1103,20 @@ osi <- oncoSimulIndiv(afe,
 osi
 
 plot(osi, show = "genotypes", type = "line")
+
+## Modify mutation rate
+muExpr <- "if(f_1>0.2) 0.4*(1/sqrt(T)); else 1;"
+osi <- oncoSimulIndiv(afe,
+                      model = "McFL",
+                      onlyCancer = FALSE,
+                      finalTime = 5000,
+                      mu = 1e-6,
+                      muFactor = muExpr,
+                      initSize = 5000,
+                      keepPhylog = FALSE,
+                      seed = NULL,
+                      errorHitMaxTries = FALSE,
+                      errorHitWallTime = FALSE)
 
 \dontrun{
 ## This can be slow
@@ -1129,6 +1191,103 @@ oss <- oncoSimulSample(5,
 oss
 }
 
+## A example where all clones have a positive effect on each other.
+## But it is necessary a higher mutation rate than 1e-6 to grow A and B genotypes.
+## We can use mutation rate functionality to increase it at a specific timepoint.
+
+fl <- data.frame(
+  Genotype = c("WT", "A", "B"),
+  Fitness = c("1 + f_1*f_2",
+              "1 + 1.5*f_*f_2",
+              "1 + 1.5*f_*f_1"),
+  stringsAsFactors = FALSE
+)
+
+fe <- allFitnessEffects(genotFitness = fl, 
+                        frequencyDependentFitness = TRUE,
+                        frequencyType = "rel")
+                        
+muExpr <- "if(T>300) 10000; else 1;"
+sim1 <- oncoSimulIndiv(fe,
+                      model = "McFL",
+                      onlyCancer = FALSE, 
+                      finalTime = 500,
+                      mu = 1e-6,
+                      muFactor = muExpr,
+                      initSize = 5000, 
+                      keepPhylog = FALSE,
+                      seed = NULL, 
+                      errorHitMaxTries = FALSE, 
+                      errorHitWallTime = FALSE)
+
+plot(sim1, show = "genotypes")
+
+## or we can access to WT relative variable and modify 
+## the mutation rate when condition is accomplished.
+
+muExpr <- "if(f_>0.2) 100; else 1;"
+sim2 <- oncoSimulIndiv(fe,
+                      model = "McFL",
+                      onlyCancer = FALSE, 
+                      finalTime = 500,
+                      mu = 1e-6,
+                      muFactor = muExpr,
+                      initSize = 5000, 
+                      keepPhylog = FALSE,
+                      seed = NULL, 
+                      errorHitMaxTries = FALSE, 
+                      errorHitWallTime = FALSE)
+
+plot(sim2, show = "genotypes")
+
+## A example where all clones except WT interact with each other
+## and the total population size (N) plays an important role for A 
+## and B genotypes, while C only depends on A (n_1).
+
+## We can modify arbitrarily the mutation rate from oncoSimulIndiv
+## using the absolute or totalPopSize variables.
+
+rar3 <- data.frame(Genotype = c("WT", "A", "B", "C"), 
+                   Fitness = c("1",
+                               "1.1 + .3*(n_2/N)",
+                               "1.2 + .4*(n_1/N)",
+                               "1.0 + .5 * ( n_1 > 20)"),
+                   stringsAsFactors = FALSE)
+
+afear3 <- allFitnessEffects(genotFitness = rar3, 
+                            frequencyDependentFitness = TRUE,
+                            frequencyType = "abs")
+
+muExp1 <- "if(n_1>20) sqrt(T)*100; else if(N>5500) 0.2*N; else 1;"
+muExp2 <- "if(n_2 > 10) 0.3; else if(n_2 > 100) 0.7; else 1;"
+
+tmp1 <- oncoSimulIndiv(afear3, 
+                       model = "McFL", 
+                       onlyCancer = FALSE, 
+                       finalTime = 100,
+                       mu = 1e-4,
+                       muFactor = muExp1,
+                       initSize = 5000, 
+                       keepPhylog = FALSE,
+                       seed = NULL, 
+                       errorHitMaxTries = FALSE, 
+                       errorHitWallTime = FALSE)
+
+plot(tmp1, show = "genotypes")
+
+tmp2 <- oncoSimulIndiv(afear3, 
+                       model = "McFL", 
+                       onlyCancer = FALSE, 
+                       finalTime = 100,
+                       mu = 1e-4,
+                       muFactor = muExp2,
+                       initSize = 5000, 
+                       keepPhylog = FALSE,
+                       seed = NULL, 
+                       errorHitMaxTries = FALSE, 
+                       errorHitWallTime = FALSE)
+
+plot(tmp2, show = "genotypes")
 
 ## Reinitialize the RNG
 set.seed(NULL)

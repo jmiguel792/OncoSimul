@@ -109,9 +109,11 @@ evalAllGenotypesFitAndMut(fitnessEffects, mutatorEffects,
 }
 
 \item{currentTime}{
-  Set to default 0 from R. It will be updated during simulation process, since
-  currentTime is initialized in BNB algorithm. It is useful to develop OncoSimul
-  interventions using the frequency-dependent-fitness functionality.
+  The time of the simulation. It is possible to access to the current time
+  and run interventions for example using the frequency-dependent-fitness
+  functionality or modifying the mutation rate through oncoSimul functions 
+  such as oncoSimulIndiv. With evalAllGenotypes we can check if the fitness 
+  has changed before or after a specific timepoint.
 }
 
 }
@@ -144,8 +146,6 @@ When you are in a frequency dependent fitness situation you must set
 be NULL and its length must be equal to the number of possible genotypes. 
 Here only \code{evalGenotype} and \code{evalAllGenotypes} make sense.
 
-\strong{evalAllGenotypesFitAndMut does not (yet) work with frequency-dependent
-  fitness specifications.} (The value returned for fitness is incorrect.)
 }
 
 \author{
@@ -165,7 +165,7 @@ Ramon Diaz-Uriarte
   terms of genes).
 
 
-  About the naming. This is the convention used: "All" means we will go
+About the naming. This is the convention used: "All" means we will go
 over all possible genotypes. A function that ends as "Genotypes" returns
 only fitness effects (for backwards compatibility and because mutator
 effects are not always used). A function that ends as "Genotype(s)Mut"
@@ -329,9 +329,6 @@ afe <- allFitnessEffects(genotFitness = r,
 
 evalAllGenotypes(afe, spPopSizes = c(5000, 2500, 2500, 500))
 
-## Recall that evalAllGenotypesFitAndMut does not (yet) work with
-## frequency-dependent fitness specifications.
 }
 
 \keyword{ misc }
-

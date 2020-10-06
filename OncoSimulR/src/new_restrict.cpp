@@ -26,6 +26,7 @@
 #include <string>
 #include <sstream>
 #include <limits>
+#include <regex>
 
 
 using namespace Rcpp;
@@ -634,6 +635,9 @@ fitnessEffectsAll convertFitnessEffects(Rcpp::List rFE) {
   fe.allGenes = allGenesinFitness(fe);
   fe.genomeSize =  fe.Gene_Module_tabl.size() - 1 + fe.genesNoInt.s.size() +
     fe.fitnessLandscape.NumID.size();
+  
+  //std::cout << "fe genomeSize: " << fe.genomeSize << std::endl;
+    
   fe.drv = as<std::vector<int> > (drv);
   sort(fe.drv.begin(), fe.drv.end()); //should not be needed, but just in case
   // cannot trust R gives it sorted
@@ -1302,24 +1306,51 @@ double frequency(const int& pos, const std::vector<spParamsP>& popParams){
 
 //This function returns 0 if genotype is not in Genotypes and position+1 otherwise
 int findPositionInGenotypes(const std::vector<Genotype>& Genotypes,
-	const std::vector<int> genotype){
+                            const std::vector<int> genotype){
 
-		int index;
+	int index;
 
-		std::vector<std::vector<int> > flGenesInGenotypes;
+	std::vector< std::vector<int> > flGenesInGenotypes;
+	
+	//std::cout << "###" << std::endl;
+	//std::cout << "Genotypes size: " << Genotypes.size() << std::endl;
+	
 	for(size_t i = 0; i < Genotypes.size(); i++){
 		flGenesInGenotypes.push_back(Genotypes[i].flGenes);
 	}
+	
+	//std::cout << "FlGenotypes size: " << flGenesInGenotypes.size() << std::endl;
+	
+	/*
+	for(int row=0; row<flGenesInGenotypes.size(); row++){
+	  for(int col=0; col<flGenesInGenotypes[row].size(); col++){
+	    std::cout << "flGenesVector: " << flGenesInGenotypes[row][col] << std::flush;
+	  }
+	}*/
+	
+	/*
+	for(auto i : flGenesInGenotypes){
+	  for(auto j : i){
+	    std::cout << j << " ";
+	   std::cout << "\n";
+	  }
+	}*/
 
 	int pos = std::find(flGenesInGenotypes.begin(),
 	  flGenesInGenotypes.end(), genotype) - flGenesInGenotypes.begin();
+	
+	//std::cout << "position: " << pos << std::endl;
 
 	int size = flGenesInGenotypes.size();
+	
+	//std::cout << "flGenes size: " << size << std::endl;
 
 	if(pos < size)
 		index = pos + 1;
 	else
 		index = 0;
+	
+	//std::cout << "index: " << index << std::endl;
 
   return index;
 }
@@ -1347,26 +1378,59 @@ evalFVars_struct evalFVars(const fitnessEffectsAll& F,
   
   evalFVars_struct efvs;
   std::map<std::string, std::string> fvarsmap = F.fitnessLandscape.flfVarsmap;
+  /*
+  for(auto const& x : fvarsmap){
+    std::cout << x.first << ":" << x.second << std::endl;
+  }*/
   std::string freqType = F.frequencyType;
   
   for(const auto& iterator : fvarsmap) {
+    
     std::vector<int> genotype = stringVectorToIntVector(iterator.first);//genotype (as int vector)
+    
+    /*
+    for(int x : genotype){
+      std::cout << "genotype: " << x << std::endl;
+    }*/
+    
     std::string var = iterator.second;//variable associated to genotype
+    //std::cout << "fvars-var: " << var << std::endl;
     int position = findPositionInGenotypes(Genotypes, genotype);
+    //std::cout << "***" << std::endl;
+    //std::cout << "position: " << position << std::endl;
+    
+    //std::cout << "fvarsmap" << std::endl;
+    //std::cout << "first iterator: " << iterator.first << std::endl;
+    //std::cout << "second iterator: " << iterator.second << std::endl;
+    
     if(position != 0){
       int realPos = position - 1;
+      //std::cout << "realPos: " << realPos << std::endl;
+      
       if(freqType == "abs"){
-	double freqAbs = popParams[realPos].popSize;
-	efvs.evalFVarsmap.insert({var, freqAbs});
+        double freqAbs = popParams[realPos].popSize;
+        //std::cout << "freqAbs-popSize: " << freqAbs << std::endl;
+        efvs.evalFVarsmap.insert({var, freqAbs});
+        /*
+        for(auto const& x : efvs.evalFVarsmap){
+          std::cout << x.first << ":" << x.second << std::endl;
+        }*/
       } else {
-	double freqRel = frequency(realPos, popParams);
-	efvs.evalFVarsmap.insert({var, freqRel});
+        double freqRel = frequency(realPos, popParams);
+        //std::cout << "freqRel-popSize: " << freqRel << std::endl;
+        efvs.evalFVarsmap.insert({var, freqRel});
+        /*
+        for(auto const& x : efvs.evalFVarsmap){
+          std::cout << x.first << ":" << x.second << std::endl;
+        }*/
       }
+      
     } else {
       double freq = 0.0;
       efvs.evalFVarsmap.insert({var, freq});
     }
   }
+  
   return efvs;
 }
 
@@ -1375,6 +1439,7 @@ double totalPop(const std::vector<spParamsP>& popParams){
 	for(size_t i = 0; i < popParams.size(); i++){
       sum += popParams[i].popSize;
   }
+	
 	return sum;
 }
 
@@ -1390,13 +1455,23 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   
   std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
   
+  /*
+  for(const auto& iterator : EFVMap){
+    std::cout << "EFVMap" << std::endl;
+    std::cout << "first iterator: " << iterator.first << std::endl;
+    std::cout << "second iterator: " << iterator.second << std::endl;
+  }*/
+  
   std::string gs = concatIntsString(ge.flGenes);
+  //std::cout << "string gs: " << gs << std::endl;
   
   std::string expr_string = F.fitnessLandscape.flFDFmap.at(gs);
+  //std::cout << "expr string: " << expr_string << std::endl;
   
   double N = totalPop(popParams);
   
   double T = currentTime;
+  //std::cout << "currentTime: " << currentTime;
   
   /*
   if (T == std::numeric_limits<double>::infinity() 
@@ -1411,10 +1486,12 @@ double evalGenotypeFDFitnessEcuation(const Genotype& ge,
   typedef exprtk::parser<double> parser_t;
   
   symbol_table_t symbol_table;
+  
   for(auto& iterator : EFVMap){
     symbol_table.add_variable(iterator.first, iterator.second);
   }
-  symbol_table.add_constant("N", N);//We reserve N to total population size
+  
+  symbol_table.add_constant("N", N); //We reserve N to total population size
   symbol_table.add_constant("T", T); //Pass current time to exprtk
   symbol_table.add_constants();
   
@@ -1765,12 +1842,129 @@ Rcpp::NumericVector evalRGenotypeAndMut(Rcpp::IntegerVector rG,
   // Genotype fullge = convertGenotypeFromR(rG, F);
 
   const std::vector<int> full2mutator = Rcpp::as<std::vector<int> >(full2mutator_);
-  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, verbose, currentTime);
+  out[1] = evalMutator(g, full2mutator, muef, Genotypes, popParams, currentTime);
 
   return out;
 }
 
-double mutationFromScratch(const std::vector<double>& mu,
+std::map<std::string, double> getEFVMap(const fitnessEffectsAll& F,
+                                        const std::vector<Genotype>& Genotypes,
+                                        const std::vector<spParamsP>& popParams){
+  
+  //This is a function to pass the EFVMap to "bnb_common.cpp" because I need
+  //the functions linked to this one in order to sample or updating when 
+  //rel or abs vars are passed from OncoSimulIndiv
+  
+  evalFVars_struct symbol_table_struct = evalFVars(F, Genotypes, popParams);
+  
+  std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
+  
+  return EFVMap;
+  
+}
+
+double evalMutationRateEcuation(const fitnessEffectsAll& fe,
+                                const std::vector<Genotype>& Genotypes,
+                                const std::vector<spParamsP>& popParams,
+                                const double& currentTime,
+                                const std::string& muFactor){
+  
+  
+  //This function returns the expression value of the mu expression passed from R
+  //That expression is parsed here with exprtk library.
+  //This one differs from "evalGenotypeFDFitnessEcuation" when it adds the EFVMAp elements
+  //as constants because these ones are useful in case of we pass a mu expression in which
+  //these elements have to be parsed in exprtk and compared with a referencevalue in 
+  //mu expression and if this is satisfied then we sample and update the simulation values
+  
+  double m;
+  
+  evalFVars_struct symbol_table_struct = evalFVars(fe, Genotypes, popParams);
+  
+  std::map<std::string, double> EFVMap = symbol_table_struct.evalFVarsmap;
+  
+  std::string expr_string = muFactor; //exprt expression
+  
+  /*
+  for(const auto& iterator : EFVMap){
+    std::cout << "EFVMap ";
+    std::cout << "first iterator: " << iterator.first << " ";
+    std::cout << "second iterator: " << iterator.second << std::endl;
+  }*/
+  
+  double T = currentTime; //to have access to currentTime
+  //std::cout << "currentTime: " << T;
+  double N = totalPop(popParams); //to have access to totPopSize
+  //std::cout << "totpopsize: " << N;
+  
+  //This function is needed to find rel or abs vars depending on the type of
+  //mu expression we pass from R with OncoSimulIndiv
+  
+  typedef exprtk::symbol_table<double> symbol_table_t;
+  typedef exprtk::expression<double> expression_t;
+  typedef exprtk::parser<double> parser_t;
+  
+  symbol_table_t symbol_table;
+  
+  for(auto& it : EFVMap){
+    symbol_table.add_constant(it.first, it.second); //Pass fvars: rel/abs to exprk
+  }
+  
+  symbol_table.add_constant("T", T); //Pass current time to exprtk
+  symbol_table.add_constant("N", N); //Pass totPopSize
+  symbol_table.add_constants();
+  
+  expression_t expression;
+  expression.register_symbol_table(symbol_table);
+  
+  parser_t parser;
+  
+  if (!parser.compile(expr_string, expression)){
+    
+    Rcpp::Rcout << "\nexprtk parser error: \n" << std::endl;
+    for (std::size_t i = 0; i < parser.error_count(); ++i){
+      typedef exprtk::parser_error::type error_t;
+      error_t error = parser.get_error(i);
+      REprintf("Error[%02zu] Position: %02zu Type: [%14s] Msg: %s Expression: %s\n",
+               i,
+               error.token.position,
+               exprtk::parser_error::to_str(error.mode).c_str(),
+               error.diagnostic.c_str(),
+               expr_string.c_str());
+    }
+    
+    std::string errorMessage1 = "Wrong evalMutationRateEcuation evaluation, ";
+    std::string errorMessage2 = "probably bad mutationRate especification.";
+    std::string errorMessage = errorMessage1 + errorMessage2;
+    throw std::invalid_argument(errorMessage);
+  }
+  
+  m = expression.value();
+  //std::cout << "expression value: " << m << std::endl;
+  
+  return m;
+  
+}
+
+double muProd(const fitnessEffectsAll& fe,
+              const std::vector<Genotype>& Genotypes,
+              const std::vector<spParamsP>& popParams,
+              const double& currentTime,
+              const std::string& muFactor){
+  
+  double mult;
+  
+  if(fe.frequencyDependentFitness){
+    mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
+  } else {
+    mult = evalMutationRateEcuation(fe, Genotypes, popParams, currentTime, muFactor);
+  }
+  
+  return mult;
+}
+
+double mutationFromScratch(std::vector<double>& mu,
+         //std::vector<double>& muToCheck,
 			   const spParamsP& spP,
 			   const Genotype& g,
 			   const fitnessEffectsAll& fe,
@@ -1779,11 +1973,14 @@ double mutationFromScratch(const std::vector<double>& mu,
 			   const fitnessEffectsAll& muEF,
 				 const std::vector<Genotype>& Genotypes,
 	 			 const std::vector<spParamsP>& popParams,
-	 			 const double& currentTime) {
+	 			 const double& currentTime,
+	 			 const std::string& muFactor) {
 
   double mumult;
+  
   if(full2mutator.size() > 0) { // so there are mutator effects
     mumult = evalMutator(g, full2mutator, muEF, Genotypes, popParams, currentTime);
+    //std::cout << "mumult from evalMutator: " << mumult << std::endl;
   } else mumult = 1.0;
   //FIXME: here the code for altering mutation rate
   // with a procedure like ExprTk for fitness??
@@ -1791,11 +1988,27 @@ double mutationFromScratch(const std::vector<double>& mu,
   // where the updateRatesFDF... are called.
   // In BNB_nr.cpp, in nr_innerBNB function
   // when we are sampling.
+  
   if(mu.size() == 1) {
-    if(mutationPropGrowth)
+    if(mutationPropGrowth){
+      //std::cout << "BNB NEW_RESTRICT MPG +" << " | ";
+      //std::cout << "currentTime: " << currentTime << " | ";
+      //std::cout << "mumult: " << mumult << " | ";
+      //std::cout << "mu value: " << mu[0] << " | ";
+      //std::cout << "NMP: " << spP.numMutablePos << " | ";
+      //std::cout << "birth: " << spP.birth << std::endl;
       return(mumult * mu[0] * spP.numMutablePos * spP.birth);
-    else
+      
+    } else {
+      //std::cout << "BNB NEW_RESTRICT MPG -" << " | ";
+      //std::cout << "currentTime: " << currentTime << " | ";
+      //std::cout << "mumult: " << mumult << " | ";
+      //std::cout << "mu value: " << mu[0] << " | ";
+      //std::cout << "NMP: " << spP.numMutablePos << " | ";
+      //std::cout << "birth: " << spP.birth << std::endl;
       return(mumult * mu[0] * spP.numMutablePos);
+    }
+    
   } else {
     std::vector<int> sortedG = allGenesinGenotype(g);
     std::vector<int> nonmutated;
@@ -1813,6 +2026,17 @@ double mutationFromScratch(const std::vector<double>& mu,
     }
     if(mutationPropGrowth)
       mutrate *= spP.birth;
+    
+    //std::cout << "BNB NEW_RESTRICT mu.size > 1" << " | ";
+    //std::cout << "currentTime: " << currentTime << " | ";
+    //std::cout << "NMP: " << spP.numMutablePos << " | ";
+    //std::cout << "birth: " << spP.birth << std::endl;
+    
+    /*
+    for(int i=0; i<mu.size(); i++){
+      std::cout << "mu value: " << mu[i] << std::endl;
+    }*/
+    
     return(mumult * mutrate);
   }
 }

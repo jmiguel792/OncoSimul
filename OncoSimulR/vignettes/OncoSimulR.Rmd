@@ -11505,7 +11505,7 @@ the following people from the master's in Bioinformatics and Computational Biolo
 Niklas Endres, Rafael Barrero Rodríguez, Rosalía Palomino Cabrera and Silvia Talavera Marcos.
 
 This first example is an artificial simulation, but it shows how the fitness of a genotype can
-suddenly increase at a certain given timepoint.
+suddenly increase at a certain timepoint.
 
 
 ```{r timefdf1}
@@ -11996,7 +11996,7 @@ or slow down the collapse of a subpopulation of cells.
 
 It is possible to increase the fitness value by using T functionality. In the following
 example we can see how fitness value in genotypes A and B increases when the simulation
-time reaches a specific value. Since we have used the exponential model, that's the 
+time reaches a specific value. Since we have used the exponential model, that is the 
 reason why we observe some delay between the specified time and when A or B 
 populations start to grow.
 
@@ -12027,9 +12027,9 @@ We can check if the fitness values have increased by evaluating the genotypes
 in the simulation time intervals.
 
 ```{r exTimeInc1}
-evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 49)
-evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 51)
-evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 201)
+evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 49)[c(2,3), ]
+evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 51)[c(2,3), ]
+evalAllGenotypes(afeT1, spPopSizes = c(10,10,10), currentTime = 201)[c(2,3), ]
 ```
 
 
@@ -12074,10 +12074,10 @@ In this case, just like above, we can evaluate the fitness in each time interval
 how fitness is differente in each one of them.
 
 ```{r examplesTDec1}
-evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 49)
-evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 51)
-evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 201)
-evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 301)
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 49)[c(2,3), ]
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 51)[c(2,3), ]
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 201)[c(2,3), ]
+evalAllGenotypes(afeT2, spPopSizes = c(10,10,10), currentTime = 301)[c(2,3), ]
 ```
 
 
@@ -12126,6 +12126,286 @@ evalAllGenotypes(afeT3, spPopSizes = c(10,10,10), currentTime = 30)[c(2,3), ]
 evalAllGenotypes(afeT3, spPopSizes = c(11,11,11), currentTime = 79)[c(2,3), ]
 evalAllGenotypes(afeT3, spPopSizes = c(11,11,11), currentTime = 81)[c(2,3), ]
 ```
+
+
+## Examples using mutation rate functionality {#exMutRate}
+
+Similarly as for fitness we can pass a expression to change the mutation rate. For this,
+we use an argument in oncoSimul simulation functions called muFactor. This expression is, 
+of course, a string and we can use it for a frequency-dependent fitness situation or not. 
+So, in order to show some examples of this functionality, we will use both ways of specifying
+the fitness effects.
+
+### Modifying mutation rate using McFL model without FDF {#exMutRate1}
+
+For this functionality, as for the fitness, we can use different variables like the current time
+of the simulation or the total population size (T, N, respectively), besides the capabilities that
+exprtk contains since it is a c++ mathematical expression library.
+
+This example has already been used in the vignette as a model where we specify restrictions in the
+order of accumulations of mutations using a DAG with pancreatic cancer poset. First, we show the
+resulting plot without any modifications in mutation rate and in the second one, we specify a mutation
+rate expression to change the mutation rate only when some conditions are accomplished. Actually, what 
+will happen is that when N is greater than 1000 number of cells, the mutation rate will be  multiplied 
+by a number resulting from the expression: (1/sqrt(T))*100. When this is not true, then the mutation
+rate do not change.
+
+
+```{r examplesMutRateNoFDF}
+pancr <- allFitnessEffects(
+    data.frame(parent = c("Root", rep("KRAS", 4), 
+                   "SMAD4", "CDNK2A", 
+                   "TP53", "TP53", "MLL3"),
+               child = c("KRAS","SMAD4", "CDNK2A", 
+                   "TP53", "MLL3",
+                   rep("PXDN", 3), rep("TGFBR2", 2)),
+               s = 0.1,
+               sh = -0.9,
+               typeDep = "MN"),
+    drvNames = c("KRAS", "SMAD4", "CDNK2A", "TP53", 
+                 "MLL3", "TGFBR2", "PXDN"))
+
+plot(pancr)
+
+set.seed(4) #For reproducibility
+epm1 <- oncoSimulIndiv(pancr, model = "McFL",
+                      mu = 1e-6,
+                      muFactor = "None",
+                      sampleEvery = 0.02,
+                      keepEvery = 1,
+                      initSize = 1000,
+                      finalTime = 5000,
+                      onlyCancer = FALSE)
+
+par(cex = 0.7)
+plot(epm1, show = "genotypes", xlim = c(0, 4000), 
+     ylim = c(0, 1500),
+     thinData = TRUE, thinData.keep = 0.03)
+
+set.seed(4)
+muExpr <- "if(N>500) (1/sqrt(T)); else 1;"
+epm2 <- oncoSimulIndiv(pancr, model = "McFL",
+                      mu = 1e-6,
+                      muFactor = muExpr,
+                      sampleEvery = 0.02,
+                      keepEvery = 1,
+                      initSize = 1000,
+                      finalTime = 5000,
+                      onlyCancer = FALSE)
+
+par(cex = 0.7)
+plot(epm2, show = "genotypes", xlim = c(0, 1880), 
+     ylim = c(0, 2400),
+     thinData = TRUE, thinData.keep = 0.03)
+
+summary(epm1)
+summary(epm2)
+```
+
+
+What we can see is that there are more genotypes when a mutation rate expression is applied, 
+as we have done for the second plot, and we observe that the number of clones is greater 
+in this one compared to the first plot. This event can be explained because we have changed the
+mutation rate as a therapeutic intervention, where the condition to change the mutation rate was
+that the total population size (N) was greater than 500. 
+
+
+### Modifying mutation rate using exponential model without FDF {#exMutRate2}
+
+We will use the same pancreatic cancer poset as previous example, but now applying a exponential
+growth model instead of McFL. In this example, we will use different exprtk expressions in order to
+decrease the mutation rate unlike the previous example.
+
+```{r examplesMutRateNoFDF2}
+pancr <- allFitnessEffects(
+    data.frame(parent = c("Root", rep("KRAS", 4), 
+                   "SMAD4", "CDNK2A", 
+                   "TP53", "TP53", "MLL3"),
+               child = c("KRAS","SMAD4", "CDNK2A", 
+                   "TP53", "MLL3",
+                   rep("PXDN", 3), rep("TGFBR2", 2)),
+               s = 0.1,
+               sh = -0.9,
+               typeDep = "MN"),
+    drvNames = c("KRAS", "SMAD4", "CDNK2A", "TP53", 
+                 "MLL3", "TGFBR2", "PXDN"))
+
+set.seed(1)
+pancrExp1 <- oncoSimulIndiv(pancr, model = "Exp")
+plot(pancrExp1)
+
+set.seed(1)
+muExpr1 <- "if(T>200) 1/log(T); else 1;" #Decreasing mutation rate
+pancrExp2 <- oncoSimulIndiv(pancr, model = "Exp", muFactor = muExpr1)
+plot(pancrExp2)
+
+summary(pancrExp1)
+summary(pancrExp2)
+```
+
+
+As we can observe, when we decrease the mutation rate during the simulation, the number
+of clones decreases significantly. However, the total population size is quite similar
+to the first plot where we did not introduce any mutation rate expression through exprtk.
+Thus, we obtain similar N but with less genotypes because the mutation rate has decreased.
+
+
+### Examples using frequency dependent fitness {#exMutRateFDF}
+
+In this chapter, we will use the mutation rate functionality in a frequency dependent fitness
+situation. We will show two examples in which we change the mutation rate by evaluating the
+relative or absolute frequencies that define the fitness.
+
+In this first example, we plot three different situations. The first plot does not have a
+mutation rate expression, in the second one we change it after a certain timepoint and
+finally we change the mutation rate by evaluating the values of relative variables in the third plot.
+
+```{r exMutRateFDF1}
+fl <- data.frame(
+  Genotype = c("WT", "A", "B"),
+  Fitness = c("1 + f_1*f_2",
+              "1 + 1.5*f_*f_2",
+              "1 + 1.5*f_*f_1"),
+  stringsAsFactors = FALSE
+)
+
+fe <- allFitnessEffects(genotFitness = fl, 
+                        frequencyDependentFitness = TRUE)
+
+set.seed(2)
+sim1 <- oncoSimulIndiv(fe,
+                      model = "McFL",
+                      onlyCancer = FALSE, 
+                      finalTime = 500,
+                      mu = 1e-6,
+                      muFactor = "None",
+                      initSize = 5000, 
+                      keepPhylog = FALSE,
+                      seed = NULL, 
+                      errorHitMaxTries = FALSE, 
+                      errorHitWallTime = FALSE)
+
+plot(sim1, show = "genotypes")
+
+set.seed(2)
+muExpr1 <- "if(T>200) 10000; else 1;" #increase mutation rate after 200 units of time
+sim2 <- oncoSimulIndiv(fe,
+                      model = "McFL", 
+                      onlyCancer = FALSE, 
+                      finalTime = 500,
+                      mu = 1e-6,
+                      muFactor = muExpr1,
+                      initSize = 5000, 
+                      keepPhylog = FALSE,
+                      seed = NULL, 
+                      errorHitMaxTries = FALSE, 
+                      errorHitWallTime = FALSE)
+
+plot(sim2, show = "genotypes")
+
+#increase mutation rate using relative variables
+muExpr2 <- "if(f_>0.2 or f_1>0.2 or f_2>0.2) 100; else 1;" 
+sim3 <- oncoSimulIndiv(fe,
+                      model = "McFL",
+                      onlyCancer = FALSE, 
+                      finalTime = 500,
+                      mu = 1e-6,
+                      muFactor = muExpr2,
+                      initSize = 5000, 
+                      keepPhylog = FALSE,
+                      seed = NULL, 
+                      errorHitMaxTries = FALSE, 
+                      errorHitWallTime = FALSE)
+
+plot(sim3, show = "genotypes")
+```
+
+
+If we access to the oncoSimul object returned after the simulation, we can observe
+that in the second and third plots the total population size of each genotype changes, 
+and the populations of A and B genotypes increase significantly, while the WT population
+(as expected) is reduced when the mutation rate increases.
+
+
+```{r exMutRateFDF2}
+sim1$TotalPopSize #N for sim1
+sim2$TotalPopSize #N for sim2
+sim3$TotalPopSize #N for sim3
+sim1$pops.by.time[nrow(sim1$pops.by.time), ] #last pops for sim1
+sim2$pops.by.time[nrow(sim2$pops.by.time), ] #last pops for sim2
+sim3$pops.by.time[nrow(sim3$pops.by.time), ] #last pops for sim3
+```
+
+
+In the second example, we plot again three situations in which we apply different mutation rate
+expressions, to show how efficient is the expresivity of exprtk library. As this is an example where
+the fitness is defined by absolute frequencies, we can change the mutation rate using the current time (T), the total population size (N), the absolute frequencies of each genotype (n_, n_1, n_2 ...), 
+besides the complete functionality of exprtk.
+
+
+```{r exMutRateFDF3}
+rar3 <- data.frame(Genotype = c("WT", "A", "B", "C"), 
+                   Fitness = c("1",
+                               "1.1 + .3*(n_2/N)",
+                               "1.2 + .4*(n_1/N)",
+                               "1.0 + .5 * ( n_1 > 20)"),
+                   stringsAsFactors = FALSE)
+
+afear3 <- allFitnessEffects(genotFitness = rar3, 
+                            frequencyDependentFitness = TRUE)
+
+set.seed(1)
+tmp1 <- oncoSimulIndiv(afear3, 
+                       model = "McFL", 
+                       onlyCancer = FALSE, 
+                       finalTime = 100,
+                       mu = 1e-4,
+                       muFactor = "None",
+                       initSize = 5000, 
+                       keepPhylog = FALSE,
+                       seed = NULL, 
+                       errorHitMaxTries = FALSE, 
+                       errorHitWallTime = FALSE)
+
+plot(tmp1, show = "genotypes")
+
+set.seed(1)
+muExp1 <- "if(n_1>20) sqrt(T)*100; else if(N>5500) 0.2*N; else 1;"
+tmp2 <- oncoSimulIndiv(afear3, 
+                       model = "McFL", 
+                       onlyCancer = FALSE, 
+                       finalTime = 100,
+                       mu = 1e-4,
+                       muFactor = muExp1,
+                       initSize = 5000, 
+                       keepPhylog = FALSE,
+                       seed = NULL, 
+                       errorHitMaxTries = FALSE, 
+                       errorHitWallTime = FALSE)
+
+plot(tmp2, show = "genotypes")
+
+set.seed(1)
+muExp2 <- "if(n_2 > 10) 0.3; else if(n_2 > 100) 0.7; else 1;"
+tmp3 <- oncoSimulIndiv(afear3, 
+                       model = "McFL", 
+                       onlyCancer = FALSE, 
+                       finalTime = 100,
+                       mu = 1e-4,
+                       muFactor = muExp2,
+                       initSize = 5000, 
+                       keepPhylog = FALSE,
+                       seed = NULL, 
+                       errorHitMaxTries = FALSE, 
+                       errorHitWallTime = FALSE)
+
+plot(tmp3, show = "genotypes")
+```
+
+
+We can see that each plot is completely different and, depending on the mutation rate expression
+applied, the genotypes change along the simulation, especially the C and B genotypes that considerably 
+change in the second and third plot respectively.
 
 
 \clearpage

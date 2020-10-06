@@ -63,6 +63,8 @@ double pM_f_st(const double& t,
     print_spP(spP);
     throw std::range_error("pM.f: pM <= 0.0");
   }
+  
+  //std::cout << "pM value: " << pM << std::endl;
   return pM;
 }
 
@@ -112,6 +114,11 @@ double ti_nextTime_tmax_2_st(const spParamsP& spP,
   // W < 0 is a signal that mutation is zero, and thus ti is Inf
   if(spP.mutation == 0) { //   spP.W <= -90.0) {
     ti = tSample + 2.0 * epsilon;
+    
+    //std::cout << "############current time: " << currentTime << " | ";
+    //std::cout << "tSample: " << tSample << " | ";
+    //std::cout << "ti when mutation = 0: " << ti << std::endl;
+    
     // yes, this is silly but to differentiate from
     // r < pM without further info
     // and to lead to finite value in loop for min.
@@ -358,6 +365,10 @@ double Algo2_st(const spParamsP& spP,
   double pm = pM_f_st(t, spP);
   double pe = pE_f_st(pm, spP);
   double pb = pB_f_st(pe, spP);
+  
+  //std::cout << "pm value: " << pm << " | ";
+  //std::cout << "pe value: " << pe << " | ";
+  //std::cout << "pb value: " << pb << std::endl;
 
   // if(spP.numMutablePos == 0) {
   //   // Just do the math. In this case mutation rate is 0. Thus, pM (eq. 8
@@ -1030,9 +1041,11 @@ void computeMcFarlandError_new(double& em1,
 
 
 void updateRatesMcFarlandLog(std::vector<spParamsP>& popParams,
-			     double& adjust_fitness_MF,
-			     const double& K,
-			     const double& totPopSize){
+                double& adjust_fitness_MF,
+                const double& K,
+                const double& totPopSize){
+  
+  //std::cout << "updateRatesMcFLLog" << std::endl;
 
   // from original log(1 + totPopSize/K)
   adjust_fitness_MF = log1p(totPopSize/K);
@@ -1043,6 +1056,20 @@ void updateRatesMcFarlandLog(std::vector<spParamsP>& popParams,
     popParams[i].death = adjust_fitness_MF;
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
+    
+    /*
+    std::cout << "updateRates" << " | ";
+    //std::cout << "currentTime: " << currentTime << " | ";
+    std::cout << "Genotype: " << i << " | ";
+    std::cout << "popSize: " << popParams[i].popSize << " | ";
+    std::cout << "numMutablePos: " << popParams[i].numMutablePos << " | ";
+    std::cout << "mutation: " << popParams[i].mutation << " | ";
+    std::cout << "birth: " << popParams[i].birth << " | ";
+    std::cout << "death: " << popParams[i].death << " | ";
+    std::cout << "W: " << popParams[i].W << " | ";
+    std::cout << "R: " << popParams[i].R << std::endl;
+     */
+    
   }
 }
 
@@ -1052,6 +1079,8 @@ void updateRatesMcFarlandLog_D(std::vector<spParamsP>& popParams,
 			     double& adjust_fitness_MF,
 			     const double& K,
 			     const double& totPopSize){
+  
+  //std::cout << "updateRatesMcFLLog_D" << std::endl;
 
   // from original log(1 + totPopSize/K)
   // adjust_fitness_MF = log1p(totPopSize/K);
@@ -1111,6 +1140,8 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
+  
+  //std::cout << "updateRatesFDFMcFLLog" << std::endl;
 
   adjust_fitness_MF = log1p(totPopSize/K);
   for(size_t i = 0; i < popParams.size(); ++i) {
@@ -1119,6 +1150,7 @@ void updateRatesFDFMcFarlandLog(std::vector<spParamsP>& popParams,
               fitnessEffects, Genotypes, lastPopParams, currentTime));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
+    
   }
 
 }
@@ -1134,6 +1166,8 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
+  
+  //std::cout << "updateRatesFDFMcFLLog_D" << std::endl;
 
   // adjust_fitness_MF = log1p(totPopSize/K);
   // Min death rate is 1.0
@@ -1144,10 +1178,10 @@ void updateRatesFDFMcFarlandLog_D(std::vector<spParamsP>& popParams,
               fitnessEffects, Genotypes, lastPopParams, currentTime));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
+    
   }
 
 }
-
 
 void updateRatesFDFExp(std::vector<spParamsP>& popParams,
   const std::vector<Genotype>& Genotypes,
@@ -1156,6 +1190,8 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
+  
+  //std::cout << "updateRatesFDFExp" << std::endl;
 
   for(size_t i = 0; i < popParams.size(); ++i) {
 
@@ -1163,6 +1199,7 @@ void updateRatesFDFExp(std::vector<spParamsP>& popParams,
                 fitnessEffects, Genotypes, lastPopParams, currentTime));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
+    
   }
 }
 
@@ -1173,14 +1210,101 @@ void updateRatesFDFBozic(std::vector<spParamsP>& popParams,
 
   const std::vector<spParamsP>& lastPopParams = popParams;
   //const std::vector<Genotype>& lastGenotypes = Genotypes;
+  
+  //std::cout << "updateRatesFDFMcFBozic" << std::endl;
 
   for(size_t i = 0; i < popParams.size(); ++i) {
     popParams[i].death =  prodDeathFitness(evalGenotypeFitness(Genotypes[i],
       fitnessEffects, Genotypes, lastPopParams, currentTime));
     W_f_st(popParams[i]);
     R_f_st(popParams[i]);
+
   }
 
+}
+
+void updateMutationRate(std::vector<double>& mu,
+                        std::vector<double>& muToCheck,
+                        const fitnessEffectsAll& fe,
+                        const std::vector<Genotype>& Genotypes,
+                        std::vector<spParamsP>& popParams,
+                        const double& currentTime,
+                        const std::string& muFactor){
+  
+  const std::vector<spParamsP>& lastPopParams = popParams;
+  
+  double newmu;
+  double mult = muProd(fe, Genotypes, popParams, currentTime, muFactor);
+  
+  if(mult != 1.0){ //this step is needed to avoid else 1 when exprtk is used
+    
+    if(mu.size() == 1){ //check if mu.size() is one
+      muToCheck.push_back(mult);
+      //std::cout << "mu size is 1" << std::endl;
+      
+      if(muToCheck.size() == 1){ //this is used to run the code block once
+        for(size_t i=0; i<popParams.size(); i++){
+          if(popParams[i].numMutablePos != 0){
+            popParams[i].mutation *= mult;
+            
+            /*
+            std::cout << "**********" << std::endl;
+            std::cout << "UPDATE MUTATION" << " | ";
+            std::cout << "currentTime: " << currentTime << " | ";
+            std::cout << "genotype: " << i << " | ";
+            std::cout << "popsize: " << popParams[i].popSize << " | ";
+            std::cout << "NMP: " << popParams[i].numMutablePos << " | ";
+            std::cout << "mutation updated: " << popParams[i].mutation << std::endl;
+             */
+          }
+        }
+        
+        newmu = mu[0]*mult;
+        mu.clear();
+        mu.push_back(newmu);
+        
+        //std::cout << "MU UPDATED: " << mu[0] << std::endl;
+        //std::cout << "**********" << std::endl;
+        
+      }
+      
+    } else if(mu.size() > 1){ //check if mu.size() is bigger than one
+      muToCheck.push_back(mult);
+      //std::cout << "mu size is > 1" << std::endl;
+      
+      if(muToCheck.size() == 1){ //this is used to run the code block once
+        for(size_t i=0; i<popParams.size(); i++){
+          if(popParams[i].numMutablePos != 0){
+            popParams[i].mutation *= mult;
+            
+            /*
+            std::cout << "**********" << std::endl;
+            std::cout << "UPDATE MUTATION" << " | ";
+            std::cout << "currentTime: " << currentTime << " | ";
+            std::cout << "genotype: " << i << " | ";
+            std::cout << "popsize: " << popParams[i].popSize << " | ";
+            std::cout << "NMP: " << popParams[i].numMutablePos << " | ";
+            std::cout << "mutation updated: " << popParams[i].mutation << std::endl;
+             */
+          }
+        }
+        
+        //transform the mu vector by multiplying all elements by scalar (mult)
+        std::transform(mu.begin(), mu.end(), mu.begin(), [&mult](const double&c){return c*mult;});
+        
+        /*
+        for(int i=0; i<mu.size(); i++){
+          std::cout << "mu value after updating: " << mu[i] << std::endl;
+        }*/
+        
+      }
+      
+    } else { //this should never happens -> mu cannot be empty
+      throw std::invalid_argument("mu.size() must be one or bigger");
+    }
+    
+  }
+  
 }
 
 
